@@ -12,6 +12,8 @@ import {
   MenuItem,
   Avatar,
   Chip,
+  Alert,
+  Snackbar,
 } from '@mui/material';
 import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
@@ -21,6 +23,18 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useSearch } from '../../context/SearchContext';
 import { useCart } from '../../context/CartContext';
+
+// Define window.ethereum for TypeScript
+declare global {
+  interface Window {
+    ethereum?: {
+      isMetaMask?: boolean;
+      request: (args: { method: string; params?: any[] }) => Promise<any>;
+      on: (eventName: string, callback: (...args: any[]) => void) => void;
+      removeListener: (eventName: string, callback: (...args: any[]) => void) => void;
+    };
+  }
+}
 
 const Navbar = () => {
   const [inputValue, setInputValue] = useState('');
@@ -34,12 +48,91 @@ const Navbar = () => {
   const [walletAddress, setWalletAddress] = useState('');
   const [walletBalance, setWalletBalance] = useState('0');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [notification, setNotification] = useState<{
+    show: boolean;
+    message: string;
+    type: 'error' | 'info' | 'success' | 'warning';
+  }>({
+    show: false,
+    message: '',
+    type: 'info'
+  });
+  
+  // Check if MetaMask is installed
+  const isMetaMaskInstalled = () => {
+    return window.ethereum && window.ethereum.isMetaMask;
+  };
   
   // Format wallet address for display
   const formatAddress = (address: string) => {
     if (!address) return '';
     return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
   };
+  
+  // Format balance to 4 decimal places
+  const formatBalance = (balanceInWei: string) => {
+    // Convert wei to ETH (1 ETH = 10^18 wei)
+    const ethBalance = parseInt(balanceInWei, 16) / Math.pow(10, 18);
+    return ethBalance.toFixed(4);
+  };
+
+  // Handle account changes from MetaMask
+  const handleAccountsChanged = (accounts: string[]) => {
+    if (accounts.length === 0) {
+      // User has disconnected all accounts
+      setWalletConnected(false);
+      setWalletAddress('');
+      setWalletBalance('0');
+      setNotification({
+        show: true,
+        message: 'Wallet disconnected',
+        type: 'info'
+      });
+    } else {
+      // User has changed the active account
+      setWalletAddress(accounts[0]);
+      getBalance(accounts[0]);
+    }
+  };
+
+  // Handle chain changes from MetaMask
+  const handleChainChanged = () => {
+    // Recommended by MetaMask to refresh the page on chain change
+    window.location.reload();
+  };
+
+  // Check for existing connection on mount
+  useEffect(() => {
+    const checkConnection = async () => {
+      if (isMetaMaskInstalled()) {
+        try {
+          // Check if user is already connected
+          const accounts = await window.ethereum!.request({ method: 'eth_accounts' });
+          if (accounts && accounts.length > 0) {
+            setWalletConnected(true);
+            setWalletAddress(accounts[0]);
+            getBalance(accounts[0]);
+          }
+          
+          // Add event listeners
+          window.ethereum!.on('accountsChanged', handleAccountsChanged);
+          window.ethereum!.on('chainChanged', handleChainChanged);
+        } catch (error) {
+          console.error('Failed to connect to MetaMask:', error);
+        }
+      }
+    };
+    
+    checkConnection();
+    
+    // Cleanup event listeners
+    return () => {
+      if (window.ethereum && window.ethereum.removeListener) {
+        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+        window.ethereum.removeListener('chainChanged', handleChainChanged);
+      }
+    };
+  }, []);
 
   // Sync input value with URL search param when on marketplace
   useEffect(() => {
@@ -51,6 +144,27 @@ const Navbar = () => {
       setInputValue('');
     }
   }, [location]);
+  
+  // Get ETH balance for the account
+  const getBalance = async (account: string) => {
+    if (!account || !isMetaMaskInstalled()) return;
+    
+    try {
+      const balance = await window.ethereum!.request({
+        method: 'eth_getBalance',
+        params: [account, 'latest']
+      });
+      
+      setWalletBalance(formatBalance(balance));
+    } catch (error) {
+      console.error('Error getting balance:', error);
+      setNotification({
+        show: true,
+        message: 'Failed to get wallet balance',
+        type: 'error'
+      });
+    }
+  };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = event.target.value;
@@ -86,22 +200,68 @@ const Navbar = () => {
     navigate('/cart');
   };
   
-  const handleConnectWallet = () => {
-    // Simulate wallet connection
-    setWalletConnected(true);
-    // Generate random wallet address for demo
-    const randomAddress = '0x' + Array.from({length: 40}, () => Math.floor(Math.random() * 16).toString(16)).join('');
-    setWalletAddress(randomAddress);
-    // Set random ETH balance for demo
-    const randomBalance = (Math.random() * 10).toFixed(4);
-    setWalletBalance(randomBalance);
+  const handleConnectWallet = async () => {
+    if (!isMetaMaskInstalled()) {
+      setNotification({
+        show: true,
+        message: 'Please install MetaMask extension to connect a wallet',
+        type: 'warning'
+      });
+      window.open('https://metamask.io/download/', '_blank');
+      return;
+    }
+    
+    try {
+      // Request access to the user's accounts
+      const accounts = await window.ethereum!.request({ 
+        method: 'eth_requestAccounts' 
+      });
+      
+      if (accounts.length > 0) {
+        const account = accounts[0];
+        setWalletAddress(account);
+        setWalletConnected(true);
+        getBalance(account);
+        
+        setNotification({
+          show: true,
+          message: 'Wallet connected successfully',
+          type: 'success'
+        });
+      }
+    } catch (error: any) {
+      console.error('Error connecting to MetaMask:', error);
+      
+      // Handle user rejected request
+      if (error.code === 4001) {
+        setNotification({
+          show: true,
+          message: 'Connection request rejected by user',
+          type: 'info'
+        });
+      } else {
+        setNotification({
+          show: true,
+          message: 'Failed to connect wallet: ' + (error.message || 'Unknown error'),
+          type: 'error'
+        });
+      }
+    }
   };
   
   const handleDisconnectWallet = () => {
+    // MetaMask doesn't support programmatic disconnection via API
+    // We can only reset our app's state to simulate disconnection
     setWalletConnected(false);
     setWalletAddress('');
     setWalletBalance('0');
     setAnchorEl(null);
+    
+    setNotification({
+      show: true,
+      message: 'Wallet disconnected from application',
+      type: 'info'
+    });
   };
   
   const handleWalletClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -114,6 +274,20 @@ const Navbar = () => {
   
   const handleCloseMenu = () => {
     setAnchorEl(null);
+  };
+  
+  const copyAddressToClipboard = () => {
+    navigator.clipboard.writeText(walletAddress);
+    setNotification({
+      show: true,
+      message: 'Address copied to clipboard',
+      type: 'success'
+    });
+    handleCloseMenu();
+  };
+  
+  const handleCloseNotification = () => {
+    setNotification(prev => ({ ...prev, show: false }));
   };
 
   return (
@@ -135,7 +309,7 @@ const Navbar = () => {
             fontWeight: 'bold'
           }}
         >
-          NFT Marketplace
+          TruePass
         </Typography>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -255,7 +429,7 @@ const Navbar = () => {
             <>
               <Chip
                 onClick={handleWalletClick}
-                avatar={<Avatar sx={{ bgcolor: '#3f51b5' }}><AccountBalanceWalletIcon /></Avatar>}
+                avatar={<Avatar sx={{ bgcolor: '#ff9800' }}><AccountBalanceWalletIcon /></Avatar>}
                 label={
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <Typography variant="body2" sx={{ mr: 1 }}>
@@ -296,7 +470,13 @@ const Navbar = () => {
                   <Typography variant="caption" sx={{ opacity: 0.7 }}>Balance</Typography>
                   <Typography variant="body2">{walletBalance} ETH</Typography>
                 </Box>
-                <MenuItem onClick={handleDisconnectWallet} sx={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', mt: 1 }}>
+                <MenuItem 
+                  onClick={copyAddressToClipboard} 
+                  sx={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', mt: 1 }}
+                >
+                  Copy Address
+                </MenuItem>
+                <MenuItem onClick={handleDisconnectWallet}>
                   Disconnect
                 </MenuItem>
               </Menu>
@@ -307,20 +487,37 @@ const Navbar = () => {
               startIcon={<AccountBalanceWalletIcon />}
               onClick={handleConnectWallet}
               sx={{
-                bgcolor: '#3f51b5',
+                bgcolor: '#ff9800',
                 color: 'white',
                 '&:hover': {
-                  bgcolor: '#303f9f',
+                  bgcolor: '#f57c00',
                 },
                 ml: 1,
                 borderRadius: 4
               }}
             >
-              Connect Wallet
+              Connect MetaMask
             </Button>
           )}
         </Box>
       </Toolbar>
+      
+      {/* Notifications */}
+      <Snackbar 
+        open={notification.show}
+        autoHideDuration={4000}
+        onClose={handleCloseNotification}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert 
+          onClose={handleCloseNotification} 
+          severity={notification.type} 
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {notification.message}
+        </Alert>
+      </Snackbar>
     </AppBar>
   );
 };

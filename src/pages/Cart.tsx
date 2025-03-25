@@ -14,10 +14,13 @@ import {
   Alert,
   Snackbar,
   Stack,
+  CircularProgress,
+  Link,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 
@@ -41,12 +44,47 @@ const initialCartItems = [
   },
 ];
 
+// Define window.ethereum for TypeScript
+declare global {
+  interface Window {
+    ethereum?: {
+      isMetaMask?: boolean;
+      request: (args: { method: string; params?: any[] }) => Promise<any>;
+      on: (eventName: string, callback: (...args: any[]) => void) => void;
+      removeListener: (eventName: string, callback: (...args: any[]) => void) => void;
+    };
+  }
+}
+
 const Cart = () => {
   const navigate = useNavigate();
   const { cartItems, removeFromCart, updateQuantity, clearCart } = useCart();
   const [promoCode, setPromoCode] = useState('');
   const [promoApplied, setPromoApplied] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [notification, setNotification] = useState<{
+    show: boolean;
+    message: string;
+    type: 'error' | 'info' | 'success' | 'warning';
+    txHash?: string;
+  }>({
+    show: false,
+    message: '',
+    type: 'info'
+  });
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [walletConnected, setWalletConnected] = useState(false);
+  const [walletAddress, setWalletAddress] = useState('');
+  
+  // Check if MetaMask is installed
+  const isMetaMaskInstalled = () => {
+    return window.ethereum && window.ethereum.isMetaMask;
+  };
+  
+  // Format address for display
+  const formatAddress = (address: string) => {
+    if (!address) return '';
+    return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
+  };
   
   const handleRemoveItem = (id: number) => {
     removeFromCart(id);
@@ -73,14 +111,128 @@ const Cart = () => {
     return promoApplied ? subtotal * 0.9 : subtotal;
   };
 
-  const handleCheckout = () => {
-    setShowSuccess(true);
-    // In a real app, this would process the payment
-    setTimeout(() => {
-      clearCart();
-      setPromoApplied(false);
-      setPromoCode('');
-    }, 2000);
+  const connectWallet = async () => {
+    if (!isMetaMaskInstalled()) {
+      setNotification({
+        show: true,
+        message: 'Please install MetaMask extension to connect a wallet',
+        type: 'warning'
+      });
+      window.open('https://metamask.io/download/', '_blank');
+      return;
+    }
+    
+    try {
+      // Request access to the user's accounts
+      const accounts = await window.ethereum!.request({ 
+        method: 'eth_requestAccounts' 
+      });
+      
+      if (accounts.length > 0) {
+        const account = accounts[0];
+        setWalletAddress(account);
+        setWalletConnected(true);
+        
+        setNotification({
+          show: true,
+          message: 'Wallet connected successfully',
+          type: 'success'
+        });
+      }
+    } catch (error: any) {
+      console.error('Error connecting to MetaMask:', error);
+      
+      // Handle user rejected request
+      if (error.code === 4001) {
+        setNotification({
+          show: true,
+          message: 'Connection request rejected by user',
+          type: 'info'
+        });
+      } else {
+        setNotification({
+          show: true,
+          message: 'Failed to connect wallet: ' + (error.message || 'Unknown error'),
+          type: 'error'
+        });
+      }
+    }
+  };
+
+  const handleCheckout = async () => {
+    if (!walletConnected) {
+      setNotification({
+        show: true,
+        message: 'Please connect your wallet first',
+        type: 'warning'
+      });
+      return;
+    }
+    
+    setIsProcessing(true);
+    
+    try {
+      // Calculate total in wei (1 ETH = 10^18 wei)
+      const totalEth = calculateTotal();
+      const totalWei = `0x${(totalEth * 1e18).toString(16)}`;
+      
+      // Simulate contract address where funds would be sent 
+      // In a real app, this would be your marketplace contract
+      const marketplaceAddress = '0x8c47863D1B967B24Ef0d3B108D3E806204D447DC';
+      
+      // Send transaction through MetaMask
+      const transactionHash = await window.ethereum!.request({
+        method: 'eth_sendTransaction',
+        params: [{
+          from: walletAddress,
+          to: marketplaceAddress,
+          value: totalWei,
+          gas: '0x5028', // Hexadecimal for ~20,000 gas
+          data: '0x', // Empty data field for simple ETH transfer
+        }],
+      });
+      
+      setNotification({
+        show: true,
+        message: 'Payment successful! Your NFTs will be transferred shortly.',
+        type: 'success',
+        txHash: transactionHash
+      });
+      
+      // Clear cart after successful transaction
+      setTimeout(() => {
+        clearCart();
+        setPromoApplied(false);
+        setPromoCode('');
+      }, 3000);
+    } catch (error: any) {
+      console.error('Transaction failed:', error);
+      
+      if (error.code === 4001) {
+        setNotification({
+          show: true,
+          message: 'Transaction rejected by user',
+          type: 'info'
+        });
+      } else {
+        setNotification({
+          show: true,
+          message: `Transaction failed: ${error.message || 'Unknown error'}`,
+          type: 'error'
+        });
+      }
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+  
+  const handleCloseNotification = () => {
+    setNotification(prev => ({ ...prev, show: false }));
+  };
+  
+  const getEtherscanLink = (txHash: string) => {
+    // Use Ethereum mainnet by default, but ideally would check current network
+    return `https://etherscan.io/tx/${txHash}`;
   };
 
   return (
@@ -106,8 +258,8 @@ const Cart = () => {
             variant="contained" 
             onClick={() => navigate('/marketplace')}
             sx={{ 
-              bgcolor: '#3f51b5',
-              '&:hover': { bgcolor: '#303f9f' }
+              bgcolor: '#ff9800',
+              '&:hover': { bgcolor: '#f57c00' }
             }}
           >
             Browse Marketplace
@@ -261,26 +413,60 @@ const Cart = () => {
                     Apply
                   </Button>
                 </Stack>
-                {promoApplied && (
-                  <Typography variant="caption" color="success.main" sx={{ mt: 1, display: 'block' }}>
-                    Promo code applied successfully!
+              </Box>
+              
+              {!walletConnected ? (
+                <Button
+                  fullWidth
+                  variant="contained"
+                  size="large"
+                  startIcon={<AccountBalanceWalletIcon />}
+                  onClick={connectWallet}
+                  sx={{
+                    bgcolor: '#ff9800',
+                    color: 'white',
+                    p: 1.5,
+                    '&:hover': {
+                      bgcolor: '#f57c00',
+                    },
+                  }}
+                >
+                  Connect MetaMask to Checkout
+                </Button>
+              ) : (
+                <Button
+                  fullWidth
+                  variant="contained"
+                  size="large"
+                  onClick={handleCheckout}
+                  disabled={isProcessing}
+                  sx={{
+                    bgcolor: '#4caf50',
+                    color: 'white',
+                    p: 1.5,
+                    '&:hover': {
+                      bgcolor: '#43a047',
+                    },
+                  }}
+                >
+                  {isProcessing ? (
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <CircularProgress size={24} color="inherit" sx={{ mr: 1 }} />
+                      Processing...
+                    </Box>
+                  ) : (
+                    `Pay ${calculateTotal().toFixed(6)} ETH with MetaMask`
+                  )}
+                </Button>
+              )}
+              
+              <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {walletConnected && (
+                  <Typography variant="body2" color="text.secondary">
+                    Connected: {formatAddress(walletAddress)}
                   </Typography>
                 )}
               </Box>
-              
-              <Button 
-                variant="contained" 
-                fullWidth
-                size="large"
-                onClick={handleCheckout}
-                sx={{ 
-                  bgcolor: '#3f51b5',
-                  '&:hover': { bgcolor: '#303f9f' },
-                  py: 1.5
-                }}
-              >
-                Checkout
-              </Button>
               
               <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: 'block', textAlign: 'center' }}>
                 By completing this purchase, you agree to our Terms of Service
@@ -291,13 +477,31 @@ const Cart = () => {
       )}
       
       <Snackbar 
-        open={showSuccess} 
-        autoHideDuration={3000} 
-        onClose={() => setShowSuccess(false)}
+        open={notification.show} 
+        autoHideDuration={6000} 
+        onClose={handleCloseNotification}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert severity="success" variant="filled">
-          Order placed successfully!
+        <Alert 
+          severity={notification.type} 
+          variant="filled"
+          onClose={handleCloseNotification}
+          sx={{ width: '100%' }}
+        >
+          {notification.message}
+          {notification.txHash && (
+            <Box sx={{ mt: 1 }}>
+              <Link 
+                href={getEtherscanLink(notification.txHash)} 
+                target="_blank"
+                rel="noopener"
+                color="inherit"
+                sx={{ textDecoration: 'underline' }}
+              >
+                View transaction on Etherscan
+              </Link>
+            </Box>
+          )}
         </Alert>
       </Snackbar>
     </Container>
