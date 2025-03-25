@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, CssBaseline, Box } from '@mui/material';
 import theme from './theme';
 import Navbar from './components/layout/Navbar';
@@ -12,6 +12,21 @@ import { SearchProvider } from './context/SearchContext';
 import { CartProvider } from './context/CartContext';
 
 function App() {
+  // Redirect first-time visitors to the landing page
+  useEffect(() => {
+    // Check if this is a first-time visit
+    const visited = localStorage.getItem('visited') === 'true';
+    
+    // Only redirect if this is the root path and not already visited
+    if (!visited && window.location.pathname === '/') {
+      console.log('Redirecting to landing page...');
+      // In development, redirect to the landing page
+      window.location.href = process.env.NODE_ENV === 'development' 
+        ? '/landing-page/index.html' 
+        : '/landing-page/';
+    }
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -30,6 +45,9 @@ function App() {
                   <Route path="/create-nft" element={<CreateNFT />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/cart" element={<Cart />} />
+                  
+                  {/* Redirect all other routes to the home page */}
+                  <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </Box>
             </Box>
