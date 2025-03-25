@@ -9,19 +9,25 @@ function loadSVG () {
 }
 loadSVG();
 
-// Setup navigation
+// Ensure navigation to React app works
 document.addEventListener('DOMContentLoaded', function() {
-    // Find the navigation link to the React app
-    const reactAppLinks = document.querySelectorAll('a[href="/"]');
+    // Get the button that navigates to the React app
+    const enterAppLink = document.getElementById('enter-app-link');
     
-    // Add click handler to all links pointing to React app
-    reactAppLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
+    // Add click handler to the button
+    if (enterAppLink) {
+        enterAppLink.addEventListener('click', function(e) {
+            e.preventDefault();
             // Set visited flag in localStorage
             localStorage.setItem('visited', 'true');
             console.log('Setting visited to true, navigating to React app');
+            
+            // Navigate to the React app
+            setTimeout(() => {
+                window.location.href = window.location.origin;
+            }, 100);
         });
-    });
+    }
 });
 
 function setAnimationScroll () {

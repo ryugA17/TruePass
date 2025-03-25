@@ -20,10 +20,8 @@ function App() {
     // Only redirect if this is the root path and not already visited
     if (!visited && window.location.pathname === '/') {
       console.log('Redirecting to landing page...');
-      // In development, redirect to the landing page
-      window.location.href = process.env.NODE_ENV === 'development' 
-        ? '/landing-page/index.html' 
-        : '/landing-page/';
+      // Redirect to landing page
+      window.location.replace('/landing-page/index.html');
     }
   }, []);
 

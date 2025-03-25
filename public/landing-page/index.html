@@ -10,13 +10,18 @@
     <script>
         // Force localStorage to be set when page loads
         document.addEventListener('DOMContentLoaded', function() {
-            // Add event listener to the link
-            const enterAppLink = document.querySelector('a[href="/"]');
+            // Make sure the enter-app-link properly navigates to React app
+            const enterAppLink = document.getElementById('enter-app-link');
             if (enterAppLink) {
                 enterAppLink.addEventListener('click', function(e) {
+                    e.preventDefault(); // Prevent default navigation
                     // Set visited flag
                     localStorage.setItem('visited', 'true');
                     console.log('Setting visited to true, navigating to app');
+                    // Navigate to the React app with a small delay to ensure localStorage is set
+                    setTimeout(() => {
+                        window.location.href = window.location.origin;
+                    }, 100);
                 });
             }
         });
@@ -64,10 +69,9 @@
             <div class="autoBLur">Fraud-Free</div>
             <div class="autoBLur">Seamless</div>
             <div class="autoBLur">
-                <a href="/" 
+                <a href="javascript:void(0);" 
                    id="enter-app-link"
-                   style="text-decoration: none; color: chocolate;" 
-                   onclick="localStorage.setItem('visited', 'true'); console.log('Setting visited to true');">
+                   style="text-decoration: none; color: chocolate; cursor: pointer;">
                    JOIN THE FUTURE&#8599;
                 </a>
             </div>
