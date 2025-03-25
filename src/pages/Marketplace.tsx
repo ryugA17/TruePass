@@ -19,6 +19,7 @@ import VerifiedIcon from '@mui/icons-material/Verified';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import { useCart } from '../context/CartContext';
+import { useNFTs } from '../context/NFTContext';
 
 // Use the same NFT data as Home page
 const allNFTs = [
@@ -159,6 +160,7 @@ const Marketplace = () => {
   const queryParams = new URLSearchParams(location.search);
   const searchQuery = queryParams.get('search') || '';
   const { addToCart } = useCart(); // Use the cart context
+  const { nfts: userCreatedNFTs } = useNFTs(); // Get user-created NFTs from context
   
   // States for each section
   const [hoveredNFTId, setHoveredNFTId] = useState<string | null>(null);
@@ -166,10 +168,12 @@ const Marketplace = () => {
   const [trendingStep, setTrendingStep] = useState(0);
   const [popularStep, setPopularStep] = useState(0);
   const [upcomingStep, setUpcomingStep] = useState(0);
+  const [userNFTsStep, setUserNFTsStep] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isTrendingAnimating, setIsTrendingAnimating] = useState(false);
   const [isPopularAnimating, setIsPopularAnimating] = useState(false);
   const [isUpcomingAnimating, setIsUpcomingAnimating] = useState(false);
+  const [isUserNFTsAnimating, setIsUserNFTsAnimating] = useState(false);
   const [showAddedToCart, setShowAddedToCart] = useState(false);
 
   // Reset pagination when search query changes
@@ -178,10 +182,11 @@ const Marketplace = () => {
     setTrendingStep(0);
     setPopularStep(0);
     setUpcomingStep(0);
+    setUserNFTsStep(0);
   }, [searchQuery]);
 
   // Filter NFTs based on search term
-  const filterNFTs = (nfts: typeof allNFTs) => {
+  const filterNFTs = (nfts: any[]) => {
     const searchLower = searchQuery.toLowerCase();
     return nfts.filter((nft) => (
       nft.title.toLowerCase().includes(searchLower) ||
@@ -194,8 +199,9 @@ const Marketplace = () => {
   const filteredTrendingNFTs = filterNFTs(trendingNFTs);
   const filteredPopularNFTs = filterNFTs(popularNFTs);
   const filteredUpcomingNFTs = filterNFTs(upcomingNFTs);
+  const filteredUserNFTs = filterNFTs(userCreatedNFTs);
 
-  // Navigation handlers for each section
+  // Navigation handlers for each section - updated for one-at-a-time navigation
   const createHandlers = (
     currentStep: number,
     setStep: React.Dispatch<React.SetStateAction<number>>,
@@ -205,13 +211,13 @@ const Marketplace = () => {
     handleNext: () => {
       if (!setAnimating || currentStep >= maxSteps - 1) return;
       setAnimating(true);
-      setStep((prev) => prev + 1);
+      setStep((prev) => prev + 1); // Move one item at a time
       setTimeout(() => setAnimating(false), 500);
     },
     handleBack: () => {
       if (!setAnimating || currentStep <= 0) return;
       setAnimating(true);
-      setStep((prev) => prev - 1);
+      setStep((prev) => prev - 1); // Move one item at a time
       setTimeout(() => setAnimating(false), 500);
     }
   });
@@ -227,7 +233,7 @@ const Marketplace = () => {
     sectionKey 
   }: { 
     title: string;
-    nfts: typeof allNFTs;
+    nfts: any[];
     step: number;
     isAnimating: boolean;
     onNext: () => void;
@@ -235,13 +241,20 @@ const Marketplace = () => {
     sectionKey: string;
   }) => {
     
+    // If there are no NFTs, don't render the section
+    if (nfts.length === 0) {
+      return null;
+    }
+    
     // Handle adding an NFT to the cart
     const handleAddToCart = (nft: any) => {
       addToCart({
         id: nft.id,
         title: nft.title,
         creator: nft.creator,
-        price: nft.price.split(' ')[0], // Extract just the price number
+        price: typeof nft.price === 'string' && nft.price.includes(' ') 
+          ? nft.price.split(' ')[0] 
+          : nft.price, // Handle different price formats
         image: nft.image
       });
       setShowAddedToCart(true);
@@ -267,50 +280,62 @@ const Marketplace = () => {
             disabled={step === 0 || isAnimating}
             sx={{
               position: 'absolute',
-              left: -20,
+              left: 12,
               top: '50%',
               transform: 'translateY(-50%)',
-              bgcolor: 'rgba(0, 0, 0, 0.5)',
+              bgcolor: 'rgba(0, 0, 0, 0.7)',
               color: 'white',
               zIndex: 2,
+              width: 48,
+              height: 48,
+              boxShadow: '0 0 10px rgba(0,0,0,0.5)',
+              border: '1px solid rgba(255,255,255,0.2)',
               '&:hover': {
-                bgcolor: 'rgba(0, 0, 0, 0.7)',
+                bgcolor: 'rgba(0, 0, 0, 0.9)',
+                border: '1px solid rgba(255,255,255,0.4)',
               },
               '&.Mui-disabled': {
-                display: 'none'
+                opacity: 0.3,
+                display: 'flex'
               }
             }}
           >
-            <KeyboardArrowLeft />
+            <KeyboardArrowLeft fontSize="large" />
           </IconButton>
 
           <IconButton
             onClick={onNext}
-            disabled={step >= Math.ceil(nfts.length / ITEMS_PER_PAGE) - 1 || isAnimating}
+            disabled={step >= nfts.length - 1 || isAnimating}
             sx={{
               position: 'absolute',
-              right: -20,
+              right: 12,
               top: '50%',
               transform: 'translateY(-50%)',
-              bgcolor: 'rgba(0, 0, 0, 0.5)',
+              bgcolor: 'rgba(0, 0, 0, 0.7)',
               color: 'white',
               zIndex: 2,
+              width: 48,
+              height: 48,
+              boxShadow: '0 0 10px rgba(0,0,0,0.5)',
+              border: '1px solid rgba(255,255,255,0.2)',
               '&:hover': {
-                bgcolor: 'rgba(0, 0, 0, 0.7)',
+                bgcolor: 'rgba(0, 0, 0, 0.9)',
+                border: '1px solid rgba(255,255,255,0.4)',
               },
               '&.Mui-disabled': {
-                display: 'none'
+                opacity: 0.3,
+                display: 'flex'
               }
             }}
           >
-            <KeyboardArrowRight />
+            <KeyboardArrowRight fontSize="large" />
           </IconButton>
 
           <Box
             sx={{
               display: 'flex',
               transition: 'transform 0.5s ease-in-out',
-              transform: `translateX(-${step * (100 / 5)}%)`,
+              transform: `translateX(-${step * (100 / ITEMS_PER_PAGE)}%)`,
               ml: 0,
             }}
           >
@@ -322,7 +347,7 @@ const Marketplace = () => {
                 <Box
                   key={nft.id}
                   sx={{
-                    flex: `0 0 ${100 / 5}%`,
+                    flex: `0 0 ${100 / ITEMS_PER_PAGE}%`,
                     padding: '0 8px',
                     transition: 'all 0.5s ease-in-out',
                     opacity: 1,
@@ -363,7 +388,7 @@ const Marketplace = () => {
                             left: 0,
                             right: 0,
                             bottom: 0,
-                            bgcolor: 'rgba(0, 0, 0, 0.5)',
+                            bgcolor: 'rgba(0, 0, 0, 0.7)',
                             display: 'flex',
                             justifyContent: 'center',
                             alignItems: 'center',
@@ -379,11 +404,14 @@ const Marketplace = () => {
                             sx={{
                               bgcolor: 'white',
                               color: 'black',
+                              fontWeight: 'bold',
                               '&:hover': {
                                 bgcolor: 'white',
+                                transform: 'scale(1.05)',
+                                boxShadow: '0 4px 20px rgba(255,255,255,0.25)'
                               },
                               borderRadius: '20px',
-                              px: 3
+                              padding: '8px 16px',
                             }}
                           >
                             Add to Cart
@@ -391,47 +419,32 @@ const Marketplace = () => {
                         </Box>
                       )}
                     </CardActionArea>
-                    <Box sx={{ 
-                      position: 'absolute', 
-                      bottom: 0, 
-                      left: 0, 
-                      right: 0,
-                      p: 2,
-                      background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%)'
-                    }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Typography variant="subtitle2" sx={{ color: 'grey.400' }}>
-                          {nft.creator}
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        bgcolor: 'rgba(0, 0, 0, 0.8)',
+                        p: 1,
+                        borderBottomLeftRadius: 8,
+                        borderBottomRightRadius: 8,
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography variant="subtitle2" component="div" noWrap>
+                          {nft.title}
                         </Typography>
                         {nft.isVerified && (
-                          <VerifiedIcon sx={{ fontSize: 16, color: '#2196f3' }} />
+                          <VerifiedIcon color="primary" sx={{ fontSize: 18, ml: 0.5 }} />
                         )}
                       </Box>
-                      <Typography variant="subtitle1" sx={{ color: 'white', fontWeight: 'bold' }}>
-                        {nft.title}
-                      </Typography>
-                      <Box sx={{ 
-                        display: 'flex', 
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        mt: 1 
-                      }}>
-                        <Box>
-                          <Typography variant="caption" sx={{ color: 'grey.400' }}>
-                            Price
-                          </Typography>
-                          <Typography variant="body2" sx={{ color: 'white', fontWeight: 'bold' }}>
-                            {nft.price}
-                          </Typography>
-                        </Box>
-                        <Typography 
-                          variant="caption" 
-                          sx={{ 
-                            color: nft.status === 'Now' ? '#4caf50' : 'white',
-                            fontWeight: 'bold'
-                          }}
-                        >
-                          • {nft.status}
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography variant="caption" color="text.secondary" noWrap sx={{ opacity: 0.7 }}>
+                          {nft.creator}
+                        </Typography>
+                        <Typography variant="caption" color="primary" noWrap>
+                          {nft.price}
                         </Typography>
                       </Box>
                     </Box>
@@ -445,68 +458,75 @@ const Marketplace = () => {
     );
   };
 
+  const latestHandlers = createHandlers(activeStep, setActiveStep, setIsAnimating, filteredNFTs.length);
+  const trendingHandlers = createHandlers(trendingStep, setTrendingStep, setIsTrendingAnimating, filteredTrendingNFTs.length);
+  const popularHandlers = createHandlers(popularStep, setPopularStep, setIsPopularAnimating, filteredPopularNFTs.length);
+  const upcomingHandlers = createHandlers(upcomingStep, setUpcomingStep, setIsUpcomingAnimating, filteredUpcomingNFTs.length);
+  const userNFTsHandlers = createHandlers(userNFTsStep, setUserNFTsStep, setIsUserNFTsAnimating, filteredUserNFTs.length);
+
   return (
-    <Container maxWidth="xl" sx={{ mt: 4, pb: 8 }}>
-      {/* Latest Drops Section */}
+    <Container maxWidth="xl" sx={{ pt: 2, pb: 8 }}>
+      {/* Show user-created NFTs first if any exist */}
+      {filteredUserNFTs.length > 0 && (
+        <NFTGridSection
+          title="Your Creations"
+          nfts={filteredUserNFTs}
+          step={userNFTsStep}
+          isAnimating={isUserNFTsAnimating}
+          onNext={userNFTsHandlers.handleNext}
+          onBack={userNFTsHandlers.handleBack}
+          sectionKey="user-nfts"
+        />
+      )}
+      
       <NFTGridSection
         title="Latest Drops"
         nfts={filteredNFTs}
         step={activeStep}
         isAnimating={isAnimating}
-        onNext={createHandlers(activeStep, setActiveStep, setIsAnimating, Math.ceil(filteredNFTs.length / ITEMS_PER_PAGE)).handleNext}
-        onBack={createHandlers(activeStep, setActiveStep, setIsAnimating, Math.ceil(filteredNFTs.length / ITEMS_PER_PAGE)).handleBack}
+        onNext={latestHandlers.handleNext}
+        onBack={latestHandlers.handleBack}
         sectionKey="latest"
       />
-
-      {/* Trending NFTs Section */}
+      
       <NFTGridSection
         title="Trending NFTs"
         nfts={filteredTrendingNFTs}
         step={trendingStep}
         isAnimating={isTrendingAnimating}
-        onNext={createHandlers(trendingStep, setTrendingStep, setIsTrendingAnimating, Math.ceil(filteredTrendingNFTs.length / ITEMS_PER_PAGE)).handleNext}
-        onBack={createHandlers(trendingStep, setTrendingStep, setIsTrendingAnimating, Math.ceil(filteredTrendingNFTs.length / ITEMS_PER_PAGE)).handleBack}
+        onNext={trendingHandlers.handleNext}
+        onBack={trendingHandlers.handleBack}
         sectionKey="trending"
       />
-
-      {/* Popular Collections */}
+      
       <NFTGridSection
         title="Popular Collections"
         nfts={filteredPopularNFTs}
         step={popularStep}
         isAnimating={isPopularAnimating}
-        onNext={createHandlers(popularStep, setPopularStep, setIsPopularAnimating, Math.ceil(filteredPopularNFTs.length / ITEMS_PER_PAGE)).handleNext}
-        onBack={createHandlers(popularStep, setPopularStep, setIsPopularAnimating, Math.ceil(filteredPopularNFTs.length / ITEMS_PER_PAGE)).handleBack}
+        onNext={popularHandlers.handleNext}
+        onBack={popularHandlers.handleBack}
         sectionKey="popular"
       />
-
-      {/* Upcoming Drops */}
+      
       <NFTGridSection
         title="Upcoming Drops"
         nfts={filteredUpcomingNFTs}
         step={upcomingStep}
         isAnimating={isUpcomingAnimating}
-        onNext={createHandlers(upcomingStep, setUpcomingStep, setIsUpcomingAnimating, Math.ceil(filteredUpcomingNFTs.length / ITEMS_PER_PAGE)).handleNext}
-        onBack={createHandlers(upcomingStep, setUpcomingStep, setIsUpcomingAnimating, Math.ceil(filteredUpcomingNFTs.length / ITEMS_PER_PAGE)).handleBack}
+        onNext={upcomingHandlers.handleNext}
+        onBack={upcomingHandlers.handleBack}
         sectionKey="upcoming"
       />
-
-      {filteredNFTs.length === 0 && (
-        <Box sx={{ width: '100%', textAlign: 'center', mt: 4 }}>
-          <Typography variant="h6" color="text.secondary">
-            No NFTs found matching your search criteria
-          </Typography>
-        </Box>
-      )}
-
+      
       <Snackbar
         open={showAddedToCart}
-        autoHideDuration={2000}
+        autoHideDuration={3000}
         onClose={() => setShowAddedToCart(false)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
       >
-        <Alert severity="success" variant="filled">
-          Item added to cart!
+        <Alert onClose={() => setShowAddedToCart(false)} severity="success" sx={{ width: '100%' }} variant="filled">
+          NFT added to cart!
         </Alert>
       </Snackbar>
     </Container>

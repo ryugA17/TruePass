@@ -17,16 +17,16 @@
     />
     <title>NFT Marketplace</title>
     <script>
-      // Check if this is the first visit and we're at the root path
-      (function() {
-        const isFirstVisit = localStorage.getItem('visited') !== 'true';
-        const isRootPath = window.location.pathname === '/' || window.location.pathname === '';
+      // Redirect to landing page on first load
+      if (!window.location.pathname.includes('/landing-page/')) {
+        // Check if we've already visited
+        const visited = localStorage.getItem('visited') === 'true';
         
-        if (isFirstVisit && isRootPath) {
+        if (!visited) {
           console.log('First visit detected, redirecting to landing page...');
-          window.location.replace('/landing-page/index.html');
+          window.location.href = '/landing-page/index.html';
         }
-      })();
+      }
     </script>
   </head>
   <body>

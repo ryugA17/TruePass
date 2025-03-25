@@ -14,6 +14,7 @@ import {
   Chip,
   Alert,
   Snackbar,
+  Divider,
 } from '@mui/material';
 import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
@@ -21,8 +22,12 @@ import ClearIcon from '@mui/icons-material/Clear';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import PersonIcon from '@mui/icons-material/Person';
+import LogoutIcon from '@mui/icons-material/Logout';
+import LoginIcon from '@mui/icons-material/Login';
 import { useSearch } from '../../context/SearchContext';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
 
 // Define window.ethereum for TypeScript
 declare global {
@@ -40,6 +45,7 @@ const Navbar = () => {
   const [inputValue, setInputValue] = useState('');
   const { handleSearch } = useSearch();
   const { cartItemCount } = useCart();
+  const { isAuthenticated, user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -48,6 +54,7 @@ const Navbar = () => {
   const [walletAddress, setWalletAddress] = useState('');
   const [walletBalance, setWalletBalance] = useState('0');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [userMenuAnchorEl, setUserMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [notification, setNotification] = useState<{
     show: boolean;
     message: string;
@@ -250,8 +257,8 @@ const Navbar = () => {
   };
   
   const handleDisconnectWallet = () => {
-    // MetaMask doesn't support programmatic disconnection via API
-    // We can only reset our app's state to simulate disconnection
+    // Note: MetaMask doesn't provide a way to disconnect programmatically
+    // But we can clear our local state
     setWalletConnected(false);
     setWalletAddress('');
     setWalletBalance('0');
@@ -259,255 +266,308 @@ const Navbar = () => {
     
     setNotification({
       show: true,
-      message: 'Wallet disconnected from application',
+      message: 'Wallet disconnected from app',
       type: 'info'
     });
   };
   
+  const handleLogout = () => {
+    logout();
+    setUserMenuAnchorEl(null);
+    setNotification({
+      show: true,
+      message: 'You have been logged out',
+      type: 'info'
+    });
+  };
+  
+  const handleLogin = () => {
+    navigate('/login');
+    setUserMenuAnchorEl(null);
+  };
+  
+  const handleCreateNFT = () => {
+    navigate('/create-nft');
+    setUserMenuAnchorEl(null);
+  };
+  
   const handleWalletClick = (event: React.MouseEvent<HTMLElement>) => {
-    if (walletConnected) {
-      setAnchorEl(event.currentTarget);
-    } else {
-      handleConnectWallet();
-    }
+    setAnchorEl(event.currentTarget);
+  };
+  
+  const handleUserMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+    setUserMenuAnchorEl(event.currentTarget);
   };
   
   const handleCloseMenu = () => {
     setAnchorEl(null);
   };
   
+  const handleCloseUserMenu = () => {
+    setUserMenuAnchorEl(null);
+  };
+  
   const copyAddressToClipboard = () => {
-    navigator.clipboard.writeText(walletAddress);
-    setNotification({
-      show: true,
-      message: 'Address copied to clipboard',
-      type: 'success'
-    });
+    if (walletAddress) {
+      navigator.clipboard.writeText(walletAddress);
+      setNotification({
+        show: true,
+        message: 'Wallet address copied to clipboard',
+        type: 'success'
+      });
+    }
     handleCloseMenu();
   };
   
   const handleCloseNotification = () => {
-    setNotification(prev => ({ ...prev, show: false }));
+    setNotification({
+      ...notification,
+      show: false
+    });
   };
 
   return (
-    <AppBar 
-      position="fixed" 
-      sx={{ 
-        bgcolor: 'rgba(22, 28, 36, 0.8)',
-        backdropFilter: 'blur(6px)',
-      }}
-    >
-      <Toolbar sx={{ justifyContent: 'space-between' }}>
-        <Typography 
-          variant="h6" 
-          component={RouterLink} 
+    <AppBar position="fixed" sx={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(10px)' }}>
+      <Toolbar>
+        <Typography
+          variant="h6"
+          component={RouterLink}
           to="/"
-          sx={{ 
+          sx={{
+            flexGrow: 0,
+            fontWeight: 'bold',
+            color: 'white',
             textDecoration: 'none',
-            color: 'inherit',
-            fontWeight: 'bold'
+            marginRight: 2
           }}
         >
-          TruePass
+          NFT Marketplace
         </Typography>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Box
+        <Box sx={{ 
+          flexGrow: 0.1, 
+          display: 'flex', 
+          borderRadius: '20px', 
+          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+          padding: '5px 15px',
+          transition: 'width 0.3s ease',
+          '&:hover': {
+            backgroundColor: 'rgba(255, 255, 255, 0.15)',
+          }
+        }}>
+          <InputBase
+            placeholder="Search…"
+            value={inputValue}
+            onChange={handleInputChange}
+            onKeyPress={handleKeyPress}
             sx={{
-              position: 'relative',
-              bgcolor: 'rgba(255, 255, 255, 0.15)',
-              borderRadius: 1,
-              display: 'flex',
-              alignItems: 'center',
-              width: '300px',
-              transition: 'width 0.3s ease-in-out',
-              '&:hover': {
-                bgcolor: 'rgba(255, 255, 255, 0.25)',
-              },
-            }}
-          >
-            <InputBase
-              placeholder="Search NFTs..."
-              value={inputValue}
-              onChange={handleInputChange}
-              onKeyPress={handleKeyPress}
-              sx={{
-                color: 'inherit',
-                flex: 1,
-                '& .MuiInputBase-input': {
-                  p: 1,
-                  pl: 2,
-                  width: '100%',
-                  '&::placeholder': {
-                    color: 'rgba(255, 255, 255, 0.7)',
-                    opacity: 1,
-                  },
-                },
-              }}
-            />
-            {inputValue && (
-              <IconButton 
-                size="small"
-                onClick={handleClearSearch}
-                sx={{ 
-                  color: 'inherit',
-                  opacity: 0.7,
-                  p: 0.5,
-                }}
-              >
-                <ClearIcon fontSize="small" />
-              </IconButton>
-            )}
-            <IconButton 
-              size="small"
-              onClick={handleSearchClick}
-              sx={{ 
-                color: 'inherit',
-                opacity: 0.7,
-                mr: 1,
-                ml: 0.5,
-              }}
-            >
-              <SearchIcon fontSize="small" />
-            </IconButton>
-          </Box>
-
-          <Button
-            color="inherit"
-            component={RouterLink}
-            to="/marketplace"
-            sx={{
-              '&:hover': {
-                bgcolor: 'rgba(255, 255, 255, 0.1)',
+              color: 'white',
+              width: '100%',
+              '& ::placeholder': {
+                color: 'rgba(255, 255, 255, 0.7)',
+                opacity: 1
               }
             }}
+          />
+          {inputValue && (
+            <IconButton 
+              size="small" 
+              onClick={handleClearSearch}
+              sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
+            >
+              <ClearIcon fontSize="small" />
+            </IconButton>
+          )}
+          <IconButton
+            size="small"
+            edge="end"
+            onClick={handleSearchClick}
+            sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
+          >
+            <SearchIcon />
+          </IconButton>
+        </Box>
+
+        <Box sx={{ flexGrow: 1 }} />
+        
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Button
+            component={RouterLink}
+            to="/marketplace"
+            sx={{ color: 'white', textTransform: 'none' }}
           >
             Marketplace
           </Button>
+          
           <Button
-            color="inherit"
-            component={RouterLink}
-            to="/create-nft"
-            sx={{
-              '&:hover': {
-                bgcolor: 'rgba(255, 255, 255, 0.1)',
-              }
-            }}
+            onClick={isAuthenticated ? handleCreateNFT : handleLogin}
+            sx={{ color: 'white', textTransform: 'none' }}
           >
-            Create NFT
-          </Button>
-          <Button
-            color="inherit"
-            component={RouterLink}
-            to="/profile"
-            sx={{
-              '&:hover': {
-                bgcolor: 'rgba(255, 255, 255, 0.1)',
-              }
-            }}
-          >
-            Profile
+            Create
           </Button>
           
-          <IconButton 
+          <IconButton
             color="inherit"
             onClick={handleCartClick}
-            sx={{
-              ml: 1,
-              '&:hover': {
-                bgcolor: 'rgba(255, 255, 255, 0.1)',
-              }
-            }}
+            sx={{ mr: 1 }}
           >
             <Badge badgeContent={cartItemCount} color="error">
               <ShoppingCartIcon />
             </Badge>
           </IconButton>
           
-          {walletConnected ? (
-            <>
-              <Chip
-                onClick={handleWalletClick}
-                avatar={<Avatar sx={{ bgcolor: '#ff9800' }}><AccountBalanceWalletIcon /></Avatar>}
-                label={
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Typography variant="body2" sx={{ mr: 1 }}>
-                      {formatAddress(walletAddress)}
-                    </Typography>
-                    <KeyboardArrowDownIcon fontSize="small" />
-                  </Box>
-                }
-                variant="filled"
-                sx={{ 
-                  bgcolor: 'rgba(255, 255, 255, 0.15)',
-                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.25)' },
-                  height: 36,
-                  borderRadius: 4,
-                  px: 0.5
-                }}
-              />
-              <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleCloseMenu}
-                PaperProps={{
-                  sx: {
-                    bgcolor: 'rgba(22, 28, 36, 0.95)',
-                    backdropFilter: 'blur(6px)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    color: 'white',
-                    mt: 1.5,
-                    minWidth: 200
-                  }
-                }}
-              >
-                <Box sx={{ px: 2, py: 1 }}>
-                  <Typography variant="caption" sx={{ opacity: 0.7 }}>Wallet</Typography>
-                  <Typography variant="body2" sx={{ wordBreak: 'break-all' }}>{walletAddress}</Typography>
-                </Box>
-                <Box sx={{ px: 2, py: 1, borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                  <Typography variant="caption" sx={{ opacity: 0.7 }}>Balance</Typography>
-                  <Typography variant="body2">{walletBalance} ETH</Typography>
-                </Box>
-                <MenuItem 
-                  onClick={copyAddressToClipboard} 
-                  sx={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', mt: 1 }}
-                >
-                  Copy Address
-                </MenuItem>
-                <MenuItem onClick={handleDisconnectWallet}>
-                  Disconnect
-                </MenuItem>
-              </Menu>
-            </>
+          {!walletConnected ? (
+            <Button
+              variant="outlined"
+              startIcon={<AccountBalanceWalletIcon />}
+              onClick={handleConnectWallet}
+              size="small"
+              sx={{
+                color: 'white',
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+                '&:hover': {
+                  borderColor: 'white',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                },
+                textTransform: 'none',
+                borderRadius: '20px',
+                fontSize: '0.875rem',
+                mr: 1
+              }}
+            >
+              Connect Wallet
+            </Button>
+          ) : (
+            <Chip
+              icon={<AccountBalanceWalletIcon />}
+              label={`${formatAddress(walletAddress)} (${walletBalance} ETH)`}
+              onClick={handleWalletClick}
+              deleteIcon={<KeyboardArrowDownIcon />}
+              onDelete={handleWalletClick}
+              sx={{
+                color: 'white',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)'
+                },
+                borderRadius: '20px',
+                px: 1,
+                mr: 1
+              }}
+            />
+          )}
+          
+          {isAuthenticated ? (
+            <Chip
+              avatar={<Avatar sx={{ bgcolor: 'primary.main' }}>{user?.email.charAt(0).toUpperCase()}</Avatar>}
+              label={user?.email.split('@')[0]}
+              onClick={handleUserMenuClick}
+              deleteIcon={<KeyboardArrowDownIcon />}
+              onDelete={handleUserMenuClick}
+              sx={{
+                color: 'white',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)'
+                },
+                borderRadius: '20px',
+                px: 1
+              }}
+            />
           ) : (
             <Button
               variant="contained"
-              startIcon={<AccountBalanceWalletIcon />}
-              onClick={handleConnectWallet}
+              startIcon={<LoginIcon />}
+              onClick={handleLogin}
+              size="small"
+              color="primary"
               sx={{
-                bgcolor: '#ff9800',
-                color: 'white',
-                '&:hover': {
-                  bgcolor: '#f57c00',
-                },
-                ml: 1,
-                borderRadius: 4
+                textTransform: 'none',
+                borderRadius: '20px',
+                fontSize: '0.875rem'
               }}
             >
-              Connect MetaMask
+              Login
             </Button>
           )}
+          
+          {/* Wallet Menu */}
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleCloseMenu}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            PaperProps={{
+              sx: {
+                mt: 1,
+                bgcolor: 'background.paper',
+                boxShadow: 3,
+                borderRadius: 2,
+                minWidth: 200
+              }
+            }}
+          >
+            <MenuItem onClick={copyAddressToClipboard}>
+              <Typography variant="body2">Copy Address</Typography>
+            </MenuItem>
+            <Divider />
+            <MenuItem onClick={handleDisconnectWallet}>
+              <Typography variant="body2" color="error">Disconnect Wallet</Typography>
+            </MenuItem>
+          </Menu>
+          
+          {/* User Menu */}
+          <Menu
+            anchorEl={userMenuAnchorEl}
+            open={Boolean(userMenuAnchorEl)}
+            onClose={handleCloseUserMenu}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            PaperProps={{
+              sx: {
+                mt: 1,
+                bgcolor: 'background.paper',
+                boxShadow: 3,
+                borderRadius: 2,
+                minWidth: 200
+              }
+            }}
+          >
+            <MenuItem
+              component={RouterLink}
+              to="/profile"
+              onClick={handleCloseUserMenu}
+            >
+              <PersonIcon fontSize="small" sx={{ mr: 1 }} />
+              <Typography variant="body2">Profile</Typography>
+            </MenuItem>
+            <Divider />
+            <MenuItem onClick={handleLogout}>
+              <LogoutIcon fontSize="small" sx={{ mr: 1 }} />
+              <Typography variant="body2" color="error">Logout</Typography>
+            </MenuItem>
+          </Menu>
         </Box>
       </Toolbar>
       
-      {/* Notifications */}
-      <Snackbar 
+      <Snackbar
         open={notification.show}
-        autoHideDuration={4000}
+        autoHideDuration={5000}
         onClose={handleCloseNotification}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
       >
         <Alert 
           onClose={handleCloseNotification} 

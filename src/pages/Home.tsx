@@ -250,7 +250,7 @@ const Home = () => {
   const filteredPopularNFTs = filterNFTs(popularNFTs);
   const filteredUpcomingNFTs = filterNFTs(upcomingNFTs);
 
-  // Navigation handlers for each section
+  // Navigation handlers for each section - updated for one-at-a-time navigation
   const createHandlers = (
     currentStep: number,
     setStep: React.Dispatch<React.SetStateAction<number>>,
@@ -260,13 +260,13 @@ const Home = () => {
     handleNext: () => {
       if (!setAnimating || currentStep >= maxSteps - 1) return;
       setAnimating(true);
-      setStep((prev) => prev + 1);
+      setStep((prev) => prev + 1); // Move one item at a time
       setTimeout(() => setAnimating(false), 500);
     },
     handleBack: () => {
       if (!setAnimating || currentStep <= 0) return;
       setAnimating(true);
-      setStep((prev) => prev - 1);
+      setStep((prev) => prev - 1); // Move one item at a time
       setTimeout(() => setAnimating(false), 500);
     }
   });
@@ -342,50 +342,64 @@ const Home = () => {
             disabled={step === 0 || isAnimating}
             sx={{
               position: 'absolute',
-              left: -20,
+              left: 12,
               top: '50%',
               transform: 'translateY(-50%)',
-              bgcolor: 'rgba(0, 0, 0, 0.5)',
+              bgcolor: 'rgba(0, 0, 0, 0.7)',
               color: 'white',
               zIndex: 2,
+              width: 64,
+              height: 64,
+              boxShadow: '0 0 20px rgba(0,0,0,0.6)',
+              border: '1px solid rgba(255,255,255,0.3)',
               '&:hover': {
-                bgcolor: 'rgba(0, 0, 0, 0.7)',
+                bgcolor: 'rgba(0, 0, 0, 0.9)',
+                border: '1px solid rgba(255,255,255,0.5)',
+                boxShadow: '0 0 25px rgba(0,0,0,0.8)',
               },
               '&.Mui-disabled': {
-                display: 'none'
+                opacity: 0.3,
+                display: 'flex'
               }
             }}
           >
-            <KeyboardArrowLeft />
+            <KeyboardArrowLeft fontSize="large" />
           </IconButton>
 
           <IconButton
             onClick={onNext}
-            disabled={step >= Math.ceil(nfts.length / ITEMS_PER_PAGE) - 1 || isAnimating}
+            disabled={step >= nfts.length - 1 || isAnimating}
             sx={{
               position: 'absolute',
-              right: -20,
+              right: 12,
               top: '50%',
               transform: 'translateY(-50%)',
-              bgcolor: 'rgba(0, 0, 0, 0.5)',
+              bgcolor: 'rgba(0, 0, 0, 0.7)',
               color: 'white',
               zIndex: 2,
+              width: 64,
+              height: 64,
+              boxShadow: '0 0 20px rgba(0,0,0,0.6)',
+              border: '1px solid rgba(255,255,255,0.3)',
               '&:hover': {
-                bgcolor: 'rgba(0, 0, 0, 0.7)',
+                bgcolor: 'rgba(0, 0, 0, 0.9)',
+                border: '1px solid rgba(255,255,255,0.5)',
+                boxShadow: '0 0 25px rgba(0,0,0,0.8)',
               },
               '&.Mui-disabled': {
-                display: 'none'
+                opacity: 0.3,
+                display: 'flex'
               }
             }}
           >
-            <KeyboardArrowRight />
+            <KeyboardArrowRight fontSize="large" />
           </IconButton>
 
           <Box
             sx={{
               display: 'flex',
               transition: 'transform 0.5s ease-in-out',
-              transform: `translateX(-${step * (100 / 5)}%)`,
+              transform: `translateX(-${step * (100 / ITEMS_PER_PAGE)}%)`,
               ml: 0,
             }}
           >
@@ -397,7 +411,7 @@ const Home = () => {
                 <Box
                   key={nft.id}
                   sx={{
-                    flex: `0 0 ${100 / 5}%`,
+                    flex: `0 0 ${100 / ITEMS_PER_PAGE}%`,
                     padding: '0 8px',
                     transition: 'all 0.5s ease-in-out',
                     opacity: 1,
@@ -438,7 +452,7 @@ const Home = () => {
                             left: 0,
                             right: 0,
                             bottom: 0,
-                            bgcolor: 'rgba(0, 0, 0, 0.5)',
+                            bgcolor: 'rgba(0, 0, 0, 0.7)',
                             display: 'flex',
                             justifyContent: 'center',
                             alignItems: 'center',
@@ -454,11 +468,14 @@ const Home = () => {
                             sx={{
                               bgcolor: 'white',
                               color: 'black',
+                              fontWeight: 'bold',
                               '&:hover': {
                                 bgcolor: 'white',
+                                transform: 'scale(1.05)',
+                                boxShadow: '0 4px 20px rgba(255,255,255,0.25)'
                               },
                               borderRadius: '20px',
-                              px: 3
+                              padding: '8px 16px',
                             }}
                           >
                             Add to Cart
@@ -466,47 +483,32 @@ const Home = () => {
                         </Box>
                       )}
                     </CardActionArea>
-                    <Box sx={{ 
-                      position: 'absolute', 
-                      bottom: 0, 
-                      left: 0, 
-                      right: 0,
-                      p: 2,
-                      background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%)'
-                    }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Typography variant="subtitle2" sx={{ color: 'grey.400' }}>
-                          {nft.creator}
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        bgcolor: 'rgba(0, 0, 0, 0.8)',
+                        p: 1,
+                        borderBottomLeftRadius: 8,
+                        borderBottomRightRadius: 8,
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography variant="subtitle2" component="div" noWrap>
+                          {nft.title}
                         </Typography>
                         {nft.isVerified && (
-                          <VerifiedIcon sx={{ fontSize: 16, color: '#2196f3' }} />
+                          <VerifiedIcon color="primary" sx={{ fontSize: 18, ml: 0.5 }} />
                         )}
                       </Box>
-                      <Typography variant="subtitle1" sx={{ color: 'white', fontWeight: 'bold' }}>
-                        {nft.title}
-                      </Typography>
-                      <Box sx={{ 
-                        display: 'flex', 
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        mt: 1 
-                      }}>
-                        <Box>
-                          <Typography variant="caption" sx={{ color: 'grey.400' }}>
-                            Price
-                          </Typography>
-                          <Typography variant="body2" sx={{ color: 'white', fontWeight: 'bold' }}>
-                            {nft.price}
-                          </Typography>
-                        </Box>
-                        <Typography 
-                          variant="caption" 
-                          sx={{ 
-                            color: nft.status === 'Now' ? '#4caf50' : 'white',
-                            fontWeight: 'bold'
-                          }}
-                        >
-                          • {nft.status}
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography variant="caption" color="text.secondary" noWrap sx={{ opacity: 0.7 }}>
+                          {nft.creator}
+                        </Typography>
+                        <Typography variant="caption" color="primary" noWrap>
+                          {nft.price}
                         </Typography>
                       </Box>
                     </Box>
@@ -520,8 +522,13 @@ const Home = () => {
     );
   };
 
+  const latestHandlers = createHandlers(activeStep, setActiveStep, setIsAnimating, filteredNFTs.length);
+  const trendingHandlers = createHandlers(trendingStep, setTrendingStep, setIsTrendingAnimating, filteredTrendingNFTs.length);
+  const popularHandlers = createHandlers(popularStep, setPopularStep, setIsPopularAnimating, filteredPopularNFTs.length);
+  const upcomingHandlers = createHandlers(upcomingStep, setUpcomingStep, setIsUpcomingAnimating, filteredUpcomingNFTs.length);
+
   return (
-    <Container maxWidth="xl" sx={{ mt: 4, pb: 8 }}>
+    <Container maxWidth="xl" sx={{ pt: 2, pb: 8 }}>
       {/* Featured NFT Section */}
       <Box sx={{ position: 'relative', width: '100%', overflow: 'hidden', mb: 8 }}>
         <IconButton
@@ -529,21 +536,28 @@ const Home = () => {
           disabled={activeFeaturedStep === 0 || isFeaturedAnimating}
           sx={{
             position: 'absolute',
-            left: -20,
+            left: 12,
             top: '50%',
             transform: 'translateY(-50%)',
-            bgcolor: 'rgba(0, 0, 0, 0.5)',
+            bgcolor: 'rgba(0, 0, 0, 0.7)',
             color: 'white',
             zIndex: 2,
+            width: 64,
+            height: 64,
+            boxShadow: '0 0 20px rgba(0,0,0,0.6)',
+            border: '1px solid rgba(255,255,255,0.3)',
             '&:hover': {
-              bgcolor: 'rgba(0, 0, 0, 0.7)',
+              bgcolor: 'rgba(0, 0, 0, 0.9)',
+              border: '1px solid rgba(255,255,255,0.5)',
+              boxShadow: '0 0 25px rgba(0,0,0,0.8)',
             },
             '&.Mui-disabled': {
-              display: 'none'
+              opacity: 0.3,
+              display: 'flex'
             }
           }}
         >
-          <KeyboardArrowLeft />
+          <KeyboardArrowLeft fontSize="large" />
         </IconButton>
 
         <IconButton
@@ -551,21 +565,28 @@ const Home = () => {
           disabled={activeFeaturedStep >= maxFeaturedSteps - 1 || isFeaturedAnimating}
           sx={{
             position: 'absolute',
-            right: -20,
+            right: 12,
             top: '50%',
             transform: 'translateY(-50%)',
-            bgcolor: 'rgba(0, 0, 0, 0.5)',
+            bgcolor: 'rgba(0, 0, 0, 0.7)',
             color: 'white',
             zIndex: 2,
+            width: 64,
+            height: 64,
+            boxShadow: '0 0 20px rgba(0,0,0,0.6)',
+            border: '1px solid rgba(255,255,255,0.3)',
             '&:hover': {
-              bgcolor: 'rgba(0, 0, 0, 0.7)',
+              bgcolor: 'rgba(0, 0, 0, 0.9)',
+              border: '1px solid rgba(255,255,255,0.5)',
+              boxShadow: '0 0 25px rgba(0,0,0,0.8)',
             },
             '&.Mui-disabled': {
-              display: 'none'
+              opacity: 0.3,
+              display: 'flex'
             }
           }}
         >
-          <KeyboardArrowRight />
+          <KeyboardArrowRight fontSize="large" />
         </IconButton>
 
         <Box
@@ -578,7 +599,7 @@ const Home = () => {
           {featuredNFTs.map((nft, index) => (
             <Box
               key={index}
-              sx={{
+              sx={{ 
                 flex: '0 0 100%',
                 transition: 'all 0.5s ease-in-out',
               }}
@@ -752,14 +773,14 @@ const Home = () => {
                             right: 0,
                             bottom: 0,
                             bgcolor: 'rgba(0, 0, 0, 0.5)',
-                            display: 'flex',
+                            display: 'flex', 
                             justifyContent: 'center',
                             alignItems: 'center',
                             transition: 'all 0.3s ease-in-out'
                           }}
                         >
-                          <Button
-                            variant="contained"
+                          <Button 
+                            variant="contained" 
                             onClick={(e) => {
                               e.stopPropagation();
                               addToCart({
@@ -771,7 +792,7 @@ const Home = () => {
                               });
                               setShowAddedToCart(true);
                             }}
-                            sx={{
+                            sx={{ 
                               bgcolor: 'white',
                               color: 'black',
                               '&:hover': {
@@ -794,66 +815,60 @@ const Home = () => {
         </Box>
       </Box>
 
-      {/* Latest Drops Section */}
+      {/* Latest NFTs Section */}
       <NFTGridSection
         title="Latest Drops"
         nfts={filteredNFTs}
         step={activeStep}
         isAnimating={isAnimating}
-        onNext={createHandlers(activeStep, setActiveStep, setIsAnimating, Math.ceil(filteredNFTs.length / ITEMS_PER_PAGE)).handleNext}
-        onBack={createHandlers(activeStep, setActiveStep, setIsAnimating, Math.ceil(filteredNFTs.length / ITEMS_PER_PAGE)).handleBack}
+        onNext={latestHandlers.handleNext}
+        onBack={latestHandlers.handleBack}
         sectionKey="latest"
       />
-
-      {/* Trending NFTs Section */}
+      
       <NFTGridSection
         title="Trending NFTs"
         nfts={filteredTrendingNFTs}
         step={trendingStep}
         isAnimating={isTrendingAnimating}
-        onNext={createHandlers(trendingStep, setTrendingStep, setIsTrendingAnimating, Math.ceil(filteredTrendingNFTs.length / ITEMS_PER_PAGE)).handleNext}
-        onBack={createHandlers(trendingStep, setTrendingStep, setIsTrendingAnimating, Math.ceil(filteredTrendingNFTs.length / ITEMS_PER_PAGE)).handleBack}
+        onNext={trendingHandlers.handleNext}
+        onBack={trendingHandlers.handleBack}
         sectionKey="trending"
       />
-
-      {/* Popular Collections */}
+      
       <NFTGridSection
         title="Popular Collections"
         nfts={filteredPopularNFTs}
         step={popularStep}
         isAnimating={isPopularAnimating}
-        onNext={createHandlers(popularStep, setPopularStep, setIsPopularAnimating, Math.ceil(filteredPopularNFTs.length / ITEMS_PER_PAGE)).handleNext}
-        onBack={createHandlers(popularStep, setPopularStep, setIsPopularAnimating, Math.ceil(filteredPopularNFTs.length / ITEMS_PER_PAGE)).handleBack}
+        onNext={popularHandlers.handleNext}
+        onBack={popularHandlers.handleBack}
         sectionKey="popular"
       />
-
-      {/* Upcoming Drops */}
+      
       <NFTGridSection
         title="Upcoming Drops"
         nfts={filteredUpcomingNFTs}
         step={upcomingStep}
         isAnimating={isUpcomingAnimating}
-        onNext={createHandlers(upcomingStep, setUpcomingStep, setIsUpcomingAnimating, Math.ceil(filteredUpcomingNFTs.length / ITEMS_PER_PAGE)).handleNext}
-        onBack={createHandlers(upcomingStep, setUpcomingStep, setIsUpcomingAnimating, Math.ceil(filteredUpcomingNFTs.length / ITEMS_PER_PAGE)).handleBack}
+        onNext={upcomingHandlers.handleNext}
+        onBack={upcomingHandlers.handleBack}
         sectionKey="upcoming"
       />
-
-      {filteredNFTs.length === 0 && (
-        <Box sx={{ width: '100%', textAlign: 'center', mt: 4 }}>
-          <Typography variant="h6" color="text.secondary">
-            No NFTs found matching your search criteria
-          </Typography>
-        </Box>
-      )}
-
+      
       <Snackbar
         open={showAddedToCart}
-        autoHideDuration={2000}
+        autoHideDuration={3000}
         onClose={() => setShowAddedToCart(false)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
       >
-        <Alert severity="success" variant="filled">
-          Item added to cart!
+        <Alert 
+          onClose={() => setShowAddedToCart(false)} 
+          severity="success" 
+          sx={{ width: '100%' }} 
+          variant="filled"
+        >
+          NFT added to cart!
         </Alert>
       </Snackbar>
     </Container>
