@@ -388,7 +388,7 @@ const INFO_HEIGHT = 60;
 
 // Fixed dimensions for featured section
 const FEATURED_HEIGHT = 400;
-const FEATURED_WIDTH = 800; // Double the card width since it's a featured item
+const FEATURED_WIDTH = 1150; // Double the card width since it's a featured item
 
 const Home = () => {
   const navigate = useNavigate();
