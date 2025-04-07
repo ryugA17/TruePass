@@ -667,7 +667,7 @@ const Navbar = () => {
       
       {/* Regular notifications */}
       <Snackbar
-        open={notification.show && !(notification.message.includes('MetaMask') || notification.message.includes('wallet'))}
+        open={notification.show && !(notification.message.includes('MetaMask') || notification.message.includes('wallet') || notification.message.includes('disconnected'))}
         autoHideDuration={5000}
         onClose={handleCloseNotification}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
@@ -679,6 +679,49 @@ const Navbar = () => {
           sx={{ width: '100%' }}
         >
           {notification.message}
+        </Alert>
+      </Snackbar>
+
+      {/* Wallet disconnect notification - top banner */}
+      <Snackbar
+        open={notification.show && notification.message.includes('disconnected')}
+        autoHideDuration={5000}
+        onClose={handleCloseNotification}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        sx={{
+          width: '100%',
+          top: 0,
+          '& .MuiPaper-root': {
+            width: '100%',
+            maxWidth: '100%',
+            borderRadius: 0,
+            backgroundColor: '#0288d1',
+            color: 'white',
+            padding: '12px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+          }
+        }}
+      >
+        <Alert 
+          icon={<AccountBalanceWalletIcon />}
+          onClose={handleCloseNotification} 
+          severity="info" 
+          variant="filled"
+          sx={{ 
+            width: '100%',
+            backgroundColor: '#0288d1',
+            color: 'white',
+            '& .MuiAlert-icon': {
+              color: 'white'
+            },
+            '& .MuiAlert-action': {
+              paddingTop: 0
+            }
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'center' }}>
+            <Typography variant="body1">{notification.message}</Typography>
+          </Box>
         </Alert>
       </Snackbar>
     </>
