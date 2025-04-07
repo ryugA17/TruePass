@@ -341,7 +341,7 @@ const Navbar = () => {
             marginRight: 2
           }}
         >
-          NFT Marketplace
+          TruePass
         </Typography>
 
         <Box sx={{ 
