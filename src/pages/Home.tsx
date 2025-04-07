@@ -324,8 +324,8 @@ const INFO_HEIGHT = 60;
 const FEATURED_HEIGHT = 400;
 const FEATURED_WIDTH = 1150; // Double the card width since it's a featured item
 
-// Create a component to handle different media types (videos and images)
-const MediaDisplay = ({ src, alt, style }: { src: string, alt: string, style?: React.CSSProperties }) => {
+// Memoize the MediaDisplay component to prevent unnecessary re-renders
+const MediaDisplay = React.memo(({ src, alt, style }: { src: string, alt: string, style?: React.CSSProperties }) => {
   const isVideo = src.endsWith('.mp4');
   
   return isVideo ? (
@@ -358,7 +358,307 @@ const MediaDisplay = ({ src, alt, style }: { src: string, alt: string, style?: R
       }}
     />
   );
-};
+});
+
+// Individual NFT Card component - memoized to prevent re-renders
+const NFTCard = React.memo(({ 
+  nft, 
+  handleAddToCart,
+  uniqueId
+}: { 
+  nft: any, 
+  handleAddToCart: (nft: any) => void,
+  uniqueId: string
+}) => {
+  // Use callback for add to cart to prevent recreation on each render
+  const onAddToCart = React.useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handleAddToCart(nft);
+  }, [nft, handleAddToCart]);
+
+  return (
+    <Card 
+      sx={{ 
+        bgcolor: 'rgba(22, 28, 36, 0.95)',
+        borderRadius: 2,
+        position: 'relative',
+        height: `${CARD_HEIGHT}px`,
+        width: `${CARD_WIDTH}px`,
+        cursor: 'pointer',
+        transition: 'transform 0.3s ease-in-out',
+        overflow: 'hidden',
+        '&:hover': {
+          transform: 'scale(1.02)'
+        }
+      }}
+    >
+      <CardActionArea 
+        sx={{ 
+          height: '100%', 
+          width: '100%',
+          position: 'relative',
+          display: 'block'
+        }}
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: `${IMAGE_HEIGHT}px`,
+            overflow: 'hidden'
+          }}
+        >
+          <MediaDisplay
+            src={nft.image}
+            alt={nft.title}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center'
+            }}
+          />
+        </Box>
+        
+        {/* CSS-based hover overlay with optimized event handling */}
+        <Box
+          className="nft-hover-overlay"
+          onClick={(e) => e.stopPropagation()}
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: `${IMAGE_HEIGHT}px`,
+            bgcolor: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            transition: 'opacity 0.3s ease-in-out',
+            opacity: 0,
+            pointerEvents: 'none',
+            '.MuiCardActionArea-root:hover &': {
+              opacity: 1,
+              pointerEvents: 'auto',
+            }
+          }}
+        >
+          <Button
+            variant="contained"
+            onClick={onAddToCart}
+            sx={{
+              bgcolor: 'white',
+              color: 'black',
+              fontWeight: 'bold',
+              '&:hover': {
+                bgcolor: 'white',
+                transform: 'scale(1.05)',
+                boxShadow: '0 4px 20px rgba(255,255,255,0.25)'
+              },
+              borderRadius: '20px',
+              padding: '8px 16px',
+            }}
+          >
+            Add to Cart
+          </Button>
+        </Box>
+      </CardActionArea>
+      <Box
+        sx={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          bgcolor: 'rgba(0, 0, 0, 0.8)',
+          p: 1,
+          borderBottomLeftRadius: 8,
+          borderBottomRightRadius: 8,
+          height: `${INFO_HEIGHT}px`,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between'
+        }}
+      >
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="subtitle2" component="div" noWrap sx={{ color: 'white' }}>
+            {nft.title}
+          </Typography>
+          {nft.isVerified && (
+            <VerifiedIcon color="primary" sx={{ fontSize: 18, ml: 0.5 }} />
+          )}
+        </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="caption" noWrap sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+            {nft.creator}
+          </Typography>
+          <Typography variant="caption" color="primary" noWrap>
+            {nft.price}
+          </Typography>
+        </Box>
+      </Box>
+    </Card>
+  );
+});
+
+// Create NFT Grid Section component with optimizations
+const NFTGridSection = React.memo(({ 
+  title, 
+  nfts, 
+  step, 
+  isAnimating, 
+  onNext, 
+  onBack,
+  sectionKey,
+  handleAddToCart
+}: { 
+  title: string;
+  nfts: typeof allNFTs;
+  step: number;
+  isAnimating: boolean;
+  onNext: () => void;
+  onBack: () => void;
+  sectionKey: string;
+  handleAddToCart: (nft: any) => void;
+}) => {
+  // Memoize the slider content to prevent unnecessary re-renders
+  const sliderContent = React.useMemo(() => {
+    return nfts.map((nft) => {
+      const uniqueId = `${sectionKey}-${nft.id}`;
+      return (
+        <Box
+          key={nft.id}
+          sx={{
+            flex: `0 0 ${100 / ITEMS_PER_PAGE}%`,
+            padding: '0 8px',
+            height: `${CARD_HEIGHT}px`,
+            display: 'flex',
+            justifyContent: 'center',
+            willChange: 'transform', // Hardware acceleration hint
+          }}
+        >
+          <NFTCard 
+            nft={nft} 
+            handleAddToCart={handleAddToCart} 
+            uniqueId={uniqueId} 
+          />
+        </Box>
+      );
+    });
+  }, [nfts, sectionKey, handleAddToCart]);
+  
+  // Use callbacks for navigation to prevent recreation on each render
+  const handleNextClick = React.useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isAnimating) onNext();
+  }, [onNext, isAnimating]);
+  
+  const handleBackClick = React.useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isAnimating) onBack();
+  }, [onBack, isAnimating]);
+  
+  // If there are no NFTs, return null after hooks are called
+  if (nfts.length === 0) {
+    return null;
+  }
+  
+  return (
+    <>
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        mb: 4,
+        mt: 8
+      }}>
+        <Typography variant="h5" component="h2" sx={{ fontWeight: 'bold' }}>
+          {title}
+        </Typography>
+      </Box>
+
+      <Box sx={{ 
+        position: 'relative', 
+        width: '100%', 
+        overflow: 'hidden',
+        height: `${CARD_HEIGHT}px`, // Fixed height for the container
+      }}>
+        <IconButton
+          onClick={handleBackClick}
+          disabled={step === 0 || isAnimating}
+          sx={{
+            position: 'absolute',
+            left: 12,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            bgcolor: 'rgba(0, 0, 0, 0.7)',
+            color: 'white',
+            zIndex: 2,
+            width: 48,
+            height: 48,
+            boxShadow: '0 0 10px rgba(0,0,0,0.5)',
+            border: '1px solid rgba(255,255,255,0.2)',
+            '&:hover': {
+              bgcolor: 'rgba(0, 0, 0, 0.9)',
+              border: '1px solid rgba(255,255,255,0.4)',
+            },
+            '&.Mui-disabled': {
+              opacity: 0.3,
+              display: 'flex'
+            }
+          }}
+        >
+          <KeyboardArrowLeft fontSize="large" />
+        </IconButton>
+
+        <IconButton
+          onClick={handleNextClick}
+          disabled={step >= nfts.length - 1 || isAnimating}
+          sx={{
+            position: 'absolute',
+            right: 12,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            bgcolor: 'rgba(0, 0, 0, 0.7)',
+            color: 'white',
+            zIndex: 2,
+            width: 48,
+            height: 48,
+            boxShadow: '0 0 10px rgba(0,0,0,0.5)',
+            border: '1px solid rgba(255,255,255,0.2)',
+            '&:hover': {
+              bgcolor: 'rgba(0, 0, 0, 0.9)',
+              border: '1px solid rgba(255,255,255,0.4)',
+            },
+            '&.Mui-disabled': {
+              opacity: 0.3,
+              display: 'flex'
+            }
+          }}
+        >
+          <KeyboardArrowRight fontSize="large" />
+        </IconButton>
+
+        <Box
+          sx={{
+            display: 'flex',
+            transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)', // Smoother easing
+            transform: `translateX(-${step * (100 / ITEMS_PER_PAGE)}%)`,
+            ml: 0,
+            height: '100%',
+            willChange: 'transform', // Hardware acceleration hint
+          }}
+        >
+          {sliderContent}
+        </Box>
+      </Box>
+    </>
+  );
+});
 
 const Home = () => {
   const navigate = useNavigate();
@@ -408,8 +708,22 @@ const Home = () => {
   const filteredPopularNFTs = filterNFTs(popularNFTs);
   const filteredUpcomingNFTs = filterNFTs(upcomingNFTs);
 
-  // Navigation handlers for each section - updated for one-at-a-time navigation
-  const createHandlers = (
+  // Optimize handlers to use useCallback
+  const handleAddToCart = React.useCallback((nft: any) => {
+    addToCart({
+      id: nft.id,
+      title: nft.title,
+      creator: nft.creator,
+      price: typeof nft.price === 'string' && nft.price.includes(' ') 
+        ? nft.price.split(' ')[0] 
+        : nft.price,
+      image: nft.image
+    });
+    setShowAddedToCart(true);
+  }, [addToCart]);
+
+  // Navigation handlers for each section - updated to use useCallback
+  const createHandlers = React.useCallback((
     currentStep: number,
     setStep: React.Dispatch<React.SetStateAction<number>>,
     setAnimating: React.Dispatch<React.SetStateAction<boolean>>,
@@ -419,313 +733,46 @@ const Home = () => {
       if (!setAnimating || currentStep >= maxSteps - 1) return;
       setAnimating(true);
       setStep((prev) => prev + 1); // Move one item at a time
-      setTimeout(() => setAnimating(false), 500);
+      setTimeout(() => setAnimating(false), 300); // Reduce timeout for faster response
     },
     handleBack: () => {
       if (!setAnimating || currentStep <= 0) return;
       setAnimating(true);
       setStep((prev) => prev - 1); // Move one item at a time
-      setTimeout(() => setAnimating(false), 500);
+      setTimeout(() => setAnimating(false), 300); // Reduce timeout for faster response
     }
-  });
+  }), []);
 
-  const handleFeaturedNext = () => {
+  const handleFeaturedNext = React.useCallback(() => {
     if (isFeaturedAnimating || activeFeaturedStep >= maxFeaturedSteps - 1) return;
     setIsFeaturedAnimating(true);
     setActiveFeaturedStep((prevStep) => prevStep + 1);
-    setTimeout(() => setIsFeaturedAnimating(false), 500);
-  };
+    setTimeout(() => setIsFeaturedAnimating(false), 300); // Reduce timeout
+  }, [isFeaturedAnimating, activeFeaturedStep, maxFeaturedSteps]);
 
-  const handleFeaturedBack = () => {
+  const handleFeaturedBack = React.useCallback(() => {
     if (isFeaturedAnimating || activeFeaturedStep <= 0) return;
     setIsFeaturedAnimating(true);
     setActiveFeaturedStep((prevStep) => prevStep - 1);
-    setTimeout(() => setIsFeaturedAnimating(false), 500);
-  };
+    setTimeout(() => setIsFeaturedAnimating(false), 300); // Reduce timeout
+  }, [isFeaturedAnimating, activeFeaturedStep]);
 
-  // Calculate which NFTs to show with one item sliding
-  const visibleNFTs = allNFTs.slice(
-    Math.max(0, activeStep - 2),
-    Math.min(activeStep + 3, allNFTs.length)
-  );
-
-  // Create NFT Grid Section component
-  const NFTGridSection = ({ 
-    title, 
-    nfts, 
-    step, 
-    isAnimating, 
-    onNext, 
-    onBack,
-    sectionKey 
-  }: { 
-    title: string;
-    nfts: typeof allNFTs;
-    step: number;
-    isAnimating: boolean;
-    onNext: () => void;
-    onBack: () => void;
-    sectionKey: string;
-  }) => {
+  // Memoize handler creation to prevent recreation on every render
+  const latestHandlers = React.useMemo(() => 
+    createHandlers(activeStep, setActiveStep, setIsAnimating, filteredNFTs.length),
+    [createHandlers, activeStep, filteredNFTs.length]);
     
-    // If there are no NFTs, don't render the section
-    if (nfts.length === 0) {
-      return null;
-    }
+  const trendingHandlers = React.useMemo(() => 
+    createHandlers(trendingStep, setTrendingStep, setIsTrendingAnimating, filteredTrendingNFTs.length),
+    [createHandlers, trendingStep, filteredTrendingNFTs.length]);
     
-    const handleAddToCart = (nft: any) => {
-      addToCart({
-        id: nft.id,
-        title: nft.title,
-        creator: nft.creator,
-        price: typeof nft.price === 'string' && nft.price.includes(' ') 
-          ? nft.price.split(' ')[0] 
-          : nft.price,
-        image: nft.image
-      });
-      setShowAddedToCart(true);
-    };
+  const popularHandlers = React.useMemo(() => 
+    createHandlers(popularStep, setPopularStep, setIsPopularAnimating, filteredPopularNFTs.length),
+    [createHandlers, popularStep, filteredPopularNFTs.length]);
     
-    return (
-      <>
-        <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center',
-          mb: 4,
-          mt: 8
-        }}>
-          <Typography variant="h5" component="h2" sx={{ fontWeight: 'bold' }}>
-            {title}
-          </Typography>
-        </Box>
-
-        <Box sx={{ 
-          position: 'relative', 
-          width: '100%', 
-          overflow: 'hidden',
-          height: `${CARD_HEIGHT}px`, // Fixed height for the container
-        }}>
-          <IconButton
-            onClick={onBack}
-            disabled={step === 0 || isAnimating}
-            sx={{
-              position: 'absolute',
-              left: 12,
-              top: '50%',
-              transform: 'translateY(-50%)',
-              bgcolor: 'rgba(0, 0, 0, 0.7)',
-              color: 'white',
-              zIndex: 2,
-              width: 48,
-              height: 48,
-              boxShadow: '0 0 10px rgba(0,0,0,0.5)',
-              border: '1px solid rgba(255,255,255,0.2)',
-              '&:hover': {
-                bgcolor: 'rgba(0, 0, 0, 0.9)',
-                border: '1px solid rgba(255,255,255,0.4)',
-              },
-              '&.Mui-disabled': {
-                opacity: 0.3,
-                display: 'flex'
-              }
-            }}
-          >
-            <KeyboardArrowLeft fontSize="large" />
-          </IconButton>
-
-          <IconButton
-            onClick={onNext}
-            disabled={step >= nfts.length - 1 || isAnimating}
-            sx={{
-              position: 'absolute',
-              right: 12,
-              top: '50%',
-              transform: 'translateY(-50%)',
-              bgcolor: 'rgba(0, 0, 0, 0.7)',
-              color: 'white',
-              zIndex: 2,
-              width: 48,
-              height: 48,
-              boxShadow: '0 0 10px rgba(0,0,0,0.5)',
-              border: '1px solid rgba(255,255,255,0.2)',
-              '&:hover': {
-                bgcolor: 'rgba(0, 0, 0, 0.9)',
-                border: '1px solid rgba(255,255,255,0.4)',
-              },
-              '&.Mui-disabled': {
-                opacity: 0.3,
-                display: 'flex'
-              }
-            }}
-          >
-            <KeyboardArrowRight fontSize="large" />
-          </IconButton>
-
-          <Box
-            sx={{
-              display: 'flex',
-              transition: 'transform 0.5s ease-in-out',
-              transform: `translateX(-${step * (100 / ITEMS_PER_PAGE)}%)`,
-              ml: 0,
-              height: '100%',
-            }}
-          >
-            {nfts.map((nft) => {
-              const uniqueId = `${sectionKey}-${nft.id}`;
-              
-              return (
-                <Box
-                  key={nft.id}
-                  sx={{
-                    flex: `0 0 ${100 / ITEMS_PER_PAGE}%`,
-                    padding: '0 8px',
-                    transition: 'all 0.5s ease-in-out',
-                    opacity: 1,
-                    transform: 'scale(1)',
-                    height: `${CARD_HEIGHT}px`,
-                    display: 'flex',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Card 
-                    sx={{ 
-                      bgcolor: 'rgba(22, 28, 36, 0.95)',
-                      borderRadius: 2,
-                      position: 'relative',
-                      height: `${CARD_HEIGHT}px`,
-                      width: `${CARD_WIDTH}px`,
-                      cursor: 'pointer',
-                      transition: 'transform 0.3s ease-in-out',
-                      overflow: 'hidden',
-                      '&:hover': {
-                        transform: 'scale(1.02)'
-                      }
-                    }}
-                  >
-                    <CardActionArea 
-                      sx={{ 
-                        height: '100%', 
-                        width: '100%',
-                        position: 'relative',
-                        display: 'block'
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          width: '100%',
-                          height: `${IMAGE_HEIGHT}px`,
-                          overflow: 'hidden'
-                        }}
-                      >
-                        <MediaDisplay
-                          src={nft.image}
-                          alt={nft.title}
-                          style={{
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover',
-                            objectPosition: 'center'
-                          }}
-                        />
-                      </Box>
-                      
-                      {/* CSS-based hover overlay instead of React state */}
-                      <Box
-                        className="nft-hover-overlay"
-                        onClick={(e) => e.stopPropagation()}
-                        sx={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          height: `${IMAGE_HEIGHT}px`,
-                          bgcolor: 'rgba(0, 0, 0, 0.7)',
-                          display: 'flex',
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                          transition: 'opacity 0.3s ease-in-out',
-                          opacity: 0,
-                          pointerEvents: 'none',
-                          '.MuiCardActionArea-root:hover &': {
-                            opacity: 1,
-                            pointerEvents: 'auto',
-                          }
-                        }}
-                      >
-                        <Button
-                          variant="contained"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleAddToCart(nft);
-                          }}
-                          sx={{
-                            bgcolor: 'white',
-                            color: 'black',
-                            fontWeight: 'bold',
-                            '&:hover': {
-                              bgcolor: 'white',
-                              transform: 'scale(1.05)',
-                              boxShadow: '0 4px 20px rgba(255,255,255,0.25)'
-                            },
-                            borderRadius: '20px',
-                            padding: '8px 16px',
-                          }}
-                        >
-                          Add to Cart
-                        </Button>
-                      </Box>
-                    </CardActionArea>
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        bgcolor: 'rgba(0, 0, 0, 0.8)',
-                        p: 1,
-                        borderBottomLeftRadius: 8,
-                        borderBottomRightRadius: 8,
-                        height: `${INFO_HEIGHT}px`,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between'
-                      }}
-                    >
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography variant="subtitle2" component="div" noWrap sx={{ color: 'white' }}>
-                          {nft.title}
-                        </Typography>
-                        {nft.isVerified && (
-                          <VerifiedIcon color="primary" sx={{ fontSize: 18, ml: 0.5 }} />
-                        )}
-                      </Box>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography variant="caption" noWrap sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                          {nft.creator}
-                        </Typography>
-                        <Typography variant="caption" color="primary" noWrap>
-                          {nft.price}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Card>
-                </Box>
-              );
-            })}
-          </Box>
-        </Box>
-      </>
-    );
-  };
-
-  const latestHandlers = createHandlers(activeStep, setActiveStep, setIsAnimating, filteredNFTs.length);
-  const trendingHandlers = createHandlers(trendingStep, setTrendingStep, setIsTrendingAnimating, filteredTrendingNFTs.length);
-  const popularHandlers = createHandlers(popularStep, setPopularStep, setIsPopularAnimating, filteredPopularNFTs.length);
-  const upcomingHandlers = createHandlers(upcomingStep, setUpcomingStep, setIsUpcomingAnimating, filteredUpcomingNFTs.length);
+  const upcomingHandlers = React.useMemo(() => 
+    createHandlers(upcomingStep, setUpcomingStep, setIsUpcomingAnimating, filteredUpcomingNFTs.length),
+    [createHandlers, upcomingStep, filteredUpcomingNFTs.length]);
 
   return (
     <Container maxWidth="xl" sx={{ pt: 2, pb: 8 }}>
@@ -946,14 +993,13 @@ const Home = () => {
                                 }}
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  addToCart({
+                                  handleAddToCart({
                                     id: index + 100,
                                     title: nft.title,
                                     creator: nft.creator,
                                     price: nft.price.split(' ')[0],
                                     image: nft.image
                                   });
-                                  setShowAddedToCart(true);
                                 }}
                               >
                                 Add to Cart
@@ -1022,14 +1068,13 @@ const Home = () => {
                               variant="contained" 
                               onClick={(e) => {
                                 e.stopPropagation();
-                                addToCart({
+                                handleAddToCart({
                                   id: index + 100,
                                   title: nft.title,
                                   creator: nft.creator,
                                   price: nft.price.split(' ')[0],
                                   image: nft.image
                                 });
-                                setShowAddedToCart(true);
                               }}
                               sx={{ 
                                 bgcolor: 'white',
@@ -1055,7 +1100,7 @@ const Home = () => {
         </Container>
       </Box>
 
-      {/* Latest NFTs Section */}
+      {/* NFT Sections - now with optimized props */}
       <NFTGridSection
         title="Latest Drops"
         nfts={filteredNFTs}
@@ -1064,6 +1109,7 @@ const Home = () => {
         onNext={latestHandlers.handleNext}
         onBack={latestHandlers.handleBack}
         sectionKey="latest"
+        handleAddToCart={handleAddToCart}
       />
       
       <NFTGridSection
@@ -1074,6 +1120,7 @@ const Home = () => {
         onNext={trendingHandlers.handleNext}
         onBack={trendingHandlers.handleBack}
         sectionKey="trending"
+        handleAddToCart={handleAddToCart}
       />
       
       <NFTGridSection
@@ -1084,6 +1131,7 @@ const Home = () => {
         onNext={popularHandlers.handleNext}
         onBack={popularHandlers.handleBack}
         sectionKey="popular"
+        handleAddToCart={handleAddToCart}
       />
       
       <NFTGridSection
@@ -1094,11 +1142,12 @@ const Home = () => {
         onNext={upcomingHandlers.handleNext}
         onBack={upcomingHandlers.handleBack}
         sectionKey="upcoming"
+        handleAddToCart={handleAddToCart}
       />
       
       <Snackbar
         open={showAddedToCart}
-        autoHideDuration={3000}
+        autoHideDuration={2000} // Reduced duration for faster UX
         onClose={() => setShowAddedToCart(false)}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
       >
