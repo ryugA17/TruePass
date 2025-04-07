@@ -28,7 +28,7 @@ const allNFTs = [
     title: 'Abstract Thought of Art',
     creator: 'ZafGod.eth',
     price: '0.00069 ETH',
-    image: 'https://via.placeholder.com/400x400/1a237e/ffffff',
+    image: '',
     status: 'Now',
     isVerified: true
   },
@@ -37,7 +37,7 @@ const allNFTs = [
     title: 'Harvested Opulence',
     creator: 'Fame Identity',
     price: '0.005 ETH',
-    image: 'https://via.placeholder.com/400x400/4a148c/ffffff',
+    image: 'https://assets.raribleuserdata.com/prod/v1/image/t_gif_preview/aHR0cHM6Ly9pcGZzLnJhcmlibGV1c2VyZGF0YS5jb20vaXBmcy9RbVJGVlBxRnVnV0JMWU0xbldXQnhMaW1Gd3dzRHFSTkJVcGQ2Um1XeVNweENYL0dvYXQtZHJvcC0xXzEtZXpnaWYuY29tLW9wdGltaXplLmdpZg==',
     status: '23 hours',
     isVerified: true
   },
@@ -46,7 +46,7 @@ const allNFTs = [
     title: 'RELAX',
     creator: 'brain pasta',
     price: '0.0038 ETH',
-    image: 'https://via.placeholder.com/400x400/311b92/ffffff',
+    image: 'https://assets.raribleuserdata.com/prod/v1/image/t_avatar_big/aHR0cHM6Ly9pcGZzLnJhcmlibGV1c2VyZGF0YS5jb20vaXBmcy9RbWQ3YWNGUVJGSjlSSjduNmZ4dm1WblhhWjlnVDdmYmdoYUVmeHVnSk1NS2NKL0xPTFJBUklCTEUyMDI1SElHSFJFUzMwMDAyLmdpZg==',
     status: 'Now',
     isVerified: true
   },
