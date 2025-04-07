@@ -22,18 +22,60 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { useCart } from '../context/CartContext';
 
+// Import asset paths directly
+const getAssetPath = (path: string) => `${process.env.PUBLIC_URL}${path}`;
+
+const nftAssets = {
+  '1': getAssetPath('/assets/nft-icons/1.mp4'),
+  '2': getAssetPath('/assets/nft-icons/2.gif'),
+  '3': getAssetPath('/assets/nft-icons/3.mp4'),
+  '4': getAssetPath('/assets/nft-icons/4.mp4'),
+  '5': getAssetPath('/assets/nft-icons/5.mp4'),
+  '6': getAssetPath('/assets/nft-icons/6.mp4'),
+  '7': getAssetPath('/assets/nft-icons/7.mp4'),
+  '8': getAssetPath('/assets/nft-icons/8.gif'),
+  '9': getAssetPath('/assets/nft-icons/9.mp4'),
+  '10': getAssetPath('/assets/nft-icons/10.gif'),
+  '11': getAssetPath('/assets/nft-icons/11.gif'),
+  '12': getAssetPath('/assets/nft-icons/12.gif'),
+  '13': getAssetPath('/assets/nft-icons/13.mp4'),
+  '14': getAssetPath('/assets/nft-icons/14.gif'),
+  '15': getAssetPath('/assets/nft-icons/15.gif'),
+  '16': getAssetPath('/assets/nft-icons/16.gif'),
+  '17': getAssetPath('/assets/nft-icons/17.png'),
+  '18': getAssetPath('/assets/nft-icons/18.gif'),
+  '19': getAssetPath('/assets/nft-icons/19.gif'),
+  '20': getAssetPath('/assets/nft-icons/20.gif'),
+  '21': getAssetPath('/assets/nft-icons/21.gif'),
+  '22': getAssetPath('/assets/nft-icons/22.gif'),
+  '23': getAssetPath('/assets/nft-icons/23.gif'),
+  '24': getAssetPath('/assets/nft-icons/24.gif'),
+  '25': getAssetPath('/assets/nft-icons/25.mp4'),
+  '26': getAssetPath('/assets/nft-icons/26.gif'),
+  '27': getAssetPath('/assets/nft-icons/27.gif'),
+  '28': getAssetPath('/assets/nft-icons/28.mp4'),
+  '29': getAssetPath('/assets/nft-icons/29.gif'),
+  '30': getAssetPath('/assets/nft-icons/30.gif'),
+  '31': getAssetPath('/assets/nft-icons/31.mp4'),
+  '32': getAssetPath('/assets/nft-icons/32.gif'),
+  '33': getAssetPath('/assets/nft-icons/33.mp4'),
+  '34': getAssetPath('/assets/nft-icons/34.gif'),
+  '35': getAssetPath('/assets/nft-icons/35.gif'),
+  '36': getAssetPath('/assets/nft-icons/36.jpg')
+};
+
 // Featured NFTs data
 const featuredNFTs = [
   {
     "title": "Dreamscape",
-  "creator": "PixelWizard.eth",
-  "platform": "Surreal",
-  "price": "0.00420 ETH",
-  "description": "A journey into the subconscious through shapes and shades. Vibrant hues meet deep symbolism.",
-  "image": "https://v5.airtableusercontent.com/v3/u/39/39/1744056000000/4mhj3z8rY8mx9ttmxbyMHg/eGpRjDZLGoWydWPUpIeOLYiXGyH4BTaH0KUSnKcMTzYxE7x9Zne6O-iQ-xEk711ZsII2SMCjMZcj0K9r0Wx9QCsCejm2zG3o19PPVBBzoMQURSMxMrYj5PMQAV-kytVEGYhO6QRorcw-wyYRpQM77Q/IODStxzZG3iGZj3FbbA50x4Rp0b89dDPTcff3stAgmM",
-  "status": "AVAILABLE NOW",
-  "mintedCount": "24",
-  "maxPerWallet": "5",
+    "creator": "PixelWizard.eth",
+    "platform": "Surreal",
+    "price": "0.00420 ETH",
+    "description": "A journey into the subconscious through shapes and shades. Vibrant hues meet deep symbolism.",
+    "image": nftAssets['1'],
+    "status": "AVAILABLE NOW",
+    "mintedCount": "24",
+    "maxPerWallet": "5",
     timeLeft: "2d 23h",
     isVerified: true,
     gradient: 'linear-gradient(135deg, #00ff9d 0%, #00ff9d40 100%)'
@@ -44,7 +86,7 @@ const featuredNFTs = [
     platform: "Abstract",
     price: "0.0089 ETH",
     description: "A fusion of classical art and digital innovation, where Renaissance masterpieces meet contemporary digital techniques. Each stroke represents the bridge between centuries of artistic evolution...",
-    image: "https://v5.airtableusercontent.com/v3/u/39/39/1744063200000/u3YXNGcQ64Tm5tSavMqo0A/xGs86W3yV6VWwL8sQz_qei-ESVlk8k3iYDe4P-YMV7tJuMg1XJWMNe8dZDWkydFn6B0esv2-VujN-OQJUMoBkWuEQ9DmhS7hUM54v3hL7jXCgtJfmDso-HqjX2EO32ZF0XfZPTj9h6QxAkotpaB10A/38MbdFOx1-eKAiYpzbSr5hAUoeudkwlyjqZjHYlUwQU",
+    image: nftAssets['2'],
     status: "MINTING NOW",
     mintedCount: "8",
     maxPerWallet: "5",
@@ -58,7 +100,7 @@ const featuredNFTs = [
     platform: "Abstract",
     price: "0.0075 ETH",
     description: "Dive into a world where quantum mechanics meets digital art. This piece explores the multiple realities of our existence through vibrant colors and geometric patterns...",
-    image: "https://v5.airtableusercontent.com/v3/u/39/39/1744048800000/FPPtNfSsuyDASK99CRDASA/9t8ediv6t1vG1kDg__l72dgxDH73zQPJPqxszvIVvJUy-AVA7TMW1lWnKpw0paW1XU-euSFBHRKw7VRKOkf6Pp94K3z6JejX5rsWo8MjcaVC-UOiATv-Ysgh97-fzBSPhBBeIskpgShdn7s6HOSIcQ/R8P96j-wabHzfHebTely4dBZ-Wvp2_R3W25bCKFvUBI",
+    image: nftAssets['3'],
     status: "MINTING NOW",
     mintedCount: "15",
     maxPerWallet: "8",
@@ -75,7 +117,7 @@ const allNFTs = [
     title: 'Abstract Thought of Art',
     creator: 'ZafGod.eth',
     price: '0.00069 ETH',
-    image: 'https://assets.raribleuserdata.com/prod/v1/image/t_avatar_big/aHR0cHM6Ly9pcGZzLnJhcmlibGV1c2VyZGF0YS5jb20vaXBmcy9iYWZ5YmVpYmtyY3Q2NnZnNWFyc2tpYnR6amxnczUzY28yazNidXBheHdlb2h1YWhnNmwyN3ZyM2g0YQ==',
+    image: nftAssets['4'],
     status: 'Now',
     isVerified: true
   },
@@ -84,7 +126,7 @@ const allNFTs = [
     title: 'Harvested Opulence',
     creator: 'Fame Identity',
     price: '0.005 ETH',
-    image: 'https://assets.raribleuserdata.com/prod/v1/image/t_gif_preview/aHR0cHM6Ly9pcGZzLnJhcmlibGV1c2VyZGF0YS5jb20vaXBmcy9RbVJGVlBxRnVnV0JMWU0xbldXQnhMaW1Gd3dzRHFSTkJVcGQ2Um1XeVNweENYL0dvYXQtZHJvcC0xXzEtZXpnaWYuY29tLW9wdGltaXplLmdpZg==',
+    image: nftAssets['5'],
     status: '23 hours',
     isVerified: true
   },
@@ -93,7 +135,7 @@ const allNFTs = [
     title: 'RELAX',
     creator: 'brain pasta',
     price: '0.0038 ETH',
-    image: 'https://assets.raribleuserdata.com/prod/v1/image/t_avatar_big/aHR0cHM6Ly9pcGZzLnJhcmlibGV1c2VyZGF0YS5jb20vaXBmcy9RbWQ3YWNGUVJGSjlSSjduNmZ4dm1WblhhWjlnVDdmYmdoYUVmeHVnSk1NS2NKL0xPTFJBUklCTEUyMDI1SElHSFJFUzMwMDAyLmdpZg==',
+    image: nftAssets['6'],
     status: 'Now',
     isVerified: true
   },
@@ -102,7 +144,7 @@ const allNFTs = [
     title: 'Spring will come',
     creator: 'Reza Milani',
     price: '0.0004 ETH',
-    image: 'https://assets.raribleuserdata.com/prod/v1/image/t_avatar_big/aHR0cHM6Ly9pcGZzLnJhcmlibGV1c2VyZGF0YS5jb20vaXBmcy9RbWQyTUYyQkZ4NFl4dTl4dnc3amJRRDRqVm8yNXZCbkdObjZzWWQ2bkFLaWVjL21hdGNoYWluMTItZXpnaWYuY29tLW9wdGltaXplLmdpZg==',
+    image: nftAssets['7'],
     status: 'Now',
     isVerified: true
   },
@@ -111,7 +153,7 @@ const allNFTs = [
     title: 'Cyber Dreams',
     creator: 'neon.eth',
     price: '0.0089 ETH',
-    image: 'https://assets.raribleuserdata.com/prod/v1/image/t_avatar_big/aHR0cHM6Ly9pcGZzLnJhcmlibGV1c2VyZGF0YS5jb20vaXBmcy9iYWZ5YmVpZnEya3I2aGVocmRjNXFxbXgzNXZ4a29rczNvaWkydHZwcmRhZnl4YWx4bHNxYWtobXp5bQ==',
+    image: nftAssets['8'],
     status: 'Now',
     isVerified: true
   },
@@ -120,7 +162,7 @@ const allNFTs = [
     title: 'Digital Wilderness',
     creator: 'artmaster',
     price: '0.0123 ETH',
-    image: 'https://assets.raribleuserdata.com/prod/v1/image/t_avatar_big/aHR0cHM6Ly9pcGZzLnJhcmlibGV1c2VyZGF0YS5jb20vaXBmcy9RbVdrY0pnN1FWZTNjWE5TMXROd2s4TmFWaXRCQlRzUGNqdHpLdVYxMnd4Y2V0L3Rob3VnaHRfb2ZfYXJ0LmdpZg==',
+    image: nftAssets['9'],
     status: '2 hours',
     isVerified: true
   },
@@ -129,7 +171,7 @@ const allNFTs = [
     title: 'Neon Nights',
     creator: 'pixelart.eth',
     price: '0.0075 ETH',
-    image: 'https://lh3.googleusercontent.com/RY7_lkqWuNaAXCwks_Xot4D6fueS4s4ubNYt2PzEqEAs1tJFhJLzSVF2PAYtIvNNA4rjoRQhDmGtFeWVZBjcbv70ASTimVVvJ4k=s1000',
+    image: nftAssets['10'],
     status: 'Now',
     isVerified: true
   },
@@ -138,7 +180,7 @@ const allNFTs = [
     title: 'Future Past',
     creator: 'retro.eth',
     price: '0.0055 ETH',
-    image: 'https://v5.airtableusercontent.com/v3/u/39/39/1744056000000/zkGCYPxUQpuuUoRmF0YnuA/hrykuHNhYmaRONeyyUwEVnjqKO_WbKOzj2qDAriyW0xn-jaos3AD5rV1K_Y6WokGLmXikTL9M_Qd_54Wt1J0Mcz0HF84GPB6FQ0D0FSY7YboM_FK0kg4o8iSntIrvavypHn0vaPjolffYpss0YWPeQ/7qClnynZtSmYX_Sw1ipzQHyshLnLUR7BE0jOBMFRE5k',
+    image: nftAssets['11'],
     status: '5 hours',
     isVerified: true
   },
@@ -147,7 +189,7 @@ const allNFTs = [
     title: 'Quantum Dreams',
     creator: 'quantum.art',
     price: '0.0095 ETH',
-    image: 'https://v5.airtableusercontent.com/v3/u/39/39/1744048800000/FPPtNfSsuyDASK99CRDASA/9t8ediv6t1vG1kDg__l72dgxDH73zQPJPqxszvIVvJUy-AVA7TMW1lWnKpw0paW1XU-euSFBHRKw7VRKOkf6Pp94K3z6JejX5rsWo8MjcaVC-UOiATv-Ysgh97-fzBSPhBBeIskpgShdn7s6HOSIcQ/R8P96j-wabHzfHebTely4dBZ-Wvp2_R3W25bCKFvUBI',
+    image: nftAssets['12'],
     status: 'Now',
     isVerified: true
   },
@@ -156,7 +198,7 @@ const allNFTs = [
     title: 'Virtual Reality',
     creator: 'vr.master',
     price: '0.0082 ETH',
-    image: 'https://assets.raribleuserdata.com/prod/v1/image/t_avatar_big/aHR0cHM6Ly9pcGZzLnJhcmlibGV1c2VyZGF0YS5jb20vaXBmcy9RbVppU3F1Z05UNmsxTUJ3N0pySkpBOHM3b3kxZHhNa3U3eW50U0xGb1VCRktYL0FyYml0cnVtLWxpdmUtb24tUmFyaWJsZS1lemdpZi5jb20tb3B0aW1pemUuZ2lm',
+    image: nftAssets['13'],
     status: '12 hours',
     isVerified: true
   },
@@ -165,7 +207,7 @@ const allNFTs = [
     title: 'Digital Genesis',
     creator: 'crypto.art',
     price: '0.0067 ETH',
-    image: 'https://assets.raribleuserdata.com/prod/v1/image/t_gif_preview/aHR0cHM6Ly9pcGZzLnJhcmlibGV1c2VyZGF0YS5jb20vaXBmcy9RbVl0MlEzOHk3ZWh0c3RUOGNXRWl2enJZdEd6QnBKOWZZZEJoSk1yYUdKV2VKLzEuZ2lm',
+    image: nftAssets['14'],
     status: 'Now',
     isVerified: true
   },
@@ -174,7 +216,7 @@ const allNFTs = [
     title: 'Pixel Paradise',
     creator: 'pixel.master',
     price: '0.0043 ETH',
-    image: 'https://ipfs.raribleuserdata.com/ipfs/bafybeico7a2c5v4tgc4hcj76orsdamo5jeg5uzwrhbclq72yfg4ycw3ta4',
+    image: nftAssets['15'],
     status: '8 hours',
     isVerified: true
   },{
@@ -182,7 +224,7 @@ const allNFTs = [
     title: 'Spectral Mirage',
     creator: 'VoidCrafter.eth',
     price: '0.0091 ETH',
-    image: 'https://v5.airtableusercontent.com/v3/u/39/39/1744056000000/2dlKSHK4ruwNBxn7lazlDg/kmUipOqfge_6YaJKlX8H4siaCZMgudvZUCjCAFjZm84InzZlsuVoKGKJ2jaaEHOHP2LFarYIjOE7OUXWmhjyN2g0O6oeQrWmXe-Mz8od8Zz1jP44Q3QfucJ9klofPvsFxcPINbdhgsU2Ml2uXGY5Hg/uL6U2p9zgtSYbp0L0oWrb4E8_BX-N9INJAZ6tqdFB-k',
+    image: nftAssets['16'],
     status: 'Now',
     isVerified: true
   },
@@ -191,7 +233,7 @@ const allNFTs = [
     title: 'Drift Circuit',
     creator: 'HelixDriver',
     price: '0.007 ETH',
-    image: 'https://media.tenor.com/TLvHteaTUzwAAAAM/walking-chip-ne555.gif',
+    image: nftAssets['17'],
     status: '1 hour',
     isVerified: true
   },
@@ -200,7 +242,7 @@ const allNFTs = [
     title: 'Rustcore Bloom',
     creator: 'IronMoth',
     price: '0.0063 ETH',
-    image: 'https://v5.airtableusercontent.com/v3/u/39/39/1744056000000/vv58RzrYXFyRApX6Z3I6nQ/Vyph7jhdeh7B0H7quAf5YSkp36D-LntnzKJtkmnAHTl5r8ZtQkW-88CdqEQHVaKgVCWPyep6QloEA9vp0om-FKqv0cDyZt04ievw2cbbM22KaKEaMtP5QXhCqujnjCTUQRvxsVI6DEKE7R6fM9gC7Q/TmTlaeiOqKCgBd2WC_5Im01AW1X4fI_YDR9aUiyANdI',
+    image: nftAssets['18'],
     status: 'Now',
     isVerified: false
   },
@@ -209,7 +251,7 @@ const allNFTs = [
     title: 'Liminal Tape',
     creator: 'NoSignal404',
     price: '0.0056 ETH',
-    image: 'https://v5.airtableusercontent.com/v3/u/39/39/1744056000000/HUgEDEeJ0MqLiFg-dCldLg/U-qPSCogtQmrunaIzid483jah_pYQbzKQ9BxmOGs4Xi2g-IjVFUdFtD7U-ArlEVQ_I0lH-39a0D_qBuPAzobRP82UCjmmxy-f7zeff1O6PSuy3PkKxJHLo-QzyG_YOtNbnYxM5IBJ7p1h3IH_tpcJA/fQVKX_-mYAtS9PJ1Ud8hwfOA5UV13lra-KU3QRM7Lcs',
+    image: nftAssets['19'],
     status: '3 hours',
     isVerified: true
   },
@@ -218,7 +260,7 @@ const allNFTs = [
     title: 'PERFECTL00P: Link Formations',
     creator: 'StudioEcho',
     price: '0.0049 ETH',
-    image: 'https://v5.airtableusercontent.com/v3/u/39/39/1744056000000/A1sxgjoWgOUiIuxcfG75bA/ie0uS0buZmO9xkAfPiD0WvSbiAoV6D_g1gRXfd0N9Seur09V7fLNW-gBHJ9zJ49pVyuEJwCO25-fCwMK_MVjZecBOvmis8C4RMUkEPER7rDOFdaslc9j3ZTEviIccxQNIAbD3eJkscnOPwK0UaP4sQ/9UrqC0FiIL9EM66f_kF1hFzYmuy8YRcR1bC0SHXmSB8',
+    image: nftAssets['20'],
     status: 'Now',
     isVerified: false
   },
@@ -227,7 +269,7 @@ const allNFTs = [
     title: 'Dreams in Ascii',
     creator: 'bitform',
     price: '0.0034 ETH',
-    image: 'https://media.tenor.com/R6SlBBQ1I0YAAAAM/ascii-pepe-ascii.gif',
+    image: nftAssets['21'],
     status: '2 hours',
     isVerified: true
   },
@@ -236,125 +278,17 @@ const allNFTs = [
     title: 'Shadow Protocol',
     creator: 'EncryptedArtz',
     price: '0.011 ETH',
-    image: 'https://v5.airtableusercontent.com/v3/u/39/39/1744056000000/pJ4i_C2p3dnU5ujTi1HUew/1A-RVAiFLtZ_QCLsNH4rwPCDBFCN2tIgNl-9x-ZRTmZHlQ2xnrDYTcfh8luh_ASjvxB4VMfQJA4q4jqcpX1DbZ05e77_fiMCkFIyV97B0qLqH5ux7ae8vEsnbYd6ihxuB5JMQYhSqQsNMow2PI41GA/1QNH0sVLNgT1u0yFwcNHW8vqR4rQVHUkNi0gVrIVfxc',
+    image: nftAssets['22'],
     status: 'Now',
     isVerified: true
   },
   {
     id: 20,
     title: 'Skybound Memories',
-    creator: 'Loftwave',
-    price: '0.006 ETH',
-    image: 'https://v5.airtableusercontent.com/v3/u/39/39/1744056000000/SOrnumWwoSsT9lCYIVFwEQ/RgklAVg6QWl0LBOvxWpZBTRKnh5MgRz2tVgOWU5z9WQRL90TwJtJNTW-_8Z9UyjshY--4WiXlW8kIFLPZAAk5W3nYX57vjQjpWRamONWsf1w1l5G7hLzRkTE6U5KdqmezuQhLc9coTDa2jmsTfTrSg/0d75AuC_XcPWaDQruRvMSYxyZfn9DgvxAst-yaNBzRE',
-    status: '4 hours',
-    isVerified: true
-  },
-  {
-    id: 21,
-    title: 'Neural Meadow',
-    creator: 'CoreWeaver',
-    price: '0.0099 ETH',
-    image: 'https://v5.airtableusercontent.com/v3/u/39/39/1744056000000/2jQBdUr8V8z0Y4nVlql2SA/CkvM1s6zrKNWengktb3nI7_kz8HhCqHFKWtThLYy0fteRUAjf0oHZcDc8QRBTO55zBxowYKCWhTrCASkJVA-S06oNinlEFZkuwbDugwDr29zH6exblrs4qgjlotTjMVuErCGQ9_Om_Bf2fXVTihSYQ/kar5lyvTF4woY9IbvmmskW0T0M4TqbHVCVTB4AYe-JU',
-    status: 'Now',
-    isVerified: true
-  },
-  {
-    id: 22,
-    title: 'Crystalline Flux',
-    creator: 'AltShaper',
-    price: '0.0077 ETH',
-    image: 'https://v5.airtableusercontent.com/v3/u/39/39/1744056000000/T60cZiRKm3r9Zgn7QDAetg/a11YQRMP83FYMclE7gNWk-Rr4Q-DG5IcwnEGJ6SrF0QTOxw9V7INtEMkFjnOhYAx7GJbzrk95bp5XPURq2I1miDZJxx526T0bhyN9v8QiArbh7DpjfVOKkHybf27_8ogK8d4Y3zJm_v9FJcapWNn5Q/MgoBZTnMe9Pae-HhuDDR5i0IDK4eh-amJzQyuN-1Q_o',
+    creator: 'CloudWalker',
+    price: '0.0081 ETH',
+    image: nftAssets['23'],
     status: '6 hours',
-    isVerified: false
-  },
-  {
-    id: 23,
-    title: 'Tangent Bloom',
-    creator: 'DeltaArtist',
-    price: '0.0023 ETH',
-    image: 'https://v5.airtableusercontent.com/v3/u/39/39/1744056000000/utMlg9wMCaLfbiw1yPIqgQ/VvcP0Vg7i7iOJn0CN5pnoOxC9ONkmNhAOreq46surHTgz9GS2GcvcvBP_d4odom0KpoU3tF50os--s3-ME_MUpzKYY3IovPuguG0Au7tPln6Ek492iOGR5IOd4Eqif4jIakp2DIW2V1G0H_TQVtFtw/NsVqmS77256bUzasPClM1P3HOVn-ZC3MyGSdaMbNWHY',
-    status: 'Now',
-    isVerified: true
-  },
-  {
-    id: 24,
-    title: 'Dark Code Sonata',
-    creator: 'StackTrace.eth',
-    price: '0.0101 ETH',
-    image: 'https://assets.raribleuserdata.com/prod/v1/image/t_gif_preview/aHR0cHM6Ly9pcGZzLnJhcmlibGV1c2VyZGF0YS5jb20vaXBmcy9RbWJMalNCUWhIajVONHU0YlBwS2VTMXVkWlNwbkNWTEtaajUzbzdjU0Z6UnI4LzAuZ2lm',
-    status: '1 hour',
-    isVerified: true
-  },
-  {
-    id: 25,
-    title: 'Chrome Embers',
-    creator: 'ByteInferno',
-    price: '0.005 ETH',
-    image: 'https://v5.airtableusercontent.com/v3/u/39/39/1744056000000/EVz6NGcMuCIWF1pGp46_2Q/xKPr6MYgcg7QjhhKO8IcigT3XdkHCVrgAfpsRW7h6RSoimfbiQaB-jfa4l0uJkK1wlQu3QEG1SKC48dvpYEljPQx7Vouoh9EVpKCeTdA0BaDsSe8cL6kmv9DoYguxRtAbXwAsdKq0vBc8kS4AxW13g/UgE37vC8TH-v-wnN9oZmn-xyEqnj2n5FXRZcdqAKs4g',
-    status: 'Now',
-    isVerified: true
-  },
-  {
-    id: 26,
-    title: 'Long Live NFTs',
-    creator: 'SignalJunkie',
-    price: '0.0042 ETH',
-    image: 'https://v5.airtableusercontent.com/v3/u/39/39/1744056000000/CykLHu-xCMKDlJ4YbHWf5g/FzAJ8Su5GapPPa4CjDZfyhWnVCv1tIgJYYfvQkyK04c6BWXuyR4YaQfxFBxqdtVa1_ObveVjtXV88u5XTGdgn2SD5i5zk7bKQ9xbF8ENJQjVCW0qcE9BYBsKOQtApiHoMZYKNVhVSdHSlVqRBtZVmg/TFwNlh7BPL65rHmBOrLkmDfhOBd4lZt9OhXLy4ttkoE',
-    status: '3 hours',
-    isVerified: true
-  },
-  {
-    id: 27,
-    title: 'Based Rocket',
-    creator: 'NeutrinoDrop',
-    price: '0.0088 ETH',
-    image: 'https://v5.airtableusercontent.com/v3/u/39/39/1744056000000/chcoFYuE477wds0W61IRlQ/A8YT_uNrLkvhglZ27o-uDcjwBpbype-Vojf2y-qMSjy9EB5yG4lhn0F9Bc39D6PLRMOElI2vI5tytLXgx0w3WL4UzrhYGUA0wgC_jrDumQgXpisTB53th8J4lP5zl8eXIUbMJ2LDnKbzy7tUz3xeww/vVJp9JYTXXH3HrWDA5iSkqcZJTRhFwn5oiQ7Y578EDA',
-    status: 'Now',
-    isVerified: false
-  },
-  {
-    id: 28,
-    title: 'Solar Syntax',
-    creator: 'SunlitHex',
-    price: '0.0066 ETH',
-    image: 'https://v5.airtableusercontent.com/v3/u/39/39/1744056000000/HUgEDEeJ0MqLiFg-dCldLg/U-qPSCogtQmrunaIzid483jah_pYQbzKQ9BxmOGs4Xi2g-IjVFUdFtD7U-ArlEVQ_I0lH-39a0D_qBuPAzobRP82UCjmmxy-f7zeff1O6PSuy3PkKxJHLo-QzyG_YOtNbnYxM5IBJ7p1h3IH_tpcJA/fQVKX_-mYAtS9PJ1Ud8hwfOA5UV13lra-KU3QRM7Lcs',
-    status: 'Upcoming',
-    isVerified: true
-  },
-  {
-    id: 29,
-    title: 'The Hellish Swing!',
-    creator: 'DeepEchoLab',
-    price: '0.0092 ETH',
-    image: 'https://v5.airtableusercontent.com/v3/u/39/39/1744056000000/e6VcTOWYzPEv4g6zHLAaXg/RJmifZFDSfVU6on5x4mIgpnHKn8YxaPAdjehsfzqmEOWJ8_pDlw2Tq3Qh18-CuPpNSwU9NhV1ICTCvLaDrMyd3U4AHdOquZcyJTtA-QKD_NK-Rylvsniap2TrwnrisTUqY16SgY-3iyYE1Kaye3_vg/MKkpnnV6Ml7dzsdBMZGGfQiXo01dZ1cEfRiff2zxVD4',
-    status: 'Upcoming',
-    isVerified: true
-  },
-  {
-    id: 30,
-    title: 'El Capy',
-    creator: 'ArtPhantom',
-    price: '0.0039 ETH',
-    image: 'https://v5.airtableusercontent.com/v3/u/39/39/1744056000000/BCLijEFcvVxAeXeSAp7O9A/Q3o4JHkb-UjV4gUVa7OWyyj1IUcNOalgVxKqIwmQHGQX71th3EI85oIeRsm8j-ys3RJeY_im6m5FpG55zWIh8L2qZx8aFC9Cql0wv-F719VqvkjwyEODIAYK4_pWgZv_p67hJRLMqOIdX89iQhi7CA/0CFHbcJWPml1O_M5f3SXd_4-PJO2ezlNW9gILJ491R0',
-    status: 'Upcoming',
-    isVerified: false
-  },
-  {
-    id: 31,
-    title: 'Mirrorverse Ritual',
-    creator: 'TheOtherPixel',
-    price: '0.0115 ETH',
-    image: 'https://v5.airtableusercontent.com/v3/u/39/39/1744056000000/pJ4i_C2p3dnU5ujTi1HUew/1A-RVAiFLtZ_QCLsNH4rwPCDBFCN2tIgNl-9x-ZRTmZHlQ2xnrDYTcfh8luh_ASjvxB4VMfQJA4q4jqcpX1DbZ05e77_fiMCkFIyV97B0qLqH5ux7ae8vEsnbYd6ihxuB5JMQYhSqQsNMow2PI41GA/1QNH0sVLNgT1u0yFwcNHW8vqR4rQVHUkNi0gVrIVfxc',
-    status: 'Upcoming',
-    isVerified: true
-  },
-  {
-    id: 32,
-    title: 'HYPE Fight Club',
-    creator: 'FluxGarden',
-    price: '0.006 ETH',
-    image: 'https://v5.airtableusercontent.com/v3/u/39/39/1744056000000/mVMud87ha8IiRBl2ckT6wA/56R9Zd3gqPNPW8mBdEDAFdjZ7cmapiFiH22c1IoBLo0Ni1fial84nmSTKzCQGOzPFO7dWjRMwXC7viM5eW5PupnowLVCzqlW176k_03han14UQzzYMrMG-3gTXztTu9R_Q3ZgSW8Qzhw5M0d6dIvKw/hD32qqpDS9-YxUdPA03pJ9EnnILTPY2DK104c2-Z9NM',
-    status: 'Upcoming',
     isVerified: true
   }
 ];
@@ -389,6 +323,42 @@ const INFO_HEIGHT = 60;
 // Fixed dimensions for featured section
 const FEATURED_HEIGHT = 400;
 const FEATURED_WIDTH = 1150; // Double the card width since it's a featured item
+
+// Create a component to handle different media types (videos and images)
+const MediaDisplay = ({ src, alt, style }: { src: string, alt: string, style?: React.CSSProperties }) => {
+  const isVideo = src.endsWith('.mp4');
+  
+  return isVideo ? (
+    <video
+      autoPlay
+      loop
+      muted
+      playsInline
+      style={{
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover',
+        objectPosition: 'center',
+        ...style
+      }}
+    >
+      <source src={src} type="video/mp4" />
+      Your browser does not support the video tag.
+    </video>
+  ) : (
+    <img
+      src={src}
+      alt={alt}
+      style={{
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover',
+        objectPosition: 'center',
+        ...style
+      }}
+    />
+  );
+};
 
 const Home = () => {
   const navigate = useNavigate();
@@ -654,11 +624,10 @@ const Home = () => {
                           overflow: 'hidden'
                         }}
                       >
-                        <CardMedia
-                          component="img"
-                          image={nft.image}
+                        <MediaDisplay
+                          src={nft.image}
                           alt={nft.title}
-                          sx={{ 
+                          style={{
                             width: '100%',
                             height: '100%',
                             objectFit: 'cover',
@@ -1015,8 +984,8 @@ const Home = () => {
                           onMouseEnter={() => setHoveredNFTId(`featured-${index}`)}
                           onMouseLeave={() => setHoveredNFTId(null)}
                         >
-                          <img 
-                            src={nft.image} 
+                          <MediaDisplay
+                            src={nft.image}
                             alt={nft.title}
                             style={{
                               width: '100%',
