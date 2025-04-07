@@ -18,25 +18,29 @@ import {
   InputBase,
   Divider
 } from '@mui/material';
-import { useNavigate, useLocation, Link as RouterLink } from 'react-router-dom';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import PersonIcon from '@mui/icons-material/Person';
 import HomeIcon from '@mui/icons-material/Home';
 import GoogleIcon from '@mui/icons-material/Google';
-import { useAuth } from '../context/AuthContext';
+import { UserType, useAuth } from '../context/AuthContext';
 
-const Login = () => {
+const Signup = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const from = location.state?.from?.pathname || '/create-nft';
-  const { login, googleLogin, user } = useAuth();
+  const { signup, googleLogin, user } = useAuth();
 
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [userType, setUserType] = useState(0); // 0 for User, 1 for Host
+  const [userType, setUserType] = useState<number>(0); // 0 for User, 1 for Host
 
   // Check if user is already logged in
   useEffect(() => {
@@ -56,38 +60,59 @@ const Login = () => {
   };
 
   const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError('');
-
-    try {
-      await login(formData.email, formData.password);
-      
-      // Redirect is handled in the useEffect
-    } catch (err: any) {
-      setError(err.message || 'Authentication failed');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGoogleLogin = async () => {
-    setIsLoading(true);
-    setError('');
-    try {
-      await googleLogin();
-      // Redirect is handled in the useEffect
-    } catch (err: any) {
-      setError(err.message || 'Google login failed');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const toggleConfirmPasswordVisibility = () => setShowConfirmPassword((prev) => !prev);
 
   const handleUserTypeChange = (event: React.SyntheticEvent, newValue: number) => {
     setUserType(newValue);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validation
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords don't match");
+      return;
+    }
+    
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+    
+    setLoading(true);
+    setError('');
+
+    try {
+      // Convert userType from number to string type
+      const userTypeString: UserType = userType === 0 ? 'user' : 'host';
+      
+      await signup(formData.email, formData.password, userTypeString, formData.name);
+      
+      // Redirect based on user type
+      if (userTypeString === 'host') {
+        navigate('/host');
+      } else {
+        navigate('/marketplace');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to create account');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignup = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      await googleLogin();
+      navigate('/marketplace');
+    } catch (err: any) {
+      setError(err.message || 'Google signup failed');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -131,11 +156,11 @@ const Login = () => {
             </Avatar>
             
             <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>
-              Welcome Back
+              Create Account
             </Typography>
             
             <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-              Sign in to your account
+              Sign up to start using TruePass
             </Typography>
 
             <Tabs 
@@ -189,6 +214,31 @@ const Login = () => {
               <Grid container spacing={3}>
                 <Grid item xs={12}>
                   <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 500 }}>
+                    Full Name
+                  </Typography>
+                  <Box 
+                    sx={{ 
+                      py: 1,
+                      borderBottom: '2px solid #f0f0f0',
+                      transition: 'all 0.3s ease',
+                      '&:focus-within': {
+                        borderBottomColor: '#f06'
+                      }
+                    }}
+                  >
+                    <InputBase
+                      fullWidth
+                      placeholder="Your full name"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </Box>
+                </Grid>
+
+                <Grid item xs={12}>
+                  <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 500 }}>
                     Email
                   </Typography>
                   <Box 
@@ -215,24 +265,9 @@ const Login = () => {
                 </Grid>
 
                 <Grid item xs={12}>
-                  <Box display="flex" justifyContent="space-between" mb={1}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 500 }}>
-                      Password
-                    </Typography>
-                    <Link 
-                      href="#" 
-                      underline="none"
-                      sx={{ 
-                        color: '#f06', 
-                        fontSize: '14px',
-                        '&:hover': {
-                          textDecoration: 'underline'
-                        } 
-                      }}
-                    >
-                      Forgot password?
-                    </Link>
-                  </Box>
+                  <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 500 }}>
+                    Password
+                  </Typography>
                   <Box 
                     sx={{ 
                       py: 1,
@@ -247,13 +282,13 @@ const Login = () => {
                   >
                     <InputBase
                       fullWidth
-                      placeholder="Enter your password"
+                      placeholder="Create a password"
                       name="password"
                       type={showPassword ? 'text' : 'password'}
                       value={formData.password}
                       onChange={handleInputChange}
                       required
-                      autoComplete="current-password"
+                      autoComplete="new-password"
                     />
                     <IconButton
                       onClick={togglePasswordVisibility}
@@ -265,12 +300,47 @@ const Login = () => {
                 </Grid>
 
                 <Grid item xs={12}>
+                  <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 500 }}>
+                    Confirm Password
+                  </Typography>
+                  <Box 
+                    sx={{ 
+                      py: 1,
+                      borderBottom: '2px solid #f0f0f0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      transition: 'all 0.3s ease',
+                      '&:focus-within': {
+                        borderBottomColor: '#f06'
+                      }
+                    }}
+                  >
+                    <InputBase
+                      fullWidth
+                      placeholder="Confirm your password"
+                      name="confirmPassword"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      value={formData.confirmPassword}
+                      onChange={handleInputChange}
+                      required
+                      autoComplete="new-password"
+                    />
+                    <IconButton
+                      onClick={toggleConfirmPasswordVisibility}
+                      edge="end"
+                    >
+                      {showConfirmPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                    </IconButton>
+                  </Box>
+                </Grid>
+
+                <Grid item xs={12}>
                   <Button
                     type="submit"
                     variant="contained"
                     fullWidth
                     size="large"
-                    disabled={isLoading}
+                    disabled={loading}
                     sx={{
                       borderRadius: 2,
                       py: 1.5,
@@ -287,14 +357,14 @@ const Login = () => {
                       }
                     }}
                   >
-                    {isLoading ? (
+                    {loading ? (
                       <CircularProgress size={24} color="inherit" />
                     ) : (
-                      `Sign in as ${userType === 0 ? 'User' : 'Host'}`
+                      `Create ${userType === 0 ? 'User' : 'Host'} Account`
                     )}
                   </Button>
                 </Grid>
-                
+
                 <Grid item xs={12}>
                   <Divider sx={{ my: 2 }}>
                     <Typography variant="body2" color="text.secondary">OR</Typography>
@@ -304,8 +374,8 @@ const Login = () => {
                     fullWidth
                     variant="outlined"
                     startIcon={<GoogleIcon />}
-                    onClick={handleGoogleLogin}
-                    disabled={isLoading}
+                    onClick={handleGoogleSignup}
+                    disabled={loading}
                     sx={{
                       borderRadius: 2,
                       py: 1.2,
@@ -324,10 +394,10 @@ const Login = () => {
                 <Grid item xs={12} textAlign="center">
                   <Box sx={{ mt: 3 }}>
                     <Typography variant="body2" color="text.secondary">
-                      Don't have an account?{' '}
+                      Already have an account?{' '}
                       <Link
                         component={RouterLink}
-                        to="/signup"
+                        to="/login"
                         sx={{
                           color: '#f06',
                           textDecoration: 'none',
@@ -335,7 +405,7 @@ const Login = () => {
                           '&:hover': { textDecoration: 'underline' }
                         }}
                       >
-                        Sign up as {userType === 0 ? 'User' : 'Host'}
+                        Sign in
                       </Link>
                     </Typography>
                   </Box>
@@ -349,4 +419,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Signup; 

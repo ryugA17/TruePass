@@ -505,24 +505,24 @@ const NFTCard = React.memo(({
 
 // Create NFT Grid Section component with optimizations
 const NFTGridSection = React.memo(({ 
-  title, 
-  nfts, 
-  step, 
-  isAnimating, 
-  onNext, 
-  onBack,
+    title, 
+    nfts, 
+    step, 
+    isAnimating, 
+    onNext, 
+    onBack,
   sectionKey,
   handleAddToCart
-}: { 
-  title: string;
-  nfts: typeof allNFTs;
-  step: number;
-  isAnimating: boolean;
-  onNext: () => void;
-  onBack: () => void;
-  sectionKey: string;
+  }: { 
+    title: string;
+    nfts: typeof allNFTs;
+    step: number;
+    isAnimating: boolean;
+    onNext: () => void;
+    onBack: () => void;
+    sectionKey: string;
   handleAddToCart: (nft: any) => void;
-}) => {
+  }) => {
   // Memoize the slider content to prevent unnecessary re-renders
   const sliderContent = React.useMemo(() => {
     return nfts.map((nft) => {
@@ -566,20 +566,20 @@ const NFTGridSection = React.memo(({
   if (nfts.length === 0) {
     return null;
   }
-  
-  return (
-    <>
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        mb: 4,
-        mt: 8
-      }}>
-        <Typography variant="h5" component="h2" sx={{ fontWeight: 'bold' }}>
-          {title}
-        </Typography>
-      </Box>
+    
+    return (
+      <>
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          mb: 4,
+          mt: 8
+        }}>
+          <Typography variant="h5" component="h2" sx={{ fontWeight: 'bold' }}>
+            {title}
+          </Typography>
+        </Box>
 
       <Box sx={{ 
         position: 'relative', 
@@ -587,68 +587,68 @@ const NFTGridSection = React.memo(({
         overflow: 'hidden',
         height: `${CARD_HEIGHT}px`, // Fixed height for the container
       }}>
-        <IconButton
+          <IconButton
           onClick={handleBackClick}
-          disabled={step === 0 || isAnimating}
-          sx={{
-            position: 'absolute',
-            left: 12,
-            top: '50%',
-            transform: 'translateY(-50%)',
-            bgcolor: 'rgba(0, 0, 0, 0.7)',
-            color: 'white',
-            zIndex: 2,
+            disabled={step === 0 || isAnimating}
+            sx={{
+              position: 'absolute',
+              left: 12,
+              top: '50%',
+              transform: 'translateY(-50%)',
+              bgcolor: 'rgba(0, 0, 0, 0.7)',
+              color: 'white',
+              zIndex: 2,
             width: 48,
             height: 48,
             boxShadow: '0 0 10px rgba(0,0,0,0.5)',
             border: '1px solid rgba(255,255,255,0.2)',
-            '&:hover': {
-              bgcolor: 'rgba(0, 0, 0, 0.9)',
+              '&:hover': {
+                bgcolor: 'rgba(0, 0, 0, 0.9)',
               border: '1px solid rgba(255,255,255,0.4)',
-            },
-            '&.Mui-disabled': {
-              opacity: 0.3,
-              display: 'flex'
-            }
-          }}
-        >
-          <KeyboardArrowLeft fontSize="large" />
-        </IconButton>
+              },
+              '&.Mui-disabled': {
+                opacity: 0.3,
+                display: 'flex'
+              }
+            }}
+          >
+            <KeyboardArrowLeft fontSize="large" />
+          </IconButton>
 
-        <IconButton
+          <IconButton
           onClick={handleNextClick}
-          disabled={step >= nfts.length - 1 || isAnimating}
-          sx={{
-            position: 'absolute',
-            right: 12,
-            top: '50%',
-            transform: 'translateY(-50%)',
-            bgcolor: 'rgba(0, 0, 0, 0.7)',
-            color: 'white',
-            zIndex: 2,
+            disabled={step >= nfts.length - 1 || isAnimating}
+            sx={{
+              position: 'absolute',
+              right: 12,
+              top: '50%',
+              transform: 'translateY(-50%)',
+              bgcolor: 'rgba(0, 0, 0, 0.7)',
+              color: 'white',
+              zIndex: 2,
             width: 48,
             height: 48,
             boxShadow: '0 0 10px rgba(0,0,0,0.5)',
             border: '1px solid rgba(255,255,255,0.2)',
-            '&:hover': {
-              bgcolor: 'rgba(0, 0, 0, 0.9)',
+              '&:hover': {
+                bgcolor: 'rgba(0, 0, 0, 0.9)',
               border: '1px solid rgba(255,255,255,0.4)',
-            },
-            '&.Mui-disabled': {
-              opacity: 0.3,
-              display: 'flex'
-            }
-          }}
-        >
-          <KeyboardArrowRight fontSize="large" />
-        </IconButton>
+              },
+              '&.Mui-disabled': {
+                opacity: 0.3,
+                display: 'flex'
+              }
+            }}
+          >
+            <KeyboardArrowRight fontSize="large" />
+          </IconButton>
 
-        <Box
-          sx={{
-            display: 'flex',
+          <Box
+            sx={{
+              display: 'flex',
             transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)', // Smoother easing
-            transform: `translateX(-${step * (100 / ITEMS_PER_PAGE)}%)`,
-            ml: 0,
+              transform: `translateX(-${step * (100 / ITEMS_PER_PAGE)}%)`,
+              ml: 0,
             height: '100%',
             willChange: 'transform', // Hardware acceleration hint
           }}
@@ -773,14 +773,14 @@ const Home = () => {
   const upcomingHandlers = React.useMemo(() => 
     createHandlers(upcomingStep, setUpcomingStep, setIsUpcomingAnimating, filteredUpcomingNFTs.length),
     [createHandlers, upcomingStep, filteredUpcomingNFTs.length]);
-
-  return (
+              
+              return (
     <Container maxWidth="xl" sx={{ pt: 2, pb: 8 }}>
       {/* Featured NFT Section with video background */}
-      <Box 
-        sx={{ 
+                <Box
+                  sx={{
           width: '100vw',
-          position: 'relative',
+                      position: 'relative',
           left: '50%',
           right: '50%',
           marginLeft: '-50vw',
@@ -791,11 +791,11 @@ const Home = () => {
         }}
       >
         {/* Video Background */}
-        <Box
-          sx={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
+                        <Box
+                          sx={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
             width: '100%',
             height: '100%',
             zIndex: 0,
@@ -826,11 +826,11 @@ const Home = () => {
             <source src="./videos/video.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
-        </Box>
+                        </Box>
 
         <Container 
           maxWidth="xl" 
-          sx={{ 
+                      sx={{
             position: 'relative',
             zIndex: 1 // Ensure content appears above the video
           }}
@@ -841,88 +841,88 @@ const Home = () => {
             overflow: 'hidden', 
             height: `${FEATURED_HEIGHT}px`,
           }}>
-            <IconButton
-              onClick={handleFeaturedBack}
-              disabled={activeFeaturedStep === 0 || isFeaturedAnimating}
-              sx={{
-                position: 'absolute',
-                left: 12,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                bgcolor: 'rgba(0, 0, 0, 0.7)',
-                color: 'white',
-                zIndex: 2,
+        <IconButton
+          onClick={handleFeaturedBack}
+          disabled={activeFeaturedStep === 0 || isFeaturedAnimating}
+          sx={{
+            position: 'absolute',
+            left: 12,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            bgcolor: 'rgba(0, 0, 0, 0.7)',
+            color: 'white',
+            zIndex: 2,
                 width: 48,
                 height: 48,
                 boxShadow: '0 0 10px rgba(0,0,0,0.5)',
                 border: '1px solid rgba(255,255,255,0.2)',
-                '&:hover': {
-                  bgcolor: 'rgba(0, 0, 0, 0.9)',
+            '&:hover': {
+              bgcolor: 'rgba(0, 0, 0, 0.9)',
                   border: '1px solid rgba(255,255,255,0.4)',
-                },
-                '&.Mui-disabled': {
-                  opacity: 0.3,
-                  display: 'flex'
-                }
-              }}
-            >
-              <KeyboardArrowLeft fontSize="large" />
-            </IconButton>
+            },
+            '&.Mui-disabled': {
+              opacity: 0.3,
+              display: 'flex'
+            }
+          }}
+        >
+          <KeyboardArrowLeft fontSize="large" />
+        </IconButton>
 
-            <IconButton
-              onClick={handleFeaturedNext}
-              disabled={activeFeaturedStep >= maxFeaturedSteps - 1 || isFeaturedAnimating}
-              sx={{
-                position: 'absolute',
-                right: 12,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                bgcolor: 'rgba(0, 0, 0, 0.7)',
-                color: 'white',
-                zIndex: 2,
+        <IconButton
+          onClick={handleFeaturedNext}
+          disabled={activeFeaturedStep >= maxFeaturedSteps - 1 || isFeaturedAnimating}
+          sx={{
+            position: 'absolute',
+            right: 12,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            bgcolor: 'rgba(0, 0, 0, 0.7)',
+            color: 'white',
+            zIndex: 2,
                 width: 48,
                 height: 48,
                 boxShadow: '0 0 10px rgba(0,0,0,0.5)',
                 border: '1px solid rgba(255,255,255,0.2)',
-                '&:hover': {
-                  bgcolor: 'rgba(0, 0, 0, 0.9)',
+            '&:hover': {
+              bgcolor: 'rgba(0, 0, 0, 0.9)',
                   border: '1px solid rgba(255,255,255,0.4)',
-                },
-                '&.Mui-disabled': {
-                  opacity: 0.3,
-                  display: 'flex'
-                }
-              }}
-            >
-              <KeyboardArrowRight fontSize="large" />
-            </IconButton>
+            },
+            '&.Mui-disabled': {
+              opacity: 0.3,
+              display: 'flex'
+            }
+          }}
+        >
+          <KeyboardArrowRight fontSize="large" />
+        </IconButton>
 
-            <Box
-              sx={{
-                display: 'flex',
-                transition: 'transform 0.5s ease-in-out',
-                transform: `translateX(-${activeFeaturedStep * 100}%)`,
+        <Box
+          sx={{
+            display: 'flex',
+            transition: 'transform 0.5s ease-in-out',
+            transform: `translateX(-${activeFeaturedStep * 100}%)`,
                 height: '100%',
-              }}
-            >
-              {featuredNFTs.map((nft, index) => (
-                <Box
-                  key={index}
-                  sx={{ 
-                    flex: '0 0 100%',
-                    transition: 'all 0.5s ease-in-out',
+          }}
+        >
+          {featuredNFTs.map((nft, index) => (
+            <Box
+              key={index}
+              sx={{ 
+                flex: '0 0 100%',
+                transition: 'all 0.5s ease-in-out',
                     height: '100%',
                     display: 'flex',
                     justifyContent: 'center',
-                  }}
-                >
-                  <Box
-                    sx={{
-                      position: 'relative',
-                      borderRadius: 4,
-                      overflow: 'hidden',
-                      background: nft.gradient,
-                      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+              }}
+            >
+              <Box
+                sx={{
+                  position: 'relative',
+                  borderRadius: 4,
+                  overflow: 'hidden',
+                  background: nft.gradient,
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
                       width: `${FEATURED_WIDTH}px`,
                       height: '100%',
                     }}
@@ -934,168 +934,168 @@ const Home = () => {
                         display: 'flex',
                         flexDirection: 'column',
                       }}>
-                        <Typography 
-                          variant="caption" 
-                          sx={{ 
-                            bgcolor: 'rgba(0, 0, 0, 0.2)',
-                            color: nft.gradient.includes('#00ff9d') ? '#00ff9d' : 'white',
-                            px: 2,
-                            py: 0.5,
-                            borderRadius: 2,
+                    <Typography 
+                      variant="caption" 
+                      sx={{ 
+                        bgcolor: 'rgba(0, 0, 0, 0.2)',
+                        color: nft.gradient.includes('#00ff9d') ? '#00ff9d' : 'white',
+                        px: 2,
+                        py: 0.5,
+                        borderRadius: 2,
                             mb: 1,
-                            display: 'inline-block'
-                          }}
-                        >
-                          {nft.status}
-                        </Typography>
-                        
+                        display: 'inline-block'
+                      }}
+                    >
+                      {nft.status}
+                    </Typography>
+                    
                         <Typography variant="h4" component="h1" sx={{ mt: 1, mb: 1, fontWeight: 'bold', color: '#000' }}>
-                          {nft.title}
-                        </Typography>
+                      {nft.title}
+                    </Typography>
 
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                           <Typography variant="body2" sx={{ color: '#000' }}>by</Typography>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                             <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#000' }}>{nft.creator}</Typography>
-                            {nft.isVerified && <VerifiedIcon sx={{ fontSize: 16, color: '#2196f3' }} />}
-                          </Box>
+                        {nft.isVerified && <VerifiedIcon sx={{ fontSize: 16, color: '#2196f3' }} />}
+                      </Box>
                           <Typography variant="body2" sx={{ color: '#000' }}>on</Typography>
                           <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#000' }}>{nft.platform}</Typography>
-                        </Box>
+                    </Box>
 
                         <Typography variant="body2" sx={{ mb: 2, color: '#000', opacity: 0.8, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
-                          {nft.description}
-                        </Typography>
+                      {nft.description}
+                    </Typography>
 
-                        <Box sx={{ 
-                          bgcolor: 'rgba(255, 255, 255, 0.1)',
-                          borderRadius: 2,
-                          p: 2,
+                    <Box sx={{ 
+                      bgcolor: 'rgba(255, 255, 255, 0.1)',
+                      borderRadius: 2,
+                      p: 2,
                           mb: 2
-                        }}>
-                          <Stack direction="row" alignItems="center" spacing={2}>
-                            <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    }}>
+                      <Stack direction="row" alignItems="center" spacing={2}>
+                        <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                               <Typography variant="body2" sx={{ color: '#000', fontWeight: 'bold' }}>
                                 {nft.price}
-                              </Typography>
-                              
-                              <Button
-                                variant="contained"
-                                sx={{
-                                  bgcolor: '#000',
-                                  color: '#fff',
-                                  px: 3,
-                                  py: 1,
-                                  borderRadius: 2,
-                                  '&:hover': {
-                                    bgcolor: 'rgba(0, 0, 0, 0.8)',
-                                  }
-                                }}
-                                onClick={(e) => {
-                                  e.stopPropagation();
+                          </Typography>
+                          
+                          <Button
+                            variant="contained"
+                            sx={{
+                              bgcolor: '#000',
+                              color: '#fff',
+                              px: 3,
+                              py: 1,
+                              borderRadius: 2,
+                              '&:hover': {
+                                bgcolor: 'rgba(0, 0, 0, 0.8)',
+                              }
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
                                   handleAddToCart({
                                     id: index + 100,
-                                    title: nft.title,
-                                    creator: nft.creator,
+                                  title: nft.title,
+                                  creator: nft.creator,
                                     price: nft.price.split(' ')[0],
-                                    image: nft.image
-                                  });
-                                }}
-                              >
+                                  image: nft.image
+                                });
+                            }}
+                          >
                                 Add to Cart
-                              </Button>
-                            </Box>
-                          </Stack>
+                          </Button>
                         </Box>
+                      </Stack>
+                    </Box>
 
                         <Stack direction="row" spacing={3} sx={{ color: '#000', mt: 'auto' }}>
-                          <Box>
-                            <Typography variant="caption">Minted</Typography>
-                            <Typography variant="body2" sx={{ fontWeight: 'bold' }}>{nft.mintedCount} minted</Typography>
-                          </Box>
-                          <Box>
-                            <Typography variant="caption">Per wallet</Typography>
-                            <Typography variant="body2" sx={{ fontWeight: 'bold' }}>{nft.maxPerWallet} per wallet</Typography>
-                          </Box>
-                          <Box>
-                            <Typography variant="caption">Time left</Typography>
-                            <Typography variant="body2" sx={{ fontWeight: 'bold' }}>{nft.timeLeft} left</Typography>
-                          </Box>
-                        </Stack>
-                      </Grid>
+                      <Box>
+                        <Typography variant="caption">Minted</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 'bold' }}>{nft.mintedCount} minted</Typography>
+                      </Box>
+                      <Box>
+                        <Typography variant="caption">Per wallet</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 'bold' }}>{nft.maxPerWallet} per wallet</Typography>
+                      </Box>
+                      <Box>
+                        <Typography variant="caption">Time left</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 'bold' }}>{nft.timeLeft} left</Typography>
+                      </Box>
+                    </Stack>
+                  </Grid>
 
                       <Grid item xs={12} md={6} sx={{ height: '100%', position: 'relative' }}>
-                        <Box
-                          sx={{
-                            width: '100%',
-                            height: '100%',
-                            position: 'relative',
+                    <Box
+                      sx={{
+                        width: '100%',
+                        height: '100%',
+                        position: 'relative',
                             '&:hover .featured-nft-overlay': {
                               opacity: 1,
                               pointerEvents: 'auto',
                             }
-                          }}
-                        >
+                      }}
+                    >
                           <MediaDisplay
-                            src={nft.image}
-                            alt={nft.title}
-                            style={{
-                              width: '100%',
-                              height: '100%',
-                              objectFit: 'cover',
-                            }}
-                          />
-                          
-                          <Box
+                        src={nft.image} 
+                        alt={nft.title}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                        }}
+                      />
+                      
+                        <Box
                             className="featured-nft-overlay"
                             onClick={(e) => e.stopPropagation()}
-                            sx={{
-                              position: 'absolute',
-                              top: 0,
-                              left: 0,
-                              right: 0,
-                              bottom: 0,
-                              bgcolor: 'rgba(0, 0, 0, 0.5)',
-                              display: 'flex', 
-                              justifyContent: 'center',
-                              alignItems: 'center',
+                          sx={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            bgcolor: 'rgba(0, 0, 0, 0.5)',
+                            display: 'flex', 
+                            justifyContent: 'center',
+                            alignItems: 'center',
                               transition: 'opacity 0.3s ease-in-out',
                               opacity: 0,
                               pointerEvents: 'none',
+                          }}
+                        >
+                          <Button 
+                            variant="contained" 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                                handleAddToCart({
+                                id: index + 100,
+                                title: nft.title,
+                                creator: nft.creator,
+                                price: nft.price.split(' ')[0],
+                                image: nft.image
+                              });
+                            }}
+                            sx={{ 
+                              bgcolor: 'white',
+                              color: 'black',
+                              '&:hover': {
+                                bgcolor: 'white',
+                              },
+                              borderRadius: '20px',
+                              px: 3
                             }}
                           >
-                            <Button 
-                              variant="contained" 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleAddToCart({
-                                  id: index + 100,
-                                  title: nft.title,
-                                  creator: nft.creator,
-                                  price: nft.price.split(' ')[0],
-                                  image: nft.image
-                                });
-                              }}
-                              sx={{ 
-                                bgcolor: 'white',
-                                color: 'black',
-                                '&:hover': {
-                                  bgcolor: 'white',
-                                },
-                                borderRadius: '20px',
-                                px: 3
-                              }}
-                            >
-                              Quick Add
-                            </Button>
-                          </Box>
+                            Quick Add
+                          </Button>
                         </Box>
-                      </Grid>
-                    </Grid>
-                  </Box>
-                </Box>
-              ))}
+                    </Box>
+                  </Grid>
+                </Grid>
+              </Box>
             </Box>
+          ))}
+        </Box>
           </Box>
         </Container>
       </Box>

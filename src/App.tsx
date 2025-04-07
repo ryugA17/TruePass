@@ -9,12 +9,14 @@ import CreateNFT from './pages/CreateNFT';
 import Profile from './pages/Profile';
 import Cart from './pages/Cart';
 import Login from './pages/Login';
+import Signup from './pages/Signup';
+import LandingPage from './pages/LandingPage/LandingPage';
+import HostPage from './pages/HostPage';
 import { SearchProvider } from './context/SearchContext';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import { NFTProvider } from './context/NFTContext';
 import AuthRoute from './components/AuthRoute';
-
 
 function App() {
   return (
@@ -23,38 +25,122 @@ function App() {
       <AuthProvider>
         <NFTProvider>
           <Router>
-            {/* Route login and register here */}
-            <SearchProvider>
-              <CartProvider>
-                <Box sx={{ 
-                  minHeight: '100vh',
-                  background: 'linear-gradient(135deg, #1a237e 0%, #000000 100%)',
-                }}>
-                  <Navbar />
-                  <Box sx={{ pt: '64px' }}>
-                    <Routes>
-                      <Route path="/" element={<Home />} />
-                      <Route path="/marketplace" element={<Marketplace />} />
-                      <Route path="/create-nft" element={
+            <Routes>
+              {/* Landing page route - no navbar */}
+              <Route path="/welcome" element={<LandingPage />} />
+              
+              {/* Login route - no navbar */}
+              <Route path="/login" element={<Login />} />
+              
+              {/* Signup route - no navbar */}
+              <Route path="/signup" element={<Signup />} />
+              
+              {/* Routes with Navbar */}
+              <Route path="/" element={
+                <SearchProvider>
+                  <CartProvider>
+                    <Box sx={{ 
+                      minHeight: '100vh',
+                      background: 'linear-gradient(135deg, #1a237e 0%, #000000 100%)',
+                    }}>
+                      <Navbar />
+                      <Box sx={{ pt: '64px' }}>
+                        <Home />
+                      </Box>
+                    </Box>
+                  </CartProvider>
+                </SearchProvider>
+              } />
+              
+              <Route path="/marketplace" element={
+                <SearchProvider>
+                  <CartProvider>
+                    <Box sx={{ 
+                      minHeight: '100vh',
+                      background: 'linear-gradient(135deg, #1a237e 0%, #000000 100%)',
+                    }}>
+                      <Navbar />
+                      <Box sx={{ pt: '64px' }}>
+                        <Marketplace />
+                      </Box>
+                    </Box>
+                  </CartProvider>
+                </SearchProvider>
+              } />
+              
+              <Route path="/create-nft" element={
+                <SearchProvider>
+                  <CartProvider>
+                    <Box sx={{ 
+                      minHeight: '100vh',
+                      background: 'linear-gradient(135deg, #1a237e 0%, #000000 100%)',
+                    }}>
+                      <Navbar />
+                      <Box sx={{ pt: '64px' }}>
                         <AuthRoute>
                           <CreateNFT />
                         </AuthRoute>
-                      } />
-                      <Route path="/profile" element={
+                      </Box>
+                    </Box>
+                  </CartProvider>
+                </SearchProvider>
+              } />
+              
+              <Route path="/profile" element={
+                <SearchProvider>
+                  <CartProvider>
+                    <Box sx={{ 
+                      minHeight: '100vh',
+                      background: 'linear-gradient(135deg, #1a237e 0%, #000000 100%)',
+                    }}>
+                      <Navbar />
+                      <Box sx={{ pt: '64px' }}>
                         <AuthRoute>
                           <Profile />
                         </AuthRoute>
-                      } />
-                      <Route path="/cart" element={<Cart />} />
-                      <Route path="/login" element={<Login />} />
-                      
-                      {/* Redirect all other routes to the home page */}
-                      <Route path="*" element={<Navigate to="/" replace />} />
-                    </Routes>
-                  </Box>
-                </Box>
-              </CartProvider>
-            </SearchProvider>
+                      </Box>
+                    </Box>
+                  </CartProvider>
+                </SearchProvider>
+              } />
+              
+              <Route path="/cart" element={
+                <SearchProvider>
+                  <CartProvider>
+                    <Box sx={{ 
+                      minHeight: '100vh',
+                      background: 'linear-gradient(135deg, #1a237e 0%, #000000 100%)',
+                    }}>
+                      <Navbar />
+                      <Box sx={{ pt: '64px' }}>
+                        <Cart />
+                      </Box>
+                    </Box>
+                  </CartProvider>
+                </SearchProvider>
+              } />
+              
+              <Route path="/host" element={
+                <SearchProvider>
+                  <CartProvider>
+                    <Box sx={{ 
+                      minHeight: '100vh',
+                      background: 'linear-gradient(135deg, #1a237e 0%, #000000 100%)',
+                    }}>
+                      <Navbar />
+                      <Box sx={{ pt: '64px' }}>
+                        <AuthRoute>
+                          <HostPage />
+                        </AuthRoute>
+                      </Box>
+                    </Box>
+                  </CartProvider>
+                </SearchProvider>
+              } />
+              
+              {/* Redirect all other routes to the home page */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
           </Router>
         </NFTProvider>
       </AuthProvider>

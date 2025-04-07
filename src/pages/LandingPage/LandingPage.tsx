@@ -1,12 +1,14 @@
 import React, { useEffect } from 'react';
-import { Box, Typography, Button, Container, Grid } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
+import { Box, Typography, Button, Container, Grid, Stack } from '@mui/material';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 // Import gsap with type definitions
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import './LandingPage.css';
 
 const LandingPage: React.FC = () => {
+  const navigate = useNavigate();
+
   useEffect(() => {
     // Load SVG
     fetch(process.env.PUBLIC_URL + '/city.svg')
@@ -62,13 +64,35 @@ const LandingPage: React.FC = () => {
 
   return (
     <Box className="landing-page">
-      <Box component="header" className="header">
+      <Box component="header" className="header" sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        padding: '1rem 2rem',
+        position: 'relative',
+        zIndex: 10
+      }}>
         <Box className="logo">
-          <RouterLink to="/app">
+          <RouterLink to="/">
             <img src={process.env.PUBLIC_URL + '/img/logoweb.png'} alt="TruePass Logo" />
           </RouterLink>
         </Box>
-        <Box component="nav"></Box>
+        <Stack direction="row" spacing={2}>
+          <Button 
+            variant="outlined"
+            onClick={() => navigate('/login')}
+            sx={{ 
+              color: '#FFF', 
+              borderColor: '#FFF',
+              '&:hover': {
+                borderColor: 'chocolate',
+                color: 'chocolate'
+              }
+            }}
+          >
+            Login
+          </Button>
+        </Stack>
       </Box>
 
       <Box className="banner">
@@ -105,7 +129,7 @@ const LandingPage: React.FC = () => {
           <Grid item className="autoBLur">
             <Button 
               component={RouterLink} 
-              to="/app" 
+              to="/signup" 
               sx={{ 
                 textDecoration: 'none', 
                 color: 'chocolate',
