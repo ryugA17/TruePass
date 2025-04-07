@@ -154,6 +154,12 @@ const upcomingNFTs = allNFTs.map(nft => ({
   status: Math.random() > 0.5 ? '1d left' : '2d left'
 }));
 
+// Fixed card dimensions for consistency
+const CARD_WIDTH = 400;
+const CARD_HEIGHT = 400;
+const IMAGE_HEIGHT = 340;
+const INFO_HEIGHT = 60;
+
 const Marketplace = () => {
   const { searchTerm } = useSearch();
   const location = useLocation();
@@ -274,7 +280,12 @@ const Marketplace = () => {
           </Typography>
         </Box>
 
-        <Box sx={{ position: 'relative', width: '100%', overflow: 'hidden' }}>
+        <Box sx={{ 
+          position: 'relative', 
+          width: '100%', 
+          overflow: 'hidden',
+          height: `${CARD_HEIGHT}px`, // Fixed height for the container
+        }}>
           <IconButton
             onClick={onBack}
             disabled={step === 0 || isAnimating}
@@ -337,6 +348,7 @@ const Marketplace = () => {
               transition: 'transform 0.5s ease-in-out',
               transform: `translateX(-${step * (100 / ITEMS_PER_PAGE)}%)`,
               ml: 0,
+              height: '100%',
             }}
           >
             {nfts.map((nft) => {
@@ -352,9 +364,9 @@ const Marketplace = () => {
                     transition: 'all 0.5s ease-in-out',
                     opacity: 1,
                     transform: 'scale(1)',
-                    height: '300px', // Fixed height for all cards
-                    maxWidth: '300px', // Fixed max width
-                    margin: '0 auto', // Center cards
+                    height: `${CARD_HEIGHT}px`,
+                    display: 'flex',
+                    justifyContent: 'center',
                   }}
                 >
                   <Card 
@@ -362,12 +374,11 @@ const Marketplace = () => {
                       bgcolor: 'rgba(22, 28, 36, 0.95)',
                       borderRadius: 2,
                       position: 'relative',
-                      height: '100%', // Fill the parent container
-                      width: '100%',
-                      display: 'flex',
-                      flexDirection: 'column',
+                      height: `${CARD_HEIGHT}px`,
+                      width: `${CARD_WIDTH}px`,
                       cursor: 'pointer',
                       transition: 'transform 0.3s ease-in-out',
+                      overflow: 'hidden',
                       '&:hover': {
                         transform: 'scale(1.02)'
                       }
@@ -375,19 +386,37 @@ const Marketplace = () => {
                     onMouseEnter={() => setHoveredNFTId(uniqueId)}
                     onMouseLeave={() => setHoveredNFTId(null)}
                   >
-                    <CardActionArea sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                      <CardMedia
-                        component="img"
-                        image={nft.image}
-                        alt={nft.title}
-                        sx={{ 
-                          height: 0,
-                          paddingTop: '100%', // 1:1 Aspect ratio
+                    <CardActionArea 
+                      sx={{ 
+                        height: '100%', 
+                        width: '100%',
+                        position: 'relative',
+                        display: 'block'
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
                           width: '100%',
-                          objectFit: 'cover',
-                          objectPosition: 'center'
+                          height: `${IMAGE_HEIGHT}px`,
+                          overflow: 'hidden'
                         }}
-                      />
+                      >
+                        <CardMedia
+                          component="img"
+                          image={nft.image}
+                          alt={nft.title}
+                          sx={{ 
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            objectPosition: 'center'
+                          }}
+                        />
+                      </Box>
+                      
                       {hoveredNFTId === uniqueId && (
                         <Box
                           sx={{
@@ -395,7 +424,7 @@ const Marketplace = () => {
                             top: 0,
                             left: 0,
                             right: 0,
-                            bottom: 0,
+                            height: `${IMAGE_HEIGHT}px`,
                             bgcolor: 'rgba(0, 0, 0, 0.7)',
                             display: 'flex',
                             justifyContent: 'center',
@@ -437,14 +466,14 @@ const Marketplace = () => {
                         p: 1,
                         borderBottomLeftRadius: 8,
                         borderBottomRightRadius: 8,
-                        height: '60px', // Fixed height for the info section
+                        height: `${INFO_HEIGHT}px`,
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'space-between'
                       }}
                     >
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography variant="subtitle2" component="div" noWrap>
+                        <Typography variant="subtitle2" component="div" noWrap sx={{ color: 'white' }}>
                           {nft.title}
                         </Typography>
                         {nft.isVerified && (
@@ -452,7 +481,7 @@ const Marketplace = () => {
                         )}
                       </Box>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography variant="caption" color="text.secondary" noWrap sx={{ opacity: 0.7 }}>
+                        <Typography variant="caption" noWrap sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
                           {nft.creator}
                         </Typography>
                         <Typography variant="caption" color="primary" noWrap>

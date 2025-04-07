@@ -201,6 +201,16 @@ const upcomingNFTs = allNFTs.map(nft => ({
   status: Math.random() > 0.5 ? '1d left' : '2d left'
 }));
 
+// Fixed card dimensions for consistency
+const CARD_WIDTH = 400;
+const CARD_HEIGHT = 400;
+const IMAGE_HEIGHT = 340;
+const INFO_HEIGHT = 60;
+
+// Fixed dimensions for featured section
+const FEATURED_HEIGHT = 400;
+const FEATURED_WIDTH = 800; // Double the card width since it's a featured item
+
 const Home = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -310,13 +320,19 @@ const Home = () => {
     sectionKey: string;
   }) => {
     
-    // Handle adding an NFT to the cart
+    // If there are no NFTs, don't render the section
+    if (nfts.length === 0) {
+      return null;
+    }
+    
     const handleAddToCart = (nft: any) => {
       addToCart({
         id: nft.id,
         title: nft.title,
         creator: nft.creator,
-        price: nft.price.split(' ')[0], // Extract just the price number
+        price: typeof nft.price === 'string' && nft.price.includes(' ') 
+          ? nft.price.split(' ')[0] 
+          : nft.price,
         image: nft.image
       });
       setShowAddedToCart(true);
@@ -336,7 +352,12 @@ const Home = () => {
           </Typography>
         </Box>
 
-        <Box sx={{ position: 'relative', width: '100%', overflow: 'hidden' }}>
+        <Box sx={{ 
+          position: 'relative', 
+          width: '100%', 
+          overflow: 'hidden',
+          height: `${CARD_HEIGHT}px`, // Fixed height for the container
+        }}>
           <IconButton
             onClick={onBack}
             disabled={step === 0 || isAnimating}
@@ -348,14 +369,13 @@ const Home = () => {
               bgcolor: 'rgba(0, 0, 0, 0.7)',
               color: 'white',
               zIndex: 2,
-              width: 64,
-              height: 64,
-              boxShadow: '0 0 20px rgba(0,0,0,0.6)',
-              border: '1px solid rgba(255,255,255,0.3)',
+              width: 48,
+              height: 48,
+              boxShadow: '0 0 10px rgba(0,0,0,0.5)',
+              border: '1px solid rgba(255,255,255,0.2)',
               '&:hover': {
                 bgcolor: 'rgba(0, 0, 0, 0.9)',
-                border: '1px solid rgba(255,255,255,0.5)',
-                boxShadow: '0 0 25px rgba(0,0,0,0.8)',
+                border: '1px solid rgba(255,255,255,0.4)',
               },
               '&.Mui-disabled': {
                 opacity: 0.3,
@@ -377,14 +397,13 @@ const Home = () => {
               bgcolor: 'rgba(0, 0, 0, 0.7)',
               color: 'white',
               zIndex: 2,
-              width: 64,
-              height: 64,
-              boxShadow: '0 0 20px rgba(0,0,0,0.6)',
-              border: '1px solid rgba(255,255,255,0.3)',
+              width: 48,
+              height: 48,
+              boxShadow: '0 0 10px rgba(0,0,0,0.5)',
+              border: '1px solid rgba(255,255,255,0.2)',
               '&:hover': {
                 bgcolor: 'rgba(0, 0, 0, 0.9)',
-                border: '1px solid rgba(255,255,255,0.5)',
-                boxShadow: '0 0 25px rgba(0,0,0,0.8)',
+                border: '1px solid rgba(255,255,255,0.4)',
               },
               '&.Mui-disabled': {
                 opacity: 0.3,
@@ -401,10 +420,10 @@ const Home = () => {
               transition: 'transform 0.5s ease-in-out',
               transform: `translateX(-${step * (100 / ITEMS_PER_PAGE)}%)`,
               ml: 0,
+              height: '100%',
             }}
           >
             {nfts.map((nft) => {
-              // Create a unique ID for each NFT in each section
               const uniqueId = `${sectionKey}-${nft.id}`;
               
               return (
@@ -416,6 +435,9 @@ const Home = () => {
                     transition: 'all 0.5s ease-in-out',
                     opacity: 1,
                     transform: 'scale(1)',
+                    height: `${CARD_HEIGHT}px`,
+                    display: 'flex',
+                    justifyContent: 'center',
                   }}
                 >
                   <Card 
@@ -423,9 +445,11 @@ const Home = () => {
                       bgcolor: 'rgba(22, 28, 36, 0.95)',
                       borderRadius: 2,
                       position: 'relative',
-                      aspectRatio: '1/1',
+                      height: `${CARD_HEIGHT}px`,
+                      width: `${CARD_WIDTH}px`,
                       cursor: 'pointer',
                       transition: 'transform 0.3s ease-in-out',
+                      overflow: 'hidden',
                       '&:hover': {
                         transform: 'scale(1.02)'
                       }
@@ -433,17 +457,37 @@ const Home = () => {
                     onMouseEnter={() => setHoveredNFTId(uniqueId)}
                     onMouseLeave={() => setHoveredNFTId(null)}
                   >
-                    <CardActionArea>
-                      <CardMedia
-                        component="img"
-                        image={nft.image}
-                        alt={nft.title}
-                        sx={{ 
-                          height: '100%',
+                    <CardActionArea 
+                      sx={{ 
+                        height: '100%', 
+                        width: '100%',
+                        position: 'relative',
+                        display: 'block'
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
                           width: '100%',
-                          aspectRatio: '1/1'
+                          height: `${IMAGE_HEIGHT}px`,
+                          overflow: 'hidden'
                         }}
-                      />
+                      >
+                        <CardMedia
+                          component="img"
+                          image={nft.image}
+                          alt={nft.title}
+                          sx={{ 
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            objectPosition: 'center'
+                          }}
+                        />
+                      </Box>
+                      
                       {hoveredNFTId === uniqueId && (
                         <Box
                           sx={{
@@ -451,7 +495,7 @@ const Home = () => {
                             top: 0,
                             left: 0,
                             right: 0,
-                            bottom: 0,
+                            height: `${IMAGE_HEIGHT}px`,
                             bgcolor: 'rgba(0, 0, 0, 0.7)',
                             display: 'flex',
                             justifyContent: 'center',
@@ -493,10 +537,14 @@ const Home = () => {
                         p: 1,
                         borderBottomLeftRadius: 8,
                         borderBottomRightRadius: 8,
+                        height: `${INFO_HEIGHT}px`,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between'
                       }}
                     >
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography variant="subtitle2" component="div" noWrap>
+                        <Typography variant="subtitle2" component="div" noWrap sx={{ color: 'white' }}>
                           {nft.title}
                         </Typography>
                         {nft.isVerified && (
@@ -504,7 +552,7 @@ const Home = () => {
                         )}
                       </Box>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography variant="caption" color="text.secondary" noWrap sx={{ opacity: 0.7 }}>
+                        <Typography variant="caption" noWrap sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
                           {nft.creator}
                         </Typography>
                         <Typography variant="caption" color="primary" noWrap>
@@ -530,7 +578,13 @@ const Home = () => {
   return (
     <Container maxWidth="xl" sx={{ pt: 2, pb: 8 }}>
       {/* Featured NFT Section */}
-      <Box sx={{ position: 'relative', width: '100%', overflow: 'hidden', mb: 8 }}>
+      <Box sx={{ 
+        position: 'relative', 
+        width: '100%', 
+        overflow: 'hidden', 
+        mb: 8,
+        height: `${FEATURED_HEIGHT}px`,
+      }}>
         <IconButton
           onClick={handleFeaturedBack}
           disabled={activeFeaturedStep === 0 || isFeaturedAnimating}
@@ -542,14 +596,13 @@ const Home = () => {
             bgcolor: 'rgba(0, 0, 0, 0.7)',
             color: 'white',
             zIndex: 2,
-            width: 64,
-            height: 64,
-            boxShadow: '0 0 20px rgba(0,0,0,0.6)',
-            border: '1px solid rgba(255,255,255,0.3)',
+            width: 48,
+            height: 48,
+            boxShadow: '0 0 10px rgba(0,0,0,0.5)',
+            border: '1px solid rgba(255,255,255,0.2)',
             '&:hover': {
               bgcolor: 'rgba(0, 0, 0, 0.9)',
-              border: '1px solid rgba(255,255,255,0.5)',
-              boxShadow: '0 0 25px rgba(0,0,0,0.8)',
+              border: '1px solid rgba(255,255,255,0.4)',
             },
             '&.Mui-disabled': {
               opacity: 0.3,
@@ -571,14 +624,13 @@ const Home = () => {
             bgcolor: 'rgba(0, 0, 0, 0.7)',
             color: 'white',
             zIndex: 2,
-            width: 64,
-            height: 64,
-            boxShadow: '0 0 20px rgba(0,0,0,0.6)',
-            border: '1px solid rgba(255,255,255,0.3)',
+            width: 48,
+            height: 48,
+            boxShadow: '0 0 10px rgba(0,0,0,0.5)',
+            border: '1px solid rgba(255,255,255,0.2)',
             '&:hover': {
               bgcolor: 'rgba(0, 0, 0, 0.9)',
-              border: '1px solid rgba(255,255,255,0.5)',
-              boxShadow: '0 0 25px rgba(0,0,0,0.8)',
+              border: '1px solid rgba(255,255,255,0.4)',
             },
             '&.Mui-disabled': {
               opacity: 0.3,
@@ -594,6 +646,7 @@ const Home = () => {
             display: 'flex',
             transition: 'transform 0.5s ease-in-out',
             transform: `translateX(-${activeFeaturedStep * 100}%)`,
+            height: '100%',
           }}
         >
           {featuredNFTs.map((nft, index) => (
@@ -602,6 +655,9 @@ const Home = () => {
               sx={{ 
                 flex: '0 0 100%',
                 transition: 'all 0.5s ease-in-out',
+                height: '100%',
+                display: 'flex',
+                justifyContent: 'center',
               }}
             >
               <Box
@@ -611,10 +667,17 @@ const Home = () => {
                   overflow: 'hidden',
                   background: nft.gradient,
                   boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+                  width: `${FEATURED_WIDTH}px`,
+                  height: '100%',
                 }}
               >
-                <Grid container spacing={0}>
-                  <Grid item xs={12} md={6} sx={{ p: 4 }}>
+                <Grid container spacing={0} sx={{ height: '100%' }}>
+                  <Grid item xs={12} md={6} sx={{ 
+                    p: 3,
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                  }}>
                     <Typography 
                       variant="caption" 
                       sx={{ 
@@ -623,72 +686,41 @@ const Home = () => {
                         px: 2,
                         py: 0.5,
                         borderRadius: 2,
-                        mb: 2,
+                        mb: 1,
                         display: 'inline-block'
                       }}
                     >
                       {nft.status}
                     </Typography>
                     
-                    <Typography variant="h3" component="h1" sx={{ mt: 2, mb: 1, fontWeight: 'bold', color: '#000' }}>
+                    <Typography variant="h4" component="h1" sx={{ mt: 1, mb: 1, fontWeight: 'bold', color: '#000' }}>
                       {nft.title}
                     </Typography>
 
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
-                      <Typography sx={{ color: '#000' }}>by</Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                      <Typography variant="body2" sx={{ color: '#000' }}>by</Typography>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <Typography sx={{ fontWeight: 'bold', color: '#000' }}>{nft.creator}</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#000' }}>{nft.creator}</Typography>
                         {nft.isVerified && <VerifiedIcon sx={{ fontSize: 16, color: '#2196f3' }} />}
                       </Box>
-                      <Typography sx={{ color: '#000' }}>on</Typography>
-                      <Typography sx={{ fontWeight: 'bold', color: '#000' }}>{nft.platform}</Typography>
+                      <Typography variant="body2" sx={{ color: '#000' }}>on</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#000' }}>{nft.platform}</Typography>
                     </Box>
 
-                    <Typography sx={{ mb: 4, color: '#000', opacity: 0.8 }}>
+                    <Typography variant="body2" sx={{ mb: 2, color: '#000', opacity: 0.8, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
                       {nft.description}
-                      <Button sx={{ color: '#000', textTransform: 'none', p: 0, ml: 1 }}>
-                        Show more
-                      </Button>
                     </Typography>
 
                     <Box sx={{ 
                       bgcolor: 'rgba(255, 255, 255, 0.1)',
                       borderRadius: 2,
                       p: 2,
-                      mb: 3
+                      mb: 2
                     }}>
                       <Stack direction="row" alignItems="center" spacing={2}>
-                        <IconButton 
-                          size="small"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setMintQuantity(Math.max(1, mintQuantity - 1));
-                          }}
-                          sx={{ bgcolor: 'rgba(0, 0, 0, 0.1)', color: '#000' }}
-                        >
-                          <RemoveIcon />
-                        </IconButton>
-                        <Typography sx={{ color: '#000', fontWeight: 'bold', minWidth: '24px', textAlign: 'center' }}>{mintQuantity}</Typography>
-                        <IconButton 
-                          size="small"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setMintQuantity(Math.min(parseInt(nft.maxPerWallet), mintQuantity + 1));
-                          }}
-                          sx={{ bgcolor: 'rgba(0, 0, 0, 0.1)', color: '#000' }}
-                        >
-                          <AddIcon />
-                        </IconButton>
-                        
                         <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <Typography variant="body2" sx={{ color: '#000', fontWeight: 'bold', mr: 2 }}>
-                            {mintQuantity > 1 ? (
-                              <>
-                                {parseFloat(nft.price.split(' ')[0]).toFixed(5)} ETH × {mintQuantity} = {(parseFloat(nft.price.split(' ')[0]) * mintQuantity).toFixed(5)} ETH
-                              </>
-                            ) : (
-                              <>{nft.price}</>
-                            )}
+                          <Typography variant="body2" sx={{ color: '#000', fontWeight: 'bold' }}>
+                            {nft.price}
                           </Typography>
                           
                           <Button
@@ -705,26 +737,23 @@ const Home = () => {
                             }}
                             onClick={(e) => {
                               e.stopPropagation();
-                              // Add to cart with the selected quantity
-                              for (let i = 0; i < mintQuantity; i++) {
-                                addToCart({
-                                  id: index + 100 + i, // Using a different ID range for featured NFTs
-                                  title: nft.title,
-                                  creator: nft.creator,
-                                  price: nft.price.split(' ')[0], // Extract just the price number
-                                  image: nft.image
-                                });
-                              }
+                              addToCart({
+                                id: index + 100,
+                                title: nft.title,
+                                creator: nft.creator,
+                                price: nft.price.split(' ')[0],
+                                image: nft.image
+                              });
                               setShowAddedToCart(true);
                             }}
                           >
-                            {mintQuantity > 1 ? `Add ${mintQuantity} to Cart` : 'Add to Cart'}
+                            Add to Cart
                           </Button>
                         </Box>
                       </Stack>
                     </Box>
 
-                    <Stack direction="row" spacing={3} sx={{ color: '#000' }}>
+                    <Stack direction="row" spacing={3} sx={{ color: '#000', mt: 'auto' }}>
                       <Box>
                         <Typography variant="caption">Minted</Typography>
                         <Typography variant="body2" sx={{ fontWeight: 'bold' }}>{nft.mintedCount} minted</Typography>
@@ -740,15 +769,11 @@ const Home = () => {
                     </Stack>
                   </Grid>
 
-                  <Grid item xs={12} md={6} sx={{ p: 4 }}>
+                  <Grid item xs={12} md={6} sx={{ height: '100%' }}>
                     <Box
                       sx={{
                         width: '100%',
                         height: '100%',
-                        minHeight: 400,
-                        borderRadius: 2,
-                        overflow: 'hidden',
-                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
                         position: 'relative',
                       }}
                       onMouseEnter={() => setHoveredNFTId(`featured-${index}`)}
