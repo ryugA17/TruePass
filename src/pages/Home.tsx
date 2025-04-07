@@ -25,15 +25,15 @@ import { useCart } from '../context/CartContext';
 // Featured NFTs data
 const featuredNFTs = [
   {
-    title: "Abstract Thought of Art",
-    creator: "ZafGod.eth",
-    platform: "Abstract",
-    price: "0.00069 ETH",
-    description: "I explore the intersection of digital decay, cybernetic spirituality, and the neon ghosts of an unraveling reality. This piece is a synthetic dreamscape—part ritual, part hallucination—where fragmented figures, glitching flora, and...",
-    image: "",
-    status: "MINTING NOW",
-    mintedCount: "11",
-    maxPerWallet: "10",
+    "title": "Dreamscape",
+  "creator": "PixelWizard.eth",
+  "platform": "Surreal",
+  "price": "0.00420 ETH",
+  "description": "A journey into the subconscious through shapes and shades. Vibrant hues meet deep symbolism.",
+  "image": "https://v5.airtableusercontent.com/v3/u/39/39/1744056000000/4mhj3z8rY8mx9ttmxbyMHg/eGpRjDZLGoWydWPUpIeOLYiXGyH4BTaH0KUSnKcMTzYxE7x9Zne6O-iQ-xEk711ZsII2SMCjMZcj0K9r0Wx9QCsCejm2zG3o19PPVBBzoMQURSMxMrYj5PMQAV-kytVEGYhO6QRorcw-wyYRpQM77Q/IODStxzZG3iGZj3FbbA50x4Rp0b89dDPTcff3stAgmM",
+  "status": "AVAILABLE NOW",
+  "mintedCount": "24",
+  "maxPerWallet": "5",
     timeLeft: "2d 23h",
     isVerified: true,
     gradient: 'linear-gradient(135deg, #00ff9d 0%, #00ff9d40 100%)'
@@ -58,7 +58,7 @@ const featuredNFTs = [
     platform: "Abstract",
     price: "0.0075 ETH",
     description: "Dive into a world where quantum mechanics meets digital art. This piece explores the multiple realities of our existence through vibrant colors and geometric patterns...",
-    image: "https://via.placeholder.com/800x600/2e7d32/ffffff",
+    image: "https://v5.airtableusercontent.com/v3/u/39/39/1744048800000/FPPtNfSsuyDASK99CRDASA/9t8ediv6t1vG1kDg__l72dgxDH73zQPJPqxszvIVvJUy-AVA7TMW1lWnKpw0paW1XU-euSFBHRKw7VRKOkf6Pp94K3z6JejX5rsWo8MjcaVC-UOiATv-Ysgh97-fzBSPhBBeIskpgShdn7s6HOSIcQ/R8P96j-wabHzfHebTely4dBZ-Wvp2_R3W25bCKFvUBI",
     status: "MINTING NOW",
     mintedCount: "15",
     maxPerWallet: "8",
@@ -75,7 +75,7 @@ const allNFTs = [
     title: 'Abstract Thought of Art',
     creator: 'ZafGod.eth',
     price: '0.00069 ETH',
-    image: '',
+    image: 'https://assets.raribleuserdata.com/prod/v1/image/t_avatar_big/aHR0cHM6Ly9pcGZzLnJhcmlibGV1c2VyZGF0YS5jb20vaXBmcy9iYWZ5YmVpYmtyY3Q2NnZnNWFyc2tpYnR6amxnczUzY28yazNidXBheHdlb2h1YWhnNmwyN3ZyM2g0YQ==',
     status: 'Now',
     isVerified: true
   },
@@ -102,7 +102,7 @@ const allNFTs = [
     title: 'Spring will come',
     creator: 'Reza Milani',
     price: '0.0004 ETH',
-    image: 'https://via.placeholder.com/400x400/6a1b9a/ffffff',
+    image: 'https://assets.raribleuserdata.com/prod/v1/image/t_avatar_big/aHR0cHM6Ly9pcGZzLnJhcmlibGV1c2VyZGF0YS5jb20vaXBmcy9RbWQyTUYyQkZ4NFl4dTl4dnc3amJRRDRqVm8yNXZCbkdObjZzWWQ2bkFLaWVjL21hdGNoYWluMTItZXpnaWYuY29tLW9wdGltaXplLmdpZg==',
     status: 'Now',
     isVerified: true
   },
@@ -111,7 +111,7 @@ const allNFTs = [
     title: 'Cyber Dreams',
     creator: 'neon.eth',
     price: '0.0089 ETH',
-    image: 'https://via.placeholder.com/400x400/00838f/ffffff',
+    image: 'https://assets.raribleuserdata.com/prod/v1/image/t_avatar_big/aHR0cHM6Ly9pcGZzLnJhcmlibGV1c2VyZGF0YS5jb20vaXBmcy9iYWZ5YmVpZnEya3I2aGVocmRjNXFxbXgzNXZ4a29rczNvaWkydHZwcmRhZnl4YWx4bHNxYWtobXp5bQ==',
     status: 'Now',
     isVerified: true
   },
@@ -120,7 +120,7 @@ const allNFTs = [
     title: 'Digital Wilderness',
     creator: 'artmaster',
     price: '0.0123 ETH',
-    image: 'https://via.placeholder.com/400x400/2e7d32/ffffff',
+    image: 'https://assets.raribleuserdata.com/prod/v1/image/t_avatar_big/aHR0cHM6Ly9pcGZzLnJhcmlibGV1c2VyZGF0YS5jb20vaXBmcy9RbVdrY0pnN1FWZTNjWE5TMXROd2s4TmFWaXRCQlRzUGNqdHpLdVYxMnd4Y2V0L3Rob3VnaHRfb2ZfYXJ0LmdpZg==',
     status: '2 hours',
     isVerified: true
   },
@@ -129,7 +129,7 @@ const allNFTs = [
     title: 'Neon Nights',
     creator: 'pixelart.eth',
     price: '0.0075 ETH',
-    image: 'https://via.placeholder.com/400x400/c2185b/ffffff',
+    image: 'https://lh3.googleusercontent.com/RY7_lkqWuNaAXCwks_Xot4D6fueS4s4ubNYt2PzEqEAs1tJFhJLzSVF2PAYtIvNNA4rjoRQhDmGtFeWVZBjcbv70ASTimVVvJ4k=s1000',
     status: 'Now',
     isVerified: true
   },
@@ -138,7 +138,7 @@ const allNFTs = [
     title: 'Future Past',
     creator: 'retro.eth',
     price: '0.0055 ETH',
-    image: 'https://via.placeholder.com/400x400/d84315/ffffff',
+    image: 'https://v5.airtableusercontent.com/v3/u/39/39/1744056000000/zkGCYPxUQpuuUoRmF0YnuA/hrykuHNhYmaRONeyyUwEVnjqKO_WbKOzj2qDAriyW0xn-jaos3AD5rV1K_Y6WokGLmXikTL9M_Qd_54Wt1J0Mcz0HF84GPB6FQ0D0FSY7YboM_FK0kg4o8iSntIrvavypHn0vaPjolffYpss0YWPeQ/7qClnynZtSmYX_Sw1ipzQHyshLnLUR7BE0jOBMFRE5k',
     status: '5 hours',
     isVerified: true
   },
@@ -147,7 +147,7 @@ const allNFTs = [
     title: 'Quantum Dreams',
     creator: 'quantum.art',
     price: '0.0095 ETH',
-    image: 'https://via.placeholder.com/400x400/4527a0/ffffff',
+    image: 'https://v5.airtableusercontent.com/v3/u/39/39/1744048800000/FPPtNfSsuyDASK99CRDASA/9t8ediv6t1vG1kDg__l72dgxDH73zQPJPqxszvIVvJUy-AVA7TMW1lWnKpw0paW1XU-euSFBHRKw7VRKOkf6Pp94K3z6JejX5rsWo8MjcaVC-UOiATv-Ysgh97-fzBSPhBBeIskpgShdn7s6HOSIcQ/R8P96j-wabHzfHebTely4dBZ-Wvp2_R3W25bCKFvUBI',
     status: 'Now',
     isVerified: true
   },
@@ -156,7 +156,7 @@ const allNFTs = [
     title: 'Virtual Reality',
     creator: 'vr.master',
     price: '0.0082 ETH',
-    image: 'https://via.placeholder.com/400x400/00695c/ffffff',
+    image: 'https://assets.raribleuserdata.com/prod/v1/image/t_avatar_big/aHR0cHM6Ly9pcGZzLnJhcmlibGV1c2VyZGF0YS5jb20vaXBmcy9RbVppU3F1Z05UNmsxTUJ3N0pySkpBOHM3b3kxZHhNa3U3eW50U0xGb1VCRktYL0FyYml0cnVtLWxpdmUtb24tUmFyaWJsZS1lemdpZi5jb20tb3B0aW1pemUuZ2lm',
     status: '12 hours',
     isVerified: true
   },
@@ -165,7 +165,7 @@ const allNFTs = [
     title: 'Digital Genesis',
     creator: 'crypto.art',
     price: '0.0067 ETH',
-    image: 'https://via.placeholder.com/400x400/bf360c/ffffff',
+    image: 'https://assets.raribleuserdata.com/prod/v1/image/t_gif_preview/aHR0cHM6Ly9pcGZzLnJhcmlibGV1c2VyZGF0YS5jb20vaXBmcy9RbVl0MlEzOHk3ZWh0c3RUOGNXRWl2enJZdEd6QnBKOWZZZEJoSk1yYUdKV2VKLzEuZ2lm',
     status: 'Now',
     isVerified: true
   },
@@ -174,7 +174,7 @@ const allNFTs = [
     title: 'Pixel Paradise',
     creator: 'pixel.master',
     price: '0.0043 ETH',
-    image: 'https://via.placeholder.com/400x400/0277bd/ffffff',
+    image: 'https://ipfs.raribleuserdata.com/ipfs/bafybeico7a2c5v4tgc4hcj76orsdamo5jeg5uzwrhbclq72yfg4ycw3ta4',
     status: '8 hours',
     isVerified: true
   }
