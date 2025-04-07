@@ -15,6 +15,7 @@ import { AuthProvider } from './context/AuthContext';
 import { NFTProvider } from './context/NFTContext';
 import AuthRoute from './components/AuthRoute';
 
+
 function App() {
   return (
     <ThemeProvider theme={theme}>
@@ -22,6 +23,7 @@ function App() {
       <AuthProvider>
         <NFTProvider>
           <Router>
+            {/* Route login and register here */}
             <SearchProvider>
               <CartProvider>
                 <Box sx={{ 

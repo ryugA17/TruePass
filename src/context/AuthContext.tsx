@@ -1,10 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { auth, provider } from '../components/layout/firebase';
+import { signInWithPopup, signOut, onAuthStateChanged, User } from 'firebase/auth';
 
 interface AuthContextType {
   isAuthenticated: boolean;
   user: { email: string } | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  googleLogin: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -24,57 +27,65 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<{ email: string } | null>(null);
-  
-  // Check localStorage on initial load
+
   useEffect(() => {
-    const storedAuth = localStorage.getItem('isAuthenticated');
-    const storedUser = localStorage.getItem('user');
-    
-    if (storedAuth === 'true' && storedUser) {
-      setIsAuthenticated(true);
-      setUser(JSON.parse(storedUser));
-    }
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser: User | null) => {
+      if (firebaseUser) {
+        const userData = { email: firebaseUser.email || '' };
+        setIsAuthenticated(true);
+        setUser(userData);
+        localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('user', JSON.stringify(userData));
+      } else {
+        setIsAuthenticated(false);
+        setUser(null);
+        localStorage.removeItem('isAuthenticated');
+        localStorage.removeItem('user');
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
-  
-  // Login function - in a real app this would call your authentication API
+
   const login = async (email: string, password: string): Promise<void> => {
-    // Simulate API call
+    // Simulate custom login — optional if only using Firebase
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Simple validation - would be done by your server in a real app
     if (password.length < 6) {
       throw new Error('Password must be at least 6 characters');
     }
-    
-    // Set auth state
     setIsAuthenticated(true);
     setUser({ email });
-    
-    // Store in localStorage (in a real app, you'd store tokens securely)
     localStorage.setItem('isAuthenticated', 'true');
     localStorage.setItem('user', JSON.stringify({ email }));
   };
-  
-  // Logout function
+
+  const googleLogin = async (): Promise<void> => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const firebaseUser = result.user;
+      const userData = { email: firebaseUser.email || '' };
+      setIsAuthenticated(true);
+      setUser(userData);
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('user', JSON.stringify(userData));
+    } catch (error) {
+      console.error('Google login error:', error);
+    }
+  };
+
   const logout = () => {
+    signOut(auth);
     setIsAuthenticated(false);
     setUser(null);
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('user');
   };
-  
-  const value = {
-    isAuthenticated,
-    user,
-    login,
-    logout
-  };
-  
+
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={{ isAuthenticated, user, login, logout, googleLogin }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export default AuthContext; 
+export default AuthContext;

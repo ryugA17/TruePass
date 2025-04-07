@@ -2,10 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { AuthProvider } from './context/AuthContext'; // ⬅️ Import your context
 
-// Always initialize the app when loading index.tsx directly
-// This is needed because if we are referred from the landing page,
-// we want to render the React app immediately
 console.log('React app initializing, localStorage visited:', localStorage.getItem('visited'));
 
 const root = ReactDOM.createRoot(
@@ -14,8 +12,10 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
-    <App />
+    <AuthProvider> {/* ⬅️ Wrap App with AuthProvider */}
+      <App />
+    </AuthProvider>
   </React.StrictMode>
 );
 
-reportWebVitals(); 
+reportWebVitals();

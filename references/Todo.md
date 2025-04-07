@@ -3,8 +3,10 @@ TODO:
 1. Trial transactions
     Sepolia Testnet
     Fix gas fees (optimize contact) ->cart line 160
+    Make it such that when you create NFT it makes a block
 
 2. Add firebase auth
+    Route Login/Register in App.tsx
 
 3. Colour theme change
 
@@ -16,5 +18,8 @@ TODO:
 
 7. "Wallet connected successfully" -> change alert position
 
-8. Searchbar dropdown while typing (refer true-pass)
-9. Landing page line below gsap
+9. Searchbar dropdown while typing (refer true-pass)
+
+10.Chatbot
+
+11.TOTP
