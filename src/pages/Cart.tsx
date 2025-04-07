@@ -164,7 +164,7 @@ const Cart = () => {
 
       // Simulate contract address where funds would be sent
       // In a real app, this would be your marketplace contract
-      const marketplaceAddress = "0x8c47863D1B967B24Ef0d3B108D3E806204D447DC";
+      const marketplaceAddress = "0x37a9fbc5d3cd8b3f45752e39a4a0cce16a8ddce2";
 
       // Send transaction through MetaMask
       const transactionHash = await window.ethereum!.request({
@@ -174,7 +174,7 @@ const Cart = () => {
             from: walletAddress,
             to: marketplaceAddress,
             value: totalWei,
-            gas: "0x5028", // Hexadecimal for ~20,000 gas
+            gas: "0x5208", // Hexadecimal for 21000 gas
             data: "0x", // Empty data field for simple ETH transfer
           },
         ],
