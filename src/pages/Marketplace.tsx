@@ -463,7 +463,6 @@ const Marketplace = () => {
   const { nfts: userCreatedNFTs } = useNFTs(); // Get user-created NFTs from context
   
   // States for each section
-  const [hoveredNFTId, setHoveredNFTId] = useState<string | null>(null);
   const [activeStep, setActiveStep] = useState(0);
   const [trendingStep, setTrendingStep] = useState(0);
   const [popularStep, setPopularStep] = useState(0);
@@ -677,8 +676,6 @@ const Marketplace = () => {
                         transform: 'scale(1.02)'
                       }
                     }}
-                    onMouseEnter={() => setHoveredNFTId(uniqueId)}
-                    onMouseLeave={() => setHoveredNFTId(null)}
                   >
                     <CardActionArea 
                       sx={{ 
@@ -710,44 +707,51 @@ const Marketplace = () => {
                         />
                       </Box>
                       
-                      {hoveredNFTId === uniqueId && (
-                        <Box
+                      {/* CSS-based hover overlay instead of React state */}
+                      <Box
+                        className="nft-hover-overlay"
+                        onClick={(e) => e.stopPropagation()}
+                        sx={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          height: `${IMAGE_HEIGHT}px`,
+                          bgcolor: 'rgba(0, 0, 0, 0.7)',
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          transition: 'opacity 0.3s ease-in-out',
+                          opacity: 0,
+                          pointerEvents: 'none',
+                          '.MuiCardActionArea-root:hover &': {
+                            opacity: 1,
+                            pointerEvents: 'auto',
+                          }
+                        }}
+                      >
+                        <Button
+                          variant="contained"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddToCart(nft);
+                          }}
                           sx={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            height: `${IMAGE_HEIGHT}px`,
-                            bgcolor: 'rgba(0, 0, 0, 0.7)',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            transition: 'all 0.3s ease-in-out'
+                            bgcolor: 'white',
+                            color: 'black',
+                            fontWeight: 'bold',
+                            '&:hover': {
+                              bgcolor: 'white',
+                              transform: 'scale(1.05)',
+                              boxShadow: '0 4px 20px rgba(255,255,255,0.25)'
+                            },
+                            borderRadius: '20px',
+                            padding: '8px 16px',
                           }}
                         >
-                          <Button
-                            variant="contained"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleAddToCart(nft);
-                            }}
-                            sx={{
-                              bgcolor: 'white',
-                              color: 'black',
-                              fontWeight: 'bold',
-                              '&:hover': {
-                                bgcolor: 'white',
-                                transform: 'scale(1.05)',
-                                boxShadow: '0 4px 20px rgba(255,255,255,0.25)'
-                              },
-                              borderRadius: '20px',
-                              padding: '8px 16px',
-                            }}
-                          >
-                            Add to Cart
-                          </Button>
-                        </Box>
-                      )}
+                          Add to Cart
+                        </Button>
+                      </Box>
                     </CardActionArea>
                     <Box
                       sx={{

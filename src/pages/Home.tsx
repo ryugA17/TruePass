@@ -369,7 +369,6 @@ const Home = () => {
   const { addToCart } = useCart();
   
   // States for each section
-  const [hoveredNFTId, setHoveredNFTId] = useState<string | null>(null);
   const [activeStep, setActiveStep] = useState(0);
   const [trendingStep, setTrendingStep] = useState(0);
   const [popularStep, setPopularStep] = useState(0);
@@ -603,8 +602,6 @@ const Home = () => {
                         transform: 'scale(1.02)'
                       }
                     }}
-                    onMouseEnter={() => setHoveredNFTId(uniqueId)}
-                    onMouseLeave={() => setHoveredNFTId(null)}
                   >
                     <CardActionArea 
                       sx={{ 
@@ -636,44 +633,51 @@ const Home = () => {
                         />
                       </Box>
                       
-                      {hoveredNFTId === uniqueId && (
-                        <Box
+                      {/* CSS-based hover overlay instead of React state */}
+                      <Box
+                        className="nft-hover-overlay"
+                        onClick={(e) => e.stopPropagation()}
+                        sx={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          height: `${IMAGE_HEIGHT}px`,
+                          bgcolor: 'rgba(0, 0, 0, 0.7)',
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          transition: 'opacity 0.3s ease-in-out',
+                          opacity: 0,
+                          pointerEvents: 'none',
+                          '.MuiCardActionArea-root:hover &': {
+                            opacity: 1,
+                            pointerEvents: 'auto',
+                          }
+                        }}
+                      >
+                        <Button
+                          variant="contained"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddToCart(nft);
+                          }}
                           sx={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            height: `${IMAGE_HEIGHT}px`,
-                            bgcolor: 'rgba(0, 0, 0, 0.7)',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            transition: 'all 0.3s ease-in-out'
+                            bgcolor: 'white',
+                            color: 'black',
+                            fontWeight: 'bold',
+                            '&:hover': {
+                              bgcolor: 'white',
+                              transform: 'scale(1.05)',
+                              boxShadow: '0 4px 20px rgba(255,255,255,0.25)'
+                            },
+                            borderRadius: '20px',
+                            padding: '8px 16px',
                           }}
                         >
-                          <Button
-                            variant="contained"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleAddToCart(nft);
-                            }}
-                            sx={{
-                              bgcolor: 'white',
-                              color: 'black',
-                              fontWeight: 'bold',
-                              '&:hover': {
-                                bgcolor: 'white',
-                                transform: 'scale(1.05)',
-                                boxShadow: '0 4px 20px rgba(255,255,255,0.25)'
-                              },
-                              borderRadius: '20px',
-                              padding: '8px 16px',
-                            }}
-                          >
-                            Add to Cart
-                          </Button>
-                        </Box>
-                      )}
+                          Add to Cart
+                        </Button>
+                      </Box>
                     </CardActionArea>
                     <Box
                       sx={{
@@ -974,15 +978,17 @@ const Home = () => {
                         </Stack>
                       </Grid>
 
-                      <Grid item xs={12} md={6} sx={{ height: '100%' }}>
+                      <Grid item xs={12} md={6} sx={{ height: '100%', position: 'relative' }}>
                         <Box
                           sx={{
                             width: '100%',
                             height: '100%',
                             position: 'relative',
+                            '&:hover .featured-nft-overlay': {
+                              opacity: 1,
+                              pointerEvents: 'auto',
+                            }
                           }}
-                          onMouseEnter={() => setHoveredNFTId(`featured-${index}`)}
-                          onMouseLeave={() => setHoveredNFTId(null)}
                         >
                           <MediaDisplay
                             src={nft.image}
@@ -994,48 +1000,50 @@ const Home = () => {
                             }}
                           />
                           
-                          {hoveredNFTId === `featured-${index}` && (
-                            <Box
-                              sx={{
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                right: 0,
-                                bottom: 0,
-                                bgcolor: 'rgba(0, 0, 0, 0.5)',
-                                display: 'flex', 
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                transition: 'all 0.3s ease-in-out'
+                          <Box
+                            className="featured-nft-overlay"
+                            onClick={(e) => e.stopPropagation()}
+                            sx={{
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              right: 0,
+                              bottom: 0,
+                              bgcolor: 'rgba(0, 0, 0, 0.5)',
+                              display: 'flex', 
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              transition: 'opacity 0.3s ease-in-out',
+                              opacity: 0,
+                              pointerEvents: 'none',
+                            }}
+                          >
+                            <Button 
+                              variant="contained" 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                addToCart({
+                                  id: index + 100,
+                                  title: nft.title,
+                                  creator: nft.creator,
+                                  price: nft.price.split(' ')[0],
+                                  image: nft.image
+                                });
+                                setShowAddedToCart(true);
+                              }}
+                              sx={{ 
+                                bgcolor: 'white',
+                                color: 'black',
+                                '&:hover': {
+                                  bgcolor: 'white',
+                                },
+                                borderRadius: '20px',
+                                px: 3
                               }}
                             >
-                              <Button 
-                                variant="contained" 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  addToCart({
-                                    id: index + 100,
-                                    title: nft.title,
-                                    creator: nft.creator,
-                                    price: nft.price.split(' ')[0],
-                                    image: nft.image
-                                  });
-                                  setShowAddedToCart(true);
-                                }}
-                                sx={{ 
-                                  bgcolor: 'white',
-                                  color: 'black',
-                                  '&:hover': {
-                                    bgcolor: 'white',
-                                  },
-                                  borderRadius: '20px',
-                                  px: 3
-                                }}
-                              >
-                                Quick Add
-                              </Button>
-                            </Box>
-                          )}
+                              Quick Add
+                            </Button>
+                          </Box>
                         </Box>
                       </Grid>
                     </Grid>
