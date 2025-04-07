@@ -2,7 +2,7 @@ TODO:
 
 1. Trial transactions
     Sepolia Testnet
-    Fix gas fees (optimize contact)
+    Fix gas fees (optimize contact) ->cart line 160
 
 2. Add firebase auth
 
@@ -17,3 +17,4 @@ TODO:
 7. "Wallet connected successfully" -> change alert position
 
 8. Searchbar dropdown while typing (refer true-pass)
+9. Landing page line below gsap

@@ -1,8 +1,8 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 // Define the cart item type
 export interface CartItem {
-  id: number;
+  id: number | string;
   title: string;
   creator: string;
   price: string;
@@ -14,8 +14,8 @@ export interface CartItem {
 interface CartContextType {
   cartItems: CartItem[];
   addToCart: (item: Omit<CartItem, 'quantity'>) => void;
-  removeFromCart: (id: number) => void;
-  updateQuantity: (id: number, change: number) => void;
+  removeFromCart: (id: number | string) => void;
+  updateQuantity: (id: number | string, change: number) => void;
   clearCart: () => void;
   cartItemCount: number;
 }
@@ -32,25 +32,26 @@ const CartContext = createContext<CartContextType>({
 
 // Create provider component
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    // Sample initial items
-    {
-      id: 1,
-      title: 'Abstract Thought of Art',
-      creator: 'ZafGod.eth',
-      price: '0.00069',
-      image: 'https://via.placeholder.com/400x400/1a237e/ffffff',
-      quantity: 1,
-    },
-    {
-      id: 2,
-      title: 'Harvested Opulence',
-      creator: 'Fame Identity',
-      price: '0.005',
-      image: 'https://via.placeholder.com/400x400/4a148c/ffffff',
-      quantity: 1,
-    },
-  ]);
+  // Initialize with empty cart
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+
+  // Load cart items from localStorage on initial load
+  useEffect(() => {
+    const storedCartItems = localStorage.getItem('cartItems');
+    if (storedCartItems) {
+      try {
+        setCartItems(JSON.parse(storedCartItems));
+      } catch (error) {
+        console.error('Failed to parse cart items from localStorage:', error);
+        setCartItems([]);
+      }
+    }
+  }, []);
+
+  // Save cart items to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+  }, [cartItems]);
 
   // Calculate total number of items in cart
   const cartItemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
@@ -76,12 +77,12 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   // Remove item from cart
-  const removeFromCart = (id: number) => {
+  const removeFromCart = (id: number | string) => {
     setCartItems(prevItems => prevItems.filter(item => item.id !== id));
   };
 
   // Update item quantity
-  const updateQuantity = (id: number, change: number) => {
+  const updateQuantity = (id: number | string, change: number) => {
     setCartItems(prevItems => 
       prevItems.map(item => {
         if (item.id === id) {
@@ -96,6 +97,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // Clear cart
   const clearCart = () => {
     setCartItems([]);
+    localStorage.removeItem('cartItems');
   };
 
   const value = {
@@ -111,4 +113,4 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 };
 
 // Custom hook to use the cart context
-export const useCart = () => useContext(CartContext); 
+export const useCart = () => useContext(CartContext);
