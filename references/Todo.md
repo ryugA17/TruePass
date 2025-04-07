@@ -1,25 +1,19 @@
 TODO:
 
-1. Trial transactions
-    Sepolia Testnet
-    Fix gas fees (optimize contact) ->cart line 160
-    Make it such that when you create NFT it makes a block
+1. Colour theme change
 
-2. Add firebase auth
-    Route Login/Register in App.tsx
+2. Nav bar -> Change tabs to icons
 
-3. Colour theme change
+3. MongoDB link
 
-4. Nav bar -> Change tabs to icons
+4. Remove placeholders form cart
 
-5. MongoDB link
+5. "Wallet connected successfully" -> change alert position
 
-6. Remove placeholders form cart
-
-7. "Wallet connected successfully" -> change alert position
-
-9. Searchbar dropdown while typing (refer true-pass)
+6. Searchbar dropdown while typing (refer true-pass)
 
 10.Chatbot
 
 11.TOTP
+
+12.Fix bug while creating NFT.
