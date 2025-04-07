@@ -84,7 +84,7 @@ const CreateNFT = () => {
       const seatNumber = "A1"; // Placeholder
       const eventDate = Math.floor(Date.now() / 1000) + 3600 * 24 * 30; // 30 days from now as timestamp
   
-      const tx = await contract.mintTicket(userAddress, eventName, seatNumber, eventDate);
+      const tx = await contract.mintTicket(eventName, seatNumber, eventDate);
       await tx.wait();
   
       setNotification({
