@@ -17,6 +17,7 @@ import {
   Divider,
   Modal,
   Paper,
+  Tooltip,
 } from '@mui/material';
 import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
@@ -31,6 +32,8 @@ import WarningIcon from '@mui/icons-material/Warning';
 import { useSearch } from '../../context/SearchContext';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
+import editPencilIcon from '../../assets/Edit_Pencil_01.png';
+import shoppingCartIcon from '../../assets/Shopping_Cart_01.png';
 
 // Define window.ethereum for TypeScript
 declare global {
@@ -420,22 +423,65 @@ const Navbar = () => {
               Marketplace
             </Button>
             
-            <Button
-              onClick={isAuthenticated ? handleCreateNFT : handleLogin}
-              sx={{ color: 'white', textTransform: 'none' }}
-            >
-              Create
-            </Button>
+            <Tooltip title="Create NFT">
+              <IconButton
+                onClick={isAuthenticated ? handleCreateNFT : handleLogin}
+                sx={{ 
+                  p: 1,
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  borderRadius: '50%',
+                  '&:hover': {
+                    bgcolor: 'rgba(255, 255, 255, 0.2)',
+                  }
+                }}
+              >
+                <img 
+                  src={editPencilIcon} 
+                  alt="Create" 
+                  style={{ 
+                    width: '24px', 
+                    height: '24px', 
+                    filter: 'brightness(0) invert(1)'  // Make the icon white
+                  }} 
+                />
+              </IconButton>
+            </Tooltip>
             
-            <IconButton
-              color="inherit"
-              onClick={handleCartClick}
-              sx={{ mr: 1 }}
-            >
-              <Badge badgeContent={cartItemCount} color="error">
-                <ShoppingCartIcon />
-              </Badge>
-            </IconButton>
+            <Tooltip title="Cart">
+              <IconButton
+                onClick={handleCartClick}
+                sx={{ 
+                  p: 1,
+                  mr: 1,
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  borderRadius: '50%',
+                  '&:hover': {
+                    bgcolor: 'rgba(255, 255, 255, 0.2)',
+                  }
+                }}
+              >
+                <Badge 
+                  badgeContent={cartItemCount} 
+                  color="error"
+                  sx={{
+                    '& .MuiBadge-badge': {
+                      top: -5,
+                      right: -5,
+                    }
+                  }}
+                >
+                  <img 
+                    src={shoppingCartIcon} 
+                    alt="Shopping Cart" 
+                    style={{ 
+                      width: '24px', 
+                      height: '24px', 
+                      filter: 'brightness(0) invert(1)'  // Make the icon white
+                    }} 
+                  />
+                </Badge>
+              </IconButton>
+            </Tooltip>
             
             {!walletConnected ? (
               <Button
