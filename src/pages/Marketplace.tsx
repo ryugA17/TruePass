@@ -22,6 +22,8 @@ import { useCart } from '../context/CartContext';
 import { useNFTs } from '../context/NFTContext';
 
 // Use the same NFT data as Home page
+
+// Mock data for latest drops
 const allNFTs = [
   {
     id: 1,
@@ -234,7 +236,7 @@ const allNFTs = [
     title: 'Dark Code Sonata',
     creator: 'StackTrace.eth',
     price: '0.0101 ETH',
-    image: 'https://rarible.com/collection/base/0x79bec9bdb00eaf79fdc873753ea6827140528061/drops',
+    image: 'https://assets.raribleuserdata.com/prod/v1/image/t_gif_preview/aHR0cHM6Ly9pcGZzLnJhcmlibGV1c2VyZGF0YS5jb20vaXBmcy9RbWJMalNCUWhIajVONHU0YlBwS2VTMXVkWlNwbkNWTEtaajUzbzdjU0Z6UnI4LzAuZ2lm',
     status: '1 hour',
     isVerified: true
   },
@@ -271,7 +273,7 @@ const allNFTs = [
     creator: 'SunlitHex',
     price: '0.0066 ETH',
     image: 'https://v5.airtableusercontent.com/v3/u/39/39/1744056000000/HUgEDEeJ0MqLiFg-dCldLg/U-qPSCogtQmrunaIzid483jah_pYQbzKQ9BxmOGs4Xi2g-IjVFUdFtD7U-ArlEVQ_I0lH-39a0D_qBuPAzobRP82UCjmmxy-f7zeff1O6PSuy3PkKxJHLo-QzyG_YOtNbnYxM5IBJ7p1h3IH_tpcJA/fQVKX_-mYAtS9PJ1Ud8hwfOA5UV13lra-KU3QRM7Lcs',
-    status: '7 hours',
+    status: 'Upcoming',
     isVerified: true
   },
   {
@@ -280,7 +282,7 @@ const allNFTs = [
     creator: 'DeepEchoLab',
     price: '0.0092 ETH',
     image: 'https://v5.airtableusercontent.com/v3/u/39/39/1744056000000/e6VcTOWYzPEv4g6zHLAaXg/RJmifZFDSfVU6on5x4mIgpnHKn8YxaPAdjehsfzqmEOWJ8_pDlw2Tq3Qh18-CuPpNSwU9NhV1ICTCvLaDrMyd3U4AHdOquZcyJTtA-QKD_NK-Rylvsniap2TrwnrisTUqY16SgY-3iyYE1Kaye3_vg/MKkpnnV6Ml7dzsdBMZGGfQiXo01dZ1cEfRiff2zxVD4',
-    status: 'Now',
+    status: 'Upcoming',
     isVerified: true
   },
   {
@@ -289,7 +291,7 @@ const allNFTs = [
     creator: 'ArtPhantom',
     price: '0.0039 ETH',
     image: 'https://v5.airtableusercontent.com/v3/u/39/39/1744056000000/BCLijEFcvVxAeXeSAp7O9A/Q3o4JHkb-UjV4gUVa7OWyyj1IUcNOalgVxKqIwmQHGQX71th3EI85oIeRsm8j-ys3RJeY_im6m5FpG55zWIh8L2qZx8aFC9Cql0wv-F719VqvkjwyEODIAYK4_pWgZv_p67hJRLMqOIdX89iQhi7CA/0CFHbcJWPml1O_M5f3SXd_4-PJO2ezlNW9gILJ491R0',
-    status: '5 hours',
+    status: 'Upcoming',
     isVerified: false
   },
   {
@@ -298,7 +300,7 @@ const allNFTs = [
     creator: 'TheOtherPixel',
     price: '0.0115 ETH',
     image: 'https://v5.airtableusercontent.com/v3/u/39/39/1744056000000/pJ4i_C2p3dnU5ujTi1HUew/1A-RVAiFLtZ_QCLsNH4rwPCDBFCN2tIgNl-9x-ZRTmZHlQ2xnrDYTcfh8luh_ASjvxB4VMfQJA4q4jqcpX1DbZ05e77_fiMCkFIyV97B0qLqH5ux7ae8vEsnbYd6ihxuB5JMQYhSqQsNMow2PI41GA/1QNH0sVLNgT1u0yFwcNHW8vqR4rQVHUkNi0gVrIVfxc',
-    status: 'Now',
+    status: 'Upcoming',
     isVerified: true
   },
   {
@@ -307,7 +309,7 @@ const allNFTs = [
     creator: 'FluxGarden',
     price: '0.006 ETH',
     image: 'https://v5.airtableusercontent.com/v3/u/39/39/1744056000000/mVMud87ha8IiRBl2ckT6wA/56R9Zd3gqPNPW8mBdEDAFdjZ7cmapiFiH22c1IoBLo0Ni1fial84nmSTKzCQGOzPFO7dWjRMwXC7viM5eW5PupnowLVCzqlW176k_03han14UQzzYMrMG-3gTXztTu9R_Q3ZgSW8Qzhw5M0d6dIvKw/hD32qqpDS9-YxUdPA03pJ9EnnILTPY2DK104c2-Z9NM',
-    status: 'Now',
+    status: 'Upcoming',
     isVerified: true
   }
 ];
@@ -315,19 +317,19 @@ const allNFTs = [
 const ITEMS_PER_PAGE = 5;
 
 // Additional NFT collections
-const trendingNFTs = allNFTs.map(nft => ({
+const trendingNFTs = allNFTs.filter(nft => nft.id >= 13 && nft.id <= 20).map(nft => ({
   ...nft,
   price: (parseFloat(nft.price) * 1.5).toFixed(4) + ' ETH', // Higher prices for trending
   status: Math.random() > 0.5 ? 'Trending' : 'Hot'
 }));
 
-const popularNFTs = allNFTs.map(nft => ({
+const popularNFTs = allNFTs.filter(nft => nft.id >= 21 && nft.id <= 27).map(nft => ({
   ...nft,
   price: (parseFloat(nft.price) * 2).toFixed(4) + ' ETH', // Higher prices for popular
   status: Math.random() > 0.5 ? 'Popular' : 'Featured'
 }));
 
-const upcomingNFTs = allNFTs.map(nft => ({
+const upcomingNFTs = allNFTs.filter(nft => nft.id >= 28 && nft.id <= 32).map(nft => ({
   ...nft,
   price: (parseFloat(nft.price) * 0.8).toFixed(4) + ' ETH', // Lower prices for upcoming
   status: Math.random() > 0.5 ? '1d left' : '2d left'
