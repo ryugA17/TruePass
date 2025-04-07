@@ -352,6 +352,9 @@ const Marketplace = () => {
                     transition: 'all 0.5s ease-in-out',
                     opacity: 1,
                     transform: 'scale(1)',
+                    height: '300px', // Fixed height for all cards
+                    maxWidth: '300px', // Fixed max width
+                    margin: '0 auto', // Center cards
                   }}
                 >
                   <Card 
@@ -359,7 +362,10 @@ const Marketplace = () => {
                       bgcolor: 'rgba(22, 28, 36, 0.95)',
                       borderRadius: 2,
                       position: 'relative',
-                      aspectRatio: '1/1',
+                      height: '100%', // Fill the parent container
+                      width: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
                       cursor: 'pointer',
                       transition: 'transform 0.3s ease-in-out',
                       '&:hover': {
@@ -369,15 +375,17 @@ const Marketplace = () => {
                     onMouseEnter={() => setHoveredNFTId(uniqueId)}
                     onMouseLeave={() => setHoveredNFTId(null)}
                   >
-                    <CardActionArea>
+                    <CardActionArea sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                       <CardMedia
                         component="img"
                         image={nft.image}
                         alt={nft.title}
                         sx={{ 
-                          height: '100%',
+                          height: 0,
+                          paddingTop: '100%', // 1:1 Aspect ratio
                           width: '100%',
-                          aspectRatio: '1/1'
+                          objectFit: 'cover',
+                          objectPosition: 'center'
                         }}
                       />
                       {hoveredNFTId === uniqueId && (
@@ -429,6 +437,10 @@ const Marketplace = () => {
                         p: 1,
                         borderBottomLeftRadius: 8,
                         borderBottomRightRadius: 8,
+                        height: '60px', // Fixed height for the info section
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between'
                       }}
                     >
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
