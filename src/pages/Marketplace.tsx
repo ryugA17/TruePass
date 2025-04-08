@@ -731,7 +731,7 @@ const Marketplace = () => {
       )}
       
       <NFTGridSection
-        title="Latest Drops"
+        title="Latest Events"
         nfts={filteredNFTs}
         step={activeStep}
         isAnimating={isAnimating}

@@ -1105,7 +1105,7 @@ const Home = () => {
 
       {/* NFT Sections - now with optimized props */}
       <NFTGridSection
-        title="Latest Drops"
+        title="Latest Events"
         nfts={filteredNFTs}
         step={activeStep}
         isAnimating={isAnimating}
@@ -1116,7 +1116,7 @@ const Home = () => {
       />
       
       <NFTGridSection
-        title="Trending NFTs"
+        title="Trending Events"
         nfts={filteredTrendingNFTs}
         step={trendingStep}
         isAnimating={isTrendingAnimating}

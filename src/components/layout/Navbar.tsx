@@ -369,7 +369,7 @@ const Navbar = () => {
             }
           }}>
             <InputBase
-              placeholder="Search NFTs..."
+              placeholder="Search Events..."
               value={inputValue}
               onChange={handleInputChange}
               onKeyPress={handleKeyPress}
