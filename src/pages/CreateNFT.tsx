@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { ethers } from 'ethers';
+import { saveTicketToFirestore } from "../Utils/saveTicketToFirestore";
+import { auth } from "../components/layout/firebase";
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '../constants/contract';
 import {
   Container,
@@ -29,7 +31,6 @@ const CreateNFT = () => {
     price: '',
     image: null as File | null,
   });
-  
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -65,86 +66,74 @@ const CreateNFT = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-  
+
     try {
       if (!window.ethereum) throw new Error('MetaMask is not installed.');
 
       if (!user) {
         throw new Error('You must be logged in to create events');
       }
-  
+
       await window.ethereum.request({ method: 'eth_requestAccounts' });
-  
+
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
       const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-  
+
       const userAddress = await signer.getAddress();
-      
-      // Get values from form
+
       const eventName = formData.name;
       const seatNumber = formData.seatNumber;
-      const eventDate = Math.floor(Date.now() / 1000) + 3600 * 24 * 30; // 30 days from now as timestamp
-  
-      // Mint the ticket on blockchain
+      const eventDate = Math.floor(Date.now() / 1000) + 3600 * 24 * 30;
+
       const tx = await contract.mintTicket(eventName, seatNumber, eventDate);
       await tx.wait();
-  
-      // Save NFT data to context for profile display
-      if (formData.image) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          // Add NFT to context
-          addNFT({
-            title: eventName,
-            description: `Seat: ${seatNumber}`,
-            price: `${formData.price} ETH`,
-            image: reader.result as string,
-            creator: user.email,
-            isVerified: true
-          });
 
-          // Clear form and show success notification
-          setFormData({ name: '', seatNumber: '', price: '', image: null });
-          setPreviewUrl(null);
-          
-          setNotification({
-            open: true,
-            message: 'Event created successfully!',
-            severity: 'success'
-          });
-          
-          // Navigate to profile to see the new NFT
-          setTimeout(() => {
-            navigate('/profile');
-          }, 2000);
-        };
-        reader.readAsDataURL(formData.image);
-      } else {
-        // Use placeholder image if no image uploaded
+      const saveData = async (base64Image: string) => {
+        await saveTicketToFirestore({
+          eventName,
+          seatNumber,
+          price: formData.price,
+          image: base64Image,
+          creatorEmail: user.email,
+          walletAddress: userAddress,
+          timestamp: new Date().toISOString()
+        });
+
         addNFT({
           title: eventName,
           description: `Seat: ${seatNumber}`,
           price: `${formData.price} ETH`,
-          image: "https://source.unsplash.com/random/300x200/?ticket",
+          image: base64Image,
           creator: user.email,
           isVerified: true
         });
 
-        // Clear form and show success notification
         setFormData({ name: '', seatNumber: '', price: '', image: null });
         setPreviewUrl(null);
-        
+
         setNotification({
           open: true,
-          message: 'Event created successfully!',
+          message: 'Event created and saved successfully!',
           severity: 'success'
         });
-        
-        // Navigate to profile to see the new NFT
+
+        setLoading(false);
         setTimeout(() => {
           navigate('/profile');
         }, 2000);
+      };
+
+      if (formData.image) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64Image = reader.result as string;
+          saveData(base64Image);
+        };
+        reader.readAsDataURL(formData.image);
+      } else {
+        const placeholderImage = "https://source.unsplash.com/random/300x200/?ticket";
+        await saveData(placeholderImage);
       }
     } catch (err: any) {
       console.error(err);
@@ -156,7 +145,6 @@ const CreateNFT = () => {
       setLoading(false);
     }
   };
-  
 
   const handleCloseNotification = () => {
     setNotification((prev) => ({ ...prev, open: false }));

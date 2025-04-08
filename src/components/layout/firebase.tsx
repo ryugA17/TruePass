@@ -1,5 +1,6 @@
 // src/components/layout/firebase.tsx
 import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
@@ -25,3 +26,4 @@ const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
 export { app, auth, googleProvider };
+export const db = getFirestore(app);
