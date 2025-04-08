@@ -2,31 +2,40 @@ function loadSVG () {
     fetch("city.svg")
     .then((response) => { return response.text();})
     .then((svg) => {
-        document.getElementById('bg_city').innerHTML = svg;
-        document.querySelector('#bg_city svg').setAttribute("preserveAspectRatio", "xMidYMid slice");
-        setAnimationScroll();
-    })
+        const bgCity = document.getElementById('bg_city');
+        if (bgCity) {
+            bgCity.innerHTML = svg;
+            const svgElement = document.querySelector('#bg_city svg');
+            if (svgElement) {
+                svgElement.setAttribute("preserveAspectRatio", "xMidYMid slice");
+                setAnimationScroll();
+            }
+        }
+    }).catch(error => {
+        console.error("Error loading SVG:", error);
+    });
 }
-loadSVG();
 
-// Ensure navigation to React app works
+// Run on page load
 document.addEventListener('DOMContentLoaded', function() {
-    // Get the button that navigates to the React app
-    const enterAppLink = document.getElementById('enter-app-link');
+    // Load the SVG
+    loadSVG();
     
-    // Add click handler to the button
+    // Set up the navigation button
+    const enterAppLink = document.getElementById('enter-app-link');
     if (enterAppLink) {
         enterAppLink.addEventListener('click', function(e) {
             e.preventDefault();
-            // Set visited flag in localStorage
-            localStorage.setItem('visited', 'true');
-            console.log('Setting visited to true, navigating to React app');
             
-            // Navigate to the React app
-            setTimeout(() => {
-                window.location.href = window.location.origin;
-            }, 100);
+            // Set visited flag in localStorage and navigate
+            localStorage.setItem('visited', 'true');
+            console.log('Navigating to main app...');
+            
+            // Navigate to the React app root
+            window.location.href = '/';
         });
+    } else {
+        console.error("Navigation button not found!");
     }
 });
 
