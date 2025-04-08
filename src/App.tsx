@@ -42,7 +42,7 @@ function App() {
                   <CartProvider>
                     <Box sx={{ 
                       minHeight: '100vh',
-                      background: 'linear-gradient(135deg, #1a237e 0%, #000000 100%)',
+                      background: 'linear-gradient(135deg, #040615 0%, #040615 100%)',
                     }}>
                       <Navbar />
                       <Box sx={{ pt: '64px' }}>
