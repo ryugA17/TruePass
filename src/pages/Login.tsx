@@ -114,18 +114,20 @@ const Login = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'white',
+        background: 'linear-gradient(135deg, #121212 0%, #1e1e1e 100%)',
         padding: '20px'
       }}
     >
       <Container maxWidth="sm">
         <Paper
-          elevation={3}
+          elevation={8}
           sx={{
             borderRadius: 3,
             overflow: 'hidden',
-            backgroundColor: 'white',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+            backgroundColor: 'rgba(30, 30, 30, 0.95)',
+            backdropFilter: 'blur(10px)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+            border: '1px solid rgba(255, 255, 255, 0.1)'
           }}
         >
           <Box
@@ -138,20 +140,21 @@ const Login = () => {
           >
             <Avatar
               sx={{
-                mb: 2,
-                width: 60,
-                height: 60,
-                background: 'linear-gradient(135deg, #f06, #9f6)'
+                mb: 3,
+                width: 70,
+                height: 70,
+                background: 'linear-gradient(135deg, #9c27b0 0%, #6a1b9a 100%)',
+                boxShadow: '0 4px 20px rgba(156, 39, 176, 0.4)'
               }}
             >
-              <PersonIcon fontSize="large" />
+              <PersonIcon fontSize="large" sx={{ color: 'white' }} />
             </Avatar>
             
-            <Typography variant="h4" fontWeight="bold" sx={{ mb: 1 }}>
+            <Typography variant="h4" fontWeight="bold" sx={{ mb: 1, color: 'white' }}>
               Welcome Back
             </Typography>
             
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+            <Typography variant="body1" sx={{ mb: 4, color: 'rgba(255, 255, 255, 0.7)' }}>
               Sign in to your account
             </Typography>
 
@@ -168,28 +171,30 @@ const Login = () => {
               }}
             >
               <Tab 
-                icon={<PersonIcon />} 
+                icon={<PersonIcon sx={{ color: userType === 0 ? '#9c27b0' : 'rgba(255, 255, 255, 0.5)' }} />} 
                 label="User" 
                 sx={{ 
                   borderRadius: '8px 0 0 8px',
-                  bgcolor: userType === 0 ? 'white' : '#f5f8fa',
-                  border: '1px solid #e0e0e0',
+                  bgcolor: userType === 0 ? 'rgba(156, 39, 176, 0.1)' : 'rgba(30, 30, 30, 0.6)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  color: userType === 0 ? 'white' : 'rgba(255, 255, 255, 0.5)',
                   '&.Mui-selected': {
-                    color: 'text.primary',
+                    color: 'white',
                     fontWeight: 'bold'
                   }
                 }}
               />
               <Tab 
-                icon={<HomeIcon />} 
+                icon={<HomeIcon sx={{ color: userType === 1 ? '#9c27b0' : 'rgba(255, 255, 255, 0.5)' }} />} 
                 label="Host" 
                 sx={{ 
                   borderRadius: '0 8px 8px 0',
-                  bgcolor: userType === 1 ? 'white' : '#f5f8fa',
-                  border: '1px solid #e0e0e0',
+                  bgcolor: userType === 1 ? 'rgba(156, 39, 176, 0.1)' : 'rgba(30, 30, 30, 0.6)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
                   borderLeft: 'none',
+                  color: userType === 1 ? 'white' : 'rgba(255, 255, 255, 0.5)',
                   '&.Mui-selected': {
-                    color: 'text.primary',
+                    color: 'white',
                     fontWeight: 'bold'
                   }
                 }}
@@ -197,7 +202,7 @@ const Login = () => {
             </Tabs>
 
             {error && (
-              <Alert severity="error" sx={{ mb: 3, width: '100%' }}>
+              <Alert severity="error" sx={{ mb: 3, width: '100%', bgcolor: 'rgba(211, 47, 47, 0.2)', color: '#f48fb1' }}>
                 {error}
               </Alert>
             )}
@@ -205,16 +210,20 @@ const Login = () => {
             <form onSubmit={handleSubmit} style={{ width: '100%' }}>
               <Grid container spacing={3}>
                 <Grid item xs={12}>
-                  <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 500 }}>
+                  <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 500, color: 'rgba(255, 255, 255, 0.9)' }}>
                     Email
                   </Typography>
                   <Box 
                     sx={{ 
-                      py: 1,
-                      borderBottom: '2px solid #f0f0f0',
+                      py: 1.5,
+                      px: 2,
+                      borderRadius: 2,
+                      bgcolor: 'rgba(255, 255, 255, 0.05)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
                       transition: 'all 0.3s ease',
                       '&:focus-within': {
-                        borderBottomColor: '#f06'
+                        borderColor: '#9c27b0',
+                        boxShadow: '0 0 0 2px rgba(156, 39, 176, 0.2)'
                       }
                     }}
                   >
@@ -227,20 +236,24 @@ const Login = () => {
                       onChange={handleInputChange}
                       required
                       autoComplete="email"
+                      sx={{ 
+                        color: 'white',
+                        '& ::placeholder': { color: 'rgba(255, 255, 255, 0.5)' }
+                      }}
                     />
                   </Box>
                 </Grid>
 
                 <Grid item xs={12}>
                   <Box display="flex" justifyContent="space-between" mb={1}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 500 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 500, color: 'rgba(255, 255, 255, 0.9)' }}>
                       Password
                     </Typography>
                     <Link 
                       href="#" 
                       underline="none"
                       sx={{ 
-                        color: '#f06', 
+                        color: '#bb86fc', 
                         fontSize: '14px',
                         '&:hover': {
                           textDecoration: 'underline'
@@ -252,113 +265,134 @@ const Login = () => {
                   </Box>
                   <Box 
                     sx={{ 
-                      py: 1,
-                      borderBottom: '2px solid #f0f0f0',
+                      py: 1.5,
+                      px: 2,
+                      borderRadius: 2,
+                      bgcolor: 'rgba(255, 255, 255, 0.05)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
                       display: 'flex',
                       alignItems: 'center',
                       transition: 'all 0.3s ease',
                       '&:focus-within': {
-                        borderBottomColor: '#f06'
+                        borderColor: '#9c27b0',
+                        boxShadow: '0 0 0 2px rgba(156, 39, 176, 0.2)'
                       }
                     }}
                   >
                     <InputBase
                       fullWidth
-                      placeholder="Enter your password"
-                      name="password"
                       type={showPassword ? 'text' : 'password'}
+                      name="password"
+                      placeholder="Enter your password"
                       value={formData.password}
                       onChange={handleInputChange}
                       required
                       autoComplete="current-password"
+                      sx={{ 
+                        color: 'white',
+                        '& ::placeholder': { color: 'rgba(255, 255, 255, 0.5)' }
+                      }}
                     />
-                    <IconButton
-                      onClick={togglePasswordVisibility}
+                    <IconButton 
+                      onClick={togglePasswordVisibility} 
                       edge="end"
+                      sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
                     >
                       {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
                     </IconButton>
                   </Box>
                 </Grid>
 
-                <Grid item xs={12}>
+                <Grid item xs={12} sx={{ mt: 2 }}>
                   <Button
                     type="submit"
                     variant="contained"
                     fullWidth
-                    size="large"
                     disabled={isLoading}
                     sx={{
-                      borderRadius: 2,
                       py: 1.5,
-                      mt: 1,
-                      background: 'linear-gradient(90deg, #ff0066 0%, #73e600 100%)',
-                      border: 'none',
-                      boxShadow: 'none',
-                      fontWeight: 'bold',
+                      backgroundColor: '#9c27b0',
+                      borderRadius: 2,
                       textTransform: 'none',
                       fontSize: '1rem',
+                      fontWeight: 'bold',
+                      boxShadow: '0 4px 20px rgba(156, 39, 176, 0.3)',
                       '&:hover': {
-                        background: 'linear-gradient(90deg, #e0005a 0%, #66cc00 100%)',
-                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                        backgroundColor: '#7b1fa2',
+                        boxShadow: '0 6px 24px rgba(156, 39, 176, 0.4)',
                       }
                     }}
                   >
                     {isLoading ? (
-                      <CircularProgress size={24} color="inherit" />
+                      <CircularProgress size={24} sx={{ color: 'white' }} />
                     ) : (
-                      `Sign in as ${userType === 0 ? 'User' : 'Host'}`
+                      'Sign In'
                     )}
                   </Button>
                 </Grid>
-                
-                <Grid item xs={12}>
-                  <Divider sx={{ my: 2 }}>
-                    <Typography variant="body2" color="text.secondary">OR</Typography>
-                  </Divider>
-                  
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    startIcon={<GoogleIcon />}
-                    onClick={handleGoogleLogin}
-                    disabled={isLoading}
-                    sx={{
-                      borderRadius: 2,
-                      py: 1.2,
-                      borderColor: '#ddd',
-                      color: '#757575',
-                      '&:hover': {
-                        borderColor: '#ccc',
-                        backgroundColor: '#f5f5f5',
-                      }
-                    }}
-                  >
-                    Continue with Google
-                  </Button>
-                </Grid>
-
-                <Grid item xs={12} textAlign="center">
-                  <Box sx={{ mt: 3 }}>
-                    <Typography variant="body2" color="text.secondary">
-                      Don't have an account?{' '}
-                      <Link
-                        component={RouterLink}
-                        to="/signup"
-                        sx={{
-                          color: '#f06',
-                          textDecoration: 'none',
-                          fontWeight: 'bold',
-                          '&:hover': { textDecoration: 'underline' }
-                        }}
-                      >
-                        Sign up as {userType === 0 ? 'User' : 'Host'}
-                      </Link>
-                    </Typography>
-                  </Box>
-                </Grid>
               </Grid>
             </form>
+
+            <Box
+              sx={{
+                mt: 4,
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 2
+              }}
+            >
+              <Divider sx={{ flexGrow: 1, borderColor: 'rgba(255, 255, 255, 0.1)' }} />
+              <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.5)' }}>
+                OR
+              </Typography>
+              <Divider sx={{ flexGrow: 1, borderColor: 'rgba(255, 255, 255, 0.1)' }} />
+            </Box>
+
+            <Button
+              variant="outlined"
+              fullWidth
+              startIcon={<GoogleIcon />}
+              onClick={handleGoogleLogin}
+              disabled={isLoading}
+              sx={{
+                mt: 3,
+                mb: 2,
+                py: 1.5,
+                borderColor: 'rgba(255, 255, 255, 0.2)',
+                color: 'white',
+                borderRadius: 2,
+                textTransform: 'none',
+                fontSize: '1rem',
+                '&:hover': {
+                  borderColor: 'rgba(255, 255, 255, 0.5)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.05)'
+                }
+              }}
+            >
+              Continue with Google
+            </Button>
+
+            <Box sx={{ mt: 2, textAlign: 'center' }}>
+              <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', display: 'inline' }}>
+                Don't have an account?{' '}
+              </Typography>
+              <Link
+                component={RouterLink}
+                to="/signup"
+                sx={{
+                  color: '#bb86fc',
+                  fontWeight: 500,
+                  textDecoration: 'none',
+                  '&:hover': {
+                    textDecoration: 'underline'
+                  }
+                }}
+              >
+                Sign up now
+              </Link>
+            </Box>
           </Box>
         </Paper>
       </Container>
