@@ -329,7 +329,13 @@ const HostPage = () => {
   ];
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 6 }}>
+    <Container maxWidth="lg" sx={{ 
+      mt: 4, 
+      mb: 6,
+      background: 'linear-gradient(135deg, #040615 0%, #040615 100%)',
+      minHeight: '100vh',
+      py: 4
+    }}>
       <Typography variant="h4" component="h1" gutterBottom sx={{ color: 'white', mb: 3 }}>
         Host Dashboard
       </Typography>

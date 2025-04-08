@@ -71,7 +71,7 @@ const featuredNFTs = [
     "creator": "Arijit Singh",
     "platform": "Mumbai Arena",
     "price": "0.00420 ETH",
-    "description": "An electrifying night with Arijit’s soulful melodies and surprise Bollywood collaborations. Don’t miss the vibe!",
+    "description": "An electrifying night with Arijit's soulful melodies and surprise Bollywood collaborations. Don't miss the vibe!",
     "image": nftAssets['1'],
     "status": "AVAILABLE NOW",
     "mintedCount": "204",

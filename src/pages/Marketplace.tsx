@@ -666,7 +666,7 @@ const Marketplace = () => {
       creator: nft.creator,
       price: typeof nft.price === 'string' && nft.price.includes(' ') 
         ? nft.price.split(' ')[0] 
-        : nft.price, // Handle different price formats
+        : nft.price,
       image: nft.image
     });
     setShowAddedToCart(true);
