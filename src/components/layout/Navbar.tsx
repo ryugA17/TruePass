@@ -354,15 +354,18 @@ const Navbar = () => {
           </Typography>
 
           <Box sx={{ 
-            flexGrow: 0.15, 
+            flexGrow: 1, 
             display: 'flex', 
-            borderRadius: '24px', 
+            justifyContent: 'flex-start',
+            marginRight: '20px',  
+            borderRadius: '20px',
+            marginLeft: '280px',
             backgroundColor: 'rgba(255, 255, 255, 0.15)',
             padding: '6px 18px',
             transition: 'all 0.3s ease',
             boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
             border: '1px solid rgba(255, 255, 255, 0.1)',
-            margin: '0 12px',
+            maxWidth: '600px',
             '&:hover': {
               backgroundColor: 'rgba(255, 255, 255, 0.2)',
               boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
