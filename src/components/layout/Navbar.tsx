@@ -35,6 +35,7 @@ import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import editPencilIcon from '../../assets/Edit_Pencil_01.png';
 import shoppingCartIcon from '../../assets/Shopping_Cart_01.png';
+import userIcon from '../../assets/User_Icon.png';
 import AddIcon from '@mui/icons-material/Add';
 
 // Define window.ethereum for TypeScript
@@ -610,26 +611,27 @@ const Navbar = () => {
                 </Menu>
               </>
             ) : (
-              <Button
-                variant="contained"
-                startIcon={<LoginIcon />}
+              <IconButton
                 onClick={handleLogin}
-                sx={{
-                  borderRadius: 3,
-                  textTransform: 'none',
-                  bgcolor: 'primary.main',
-                  color: 'white',
-                  px: 2,
-                  py: 1,
-                  fontWeight: 'medium',
+                sx={{ 
+                  p: 1,
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  borderRadius: '50%',
                   '&:hover': {
-                    bgcolor: 'primary.dark',
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
+                    bgcolor: 'rgba(255, 255, 255, 0.2)',
                   }
                 }}
               >
-                Login
-              </Button>
+                <img 
+                  src={userIcon} 
+                  alt="Login" 
+                  style={{ 
+                    width: '24px', 
+                    height: '24px', 
+                    filter: 'brightness(0) invert(1)'  // Make the icon white
+                  }} 
+                />
+              </IconButton>
             )}
           </Box>
         </Toolbar>
