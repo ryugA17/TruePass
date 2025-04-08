@@ -598,7 +598,7 @@ const HostPage = () => {
                       <Box 
                         sx={{ 
                           height: `${(data.sales / Math.max(...monthlySalesData.map(d => d.sales)) * 300)}px`,
-                          width: '85%', 
+                          width: '55%', 
                           background: index === monthlySalesData.length - 1 
                             ? 'linear-gradient(180deg, rgba(189, 91, 218, 1) 0%, rgba(106, 27, 154, 1) 100%)' 
                             : 'linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.15) 100%)',
@@ -670,7 +670,17 @@ const HostPage = () => {
                 <Typography variant="h5" sx={{ color: 'white', mb: 4, fontWeight: 'bold' }}>
                   Revenue by Date
                 </Typography>
-                <Box sx={{ height: 400, display: 'flex', alignItems: 'flex-end', gap: 1, px: 2, position: 'relative' }}>
+                <Box sx={{ 
+                  height: 400, 
+                  display: 'flex', 
+                  alignItems: 'flex-end', 
+                  gap: 0.1, 
+                  px: 4, 
+                  position: 'relative',
+                  overflow: 'visible',
+                  overflowX: 'auto',
+                  pb: 6
+                }}>
                   {/* Horizontal grid lines */}
                   {[0, 25, 50, 75, 100].map((percent) => (
                     <Box 
@@ -695,65 +705,95 @@ const HostPage = () => {
                     />
                   ))}
                   
-                  {revenueByDate.map((data, index) => (
-                    <Box key={index} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, zIndex: 2 }}>
-                      <Box 
-                        sx={{ 
-                          height: `${(data.revenue / Math.max(...revenueByDate.map(d => d.revenue)) * 300)}px`,
-                          width: '85%', 
-                          background: index === revenueByDate.length - 1 
-                            ? 'linear-gradient(180deg, rgba(33, 150, 243, 1) 0%, rgba(25, 118, 210, 1) 100%)' 
-                            : 'linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.15) 100%)',
-                          borderRadius: '10px',
-                          transition: 'all 0.5s ease-in-out',
-                          position: 'relative',
-                          boxShadow: '0 6px 16px rgba(0, 0, 0, 0.3)',
-                          '&:hover': {
-                            transform: 'translateY(-8px) scale(1.03)',
-                            boxShadow: '0 12px 24px rgba(0, 0, 0, 0.4)',
-                            background: index === revenueByDate.length - 1 
-                              ? 'linear-gradient(180deg, rgba(64, 196, 255, 1) 0%, rgba(33, 150, 243, 1) 100%)' 
-                              : 'linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.25) 100%)',
-                          }
-                        }} 
-                      >
-                        <Box sx={{ 
-                          position: 'absolute',
-                          top: '-40px',
-                          left: '50%',
-                          transform: 'translateX(-50%)',
-                          bgcolor: index === revenueByDate.length - 1 ? '#2196f3' : 'rgba(255, 255, 255, 0.2)',
-                          color: 'white',
-                          fontWeight: 'bold',
-                          fontSize: '16px',
-                          py: 0.5,
-                          px: 1.5,
-                          borderRadius: '12px',
-                          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-                          whiteSpace: 'nowrap',
-                          minWidth: '40px',
-                          textAlign: 'center'
-                        }}>
-                          {data.revenue.toFixed(1)}
-                        </Box>
-                      </Box>
-                      <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <Typography 
-                          variant="subtitle1" 
+                  <Box sx={{ 
+                    display: 'flex', 
+                    alignItems: 'flex-end', 
+                    gap: 0.1, 
+                    position: 'relative',
+                    minWidth: 'max-content', 
+                    width: '100%'
+                  }}>
+                    {revenueByDate.map((data, index) => (
+                      <Box key={index} sx={{ 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        alignItems: 'center', 
+                        width: '24px', 
+                        minWidth: '24px',
+                        position: 'relative',
+                        overflow: 'visible',
+                        mx: 0.1
+                      }}>
+                        <Box 
                           sx={{ 
-                            color: 'white', 
-                            fontWeight: index === revenueByDate.length - 1 ? 'bold' : 'normal',
-                            bgcolor: index === revenueByDate.length - 1 ? 'rgba(33, 150, 243, 0.2)' : 'transparent',
-                            py: index === revenueByDate.length - 1 ? 0.5 : 0,
-                            px: index === revenueByDate.length - 1 ? 1.5 : 0,
-                            borderRadius: index === revenueByDate.length - 1 ? '4px' : '0'
-                          }}
+                            height: `${(data.revenue / Math.max(...revenueByDate.map(d => d.revenue)) * 300)}px`,
+                            width: '100%', 
+                            background: index === revenueByDate.length - 1 
+                              ? 'linear-gradient(180deg, rgba(33, 150, 243, 1) 0%, rgba(25, 118, 210, 1) 100%)' 
+                              : 'linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.15) 100%)',
+                            borderRadius: '6px',
+                            transition: 'all 0.5s ease-in-out',
+                            position: 'relative',
+                            boxShadow: '0 6px 16px rgba(0, 0, 0, 0.3)',
+                            '&:hover': {
+                              transform: 'translateY(-8px) scale(1.03)',
+                              boxShadow: '0 12px 24px rgba(0, 0, 0, 0.4)',
+                              background: index === revenueByDate.length - 1 
+                                ? 'linear-gradient(180deg, rgba(64, 196, 255, 1) 0%, rgba(33, 150, 243, 1) 100%)' 
+                                : 'linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.25) 100%)',
+                            }
+                          }} 
                         >
-                          {new Date(data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                        </Typography>
+                          {index % 5 === 0 && (
+                            <Box sx={{ 
+                              position: 'absolute',
+                              top: '-30px',
+                              left: '50%',
+                              transform: 'translateX(-50%)',
+                              bgcolor: index === revenueByDate.length - 1 ? '#2196f3' : 'rgba(255, 255, 255, 0.2)',
+                              color: 'white',
+                              fontWeight: 'bold',
+                              fontSize: '12px',
+                              py: 0.3,
+                              px: 0.8,
+                              borderRadius: '8px',
+                              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                              whiteSpace: 'nowrap',
+                              minWidth: '30px',
+                              textAlign: 'center',
+                              zIndex: 3
+                            }}>
+                              {data.revenue.toFixed(1)}
+                            </Box>
+                          )}
+                        </Box>
+                        {index % 5 === 0 && (
+                          <Box sx={{ 
+                            position: 'absolute',
+                            bottom: '-28px',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            minWidth: 'max-content'
+                          }}>
+                            <Typography 
+                              variant="caption" 
+                              sx={{ 
+                                color: 'white', 
+                                fontWeight: index === revenueByDate.length - 1 ? 'bold' : 'normal',
+                                bgcolor: index === revenueByDate.length - 1 ? 'rgba(33, 150, 243, 0.2)' : 'transparent',
+                                py: index === revenueByDate.length - 1 ? 0.3 : 0,
+                                px: index === revenueByDate.length - 1 ? 0.8 : 0,
+                                borderRadius: index === revenueByDate.length - 1 ? '4px' : '0',
+                                fontSize: '10px'
+                              }}
+                            >
+                              {new Date(data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                            </Typography>
+                          </Box>
+                        )}
                       </Box>
-                    </Box>
-                  ))}
+                    ))}
+                  </Box>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 5, borderTop: '1px solid rgba(255, 255, 255, 0.1)', pt: 2 }}>
                   <Typography variant="body2" sx={{ color: '#bbdefb', fontWeight: 'medium' }}>

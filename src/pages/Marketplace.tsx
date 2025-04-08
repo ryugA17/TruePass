@@ -456,24 +456,24 @@ const NFTCard = React.memo(({
 
 // Create NFT Grid Section component with optimizations
 const NFTGridSection = React.memo(({ 
-  title, 
-  nfts, 
-  step, 
-  isAnimating, 
-  onNext, 
-  onBack,
+    title, 
+    nfts, 
+    step, 
+    isAnimating, 
+    onNext, 
+    onBack,
   sectionKey,
   handleAddToCart 
-}: { 
-  title: string;
-  nfts: any[];
-  step: number;
-  isAnimating: boolean;
-  onNext: () => void;
-  onBack: () => void;
-  sectionKey: string;
+  }: { 
+    title: string;
+    nfts: any[];
+    step: number;
+    isAnimating: boolean;
+    onNext: () => void;
+    onBack: () => void;
+    sectionKey: string;
   handleAddToCart: (nft: any) => void;
-}) => {
+  }) => {
   // Memoize the slider content to prevent unnecessary re-renders
   const sliderContent = React.useMemo(() => {
     return nfts.map((nft) => {
@@ -514,23 +514,23 @@ const NFTGridSection = React.memo(({
   }, [onBack, isAnimating]);
   
   // If there are no NFTs, return null after hooks are called
-  if (nfts.length === 0) {
-    return null;
-  }
-  
-  return (
-    <>
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        mb: 4,
-        mt: 8
-      }}>
-        <Typography variant="h5" component="h2" sx={{ fontWeight: 'bold' }}>
-          {title}
-        </Typography>
-      </Box>
+    if (nfts.length === 0) {
+      return null;
+    }
+    
+    return (
+      <>
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          mb: 4,
+          mt: 8
+        }}>
+          <Typography variant="h5" component="h2" sx={{ fontWeight: 'bold' }}>
+            {title}
+          </Typography>
+        </Box>
 
       <Box sx={{ 
         position: 'relative', 
@@ -538,77 +538,77 @@ const NFTGridSection = React.memo(({
         overflow: 'hidden',
         height: `${CARD_HEIGHT}px`, // Fixed height for the container
       }}>
-        <IconButton
+          <IconButton
           onClick={handleBackClick}
-          disabled={step === 0 || isAnimating}
-          sx={{
-            position: 'absolute',
-            left: 12,
-            top: '50%',
-            transform: 'translateY(-50%)',
-            bgcolor: 'rgba(0, 0, 0, 0.7)',
-            color: 'white',
-            zIndex: 2,
-            width: 48,
-            height: 48,
-            boxShadow: '0 0 10px rgba(0,0,0,0.5)',
-            border: '1px solid rgba(255,255,255,0.2)',
-            '&:hover': {
-              bgcolor: 'rgba(0, 0, 0, 0.9)',
-              border: '1px solid rgba(255,255,255,0.4)',
-            },
-            '&.Mui-disabled': {
-              opacity: 0.3,
-              display: 'flex'
-            }
-          }}
-        >
-          <KeyboardArrowLeft fontSize="large" />
-        </IconButton>
+            disabled={step === 0 || isAnimating}
+            sx={{
+              position: 'absolute',
+              left: 12,
+              top: '50%',
+              transform: 'translateY(-50%)',
+              bgcolor: 'rgba(0, 0, 0, 0.7)',
+              color: 'white',
+              zIndex: 2,
+              width: 48,
+              height: 48,
+              boxShadow: '0 0 10px rgba(0,0,0,0.5)',
+              border: '1px solid rgba(255,255,255,0.2)',
+              '&:hover': {
+                bgcolor: 'rgba(0, 0, 0, 0.9)',
+                border: '1px solid rgba(255,255,255,0.4)',
+              },
+              '&.Mui-disabled': {
+                opacity: 0.3,
+                display: 'flex'
+              }
+            }}
+          >
+            <KeyboardArrowLeft fontSize="large" />
+          </IconButton>
 
-        <IconButton
+          <IconButton
           onClick={handleNextClick}
-          disabled={step >= nfts.length - 1 || isAnimating}
-          sx={{
-            position: 'absolute',
-            right: 12,
-            top: '50%',
-            transform: 'translateY(-50%)',
-            bgcolor: 'rgba(0, 0, 0, 0.7)',
-            color: 'white',
-            zIndex: 2,
-            width: 48,
-            height: 48,
-            boxShadow: '0 0 10px rgba(0,0,0,0.5)',
-            border: '1px solid rgba(255,255,255,0.2)',
-            '&:hover': {
-              bgcolor: 'rgba(0, 0, 0, 0.9)',
-              border: '1px solid rgba(255,255,255,0.4)',
-            },
-            '&.Mui-disabled': {
-              opacity: 0.3,
-              display: 'flex'
-            }
-          }}
-        >
-          <KeyboardArrowRight fontSize="large" />
-        </IconButton>
+            disabled={step >= nfts.length - 1 || isAnimating}
+            sx={{
+              position: 'absolute',
+              right: 12,
+              top: '50%',
+              transform: 'translateY(-50%)',
+              bgcolor: 'rgba(0, 0, 0, 0.7)',
+              color: 'white',
+              zIndex: 2,
+              width: 48,
+              height: 48,
+              boxShadow: '0 0 10px rgba(0,0,0,0.5)',
+              border: '1px solid rgba(255,255,255,0.2)',
+              '&:hover': {
+                bgcolor: 'rgba(0, 0, 0, 0.9)',
+                border: '1px solid rgba(255,255,255,0.4)',
+              },
+              '&.Mui-disabled': {
+                opacity: 0.3,
+                display: 'flex'
+              }
+            }}
+          >
+            <KeyboardArrowRight fontSize="large" />
+          </IconButton>
 
-        <Box
-          sx={{
-            display: 'flex',
+          <Box
+            sx={{
+              display: 'flex',
             transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)', // Smoother easing
-            transform: `translateX(-${step * (100 / ITEMS_PER_PAGE)}%)`,
-            ml: 0,
-            height: '100%',
+              transform: `translateX(-${step * (100 / ITEMS_PER_PAGE)}%)`,
+              ml: 0,
+                          height: '100%',
             willChange: 'transform', // Hardware acceleration hint
           }}
         >
           {sliderContent}
+          </Box>
         </Box>
-      </Box>
-    </>
-  );
+      </>
+    );
 });
 
 const Marketplace = () => {
