@@ -74,7 +74,7 @@ const featuredNFTs = [
     "description": "An electrifying night with Arijit’s soulful melodies and surprise Bollywood collaborations. Don’t miss the vibe!",
     "image": nftAssets['1'],
     "status": "AVAILABLE NOW",
-    "mintedCount": "24",
+    "mintedCount": "204",
     "maxPerWallet": "5",
     timeLeft: "2d 23h",
     isVerified: true,
@@ -88,11 +88,11 @@ const featuredNFTs = [
     description: "Witness the fiercest cricket rivalry on the grandest stage. Full house expected. Cheer for your nation!",
     image: nftAssets['2'],
     status: "MINTING NOW",
-    mintedCount: "8",
+    mintedCount: "800",
     maxPerWallet: "5",
     timeLeft: "1d 12h",
     isVerified: true,
-    gradient: 'linear-gradient(135deg, #FF6B6B 0%, #FF6B6B40 100%)'
+    gradient: 'linear-gradient(135deg, #39FF14  0%, #FF6B6B40 100%)'
   },
   {
     title: "Echoes of Carnatic",
@@ -102,7 +102,7 @@ const featuredNFTs = [
     description: "A spiritually rich evening of traditional Carnatic music celebrating rhythm and raga in its purest form.",
     image: nftAssets['3'],
     status: "MINTING NOW",
-    mintedCount: "15",
+    mintedCount: "1595",
     maxPerWallet: "8",
     timeLeft: "3d 8h",
     isVerified: true,
@@ -1013,8 +1013,8 @@ const Home = () => {
 
                         <Stack direction="row" spacing={3} sx={{ color: '#000', mt: 'auto' }}>
                       <Box>
-                        <Typography variant="caption">Minted</Typography>
-                        <Typography variant="body2" sx={{ fontWeight: 'bold' }}>{nft.mintedCount} minted</Typography>
+                        <Typography variant="caption">Tickets sold</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 'bold' }}>{nft.mintedCount} sold</Typography>
                       </Box>
                       <Box>
                         <Typography variant="caption">Per wallet</Typography>
