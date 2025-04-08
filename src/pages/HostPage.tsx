@@ -106,24 +106,51 @@ const HostPage = () => {
     { month: 'Aug', sales: dashboardStats.totalTicketsSold }
   ];
   
+  // Revenue by date data (mockup)
+  const revenueByDate = [
+    { date: '2023-01-05', revenue: 0.5 },
+    { date: '2023-01-12', revenue: 0.8 },
+    { date: '2023-01-19', revenue: 1.2 },
+    { date: '2023-01-26', revenue: 0.9 },
+    { date: '2023-02-02', revenue: 1.5 },
+    { date: '2023-02-09', revenue: 2.1 },
+    { date: '2023-02-16', revenue: 1.8 },
+    { date: '2023-02-23', revenue: 2.4 },
+    { date: '2023-03-02', revenue: 2.7 },
+    { date: '2023-03-09', revenue: 3.2 },
+    { date: '2023-03-16', revenue: 2.9 },
+    { date: '2023-03-23', revenue: 3.5 },
+    { date: '2023-03-30', revenue: 4.0 },
+    { date: '2023-04-06', revenue: 3.8 },
+    { date: '2023-04-13', revenue: 4.2 },
+    { date: '2023-04-20', revenue: 4.5 },
+    { date: '2023-04-27', revenue: 5.0 },
+    { date: '2023-05-04', revenue: 5.5 },
+    { date: '2023-05-11', revenue: 6.0 },
+    { date: '2023-05-18', revenue: 6.5 },
+    { date: '2023-05-25', revenue: 7.0 },
+    { date: '2023-06-01', revenue: 7.5 },
+    { date: '2023-06-08', revenue: 8.0 },
+    { date: '2023-06-15', revenue: 8.5 },
+    { date: '2023-06-22', revenue: 9.0 },
+    { date: '2023-06-29', revenue: 9.5 },
+    { date: '2023-07-06', revenue: 10.0 },
+    { date: '2023-07-13', revenue: 10.5 },
+    { date: '2023-07-20', revenue: 11.0 },
+    { date: '2023-07-27', revenue: 11.5 },
+    { date: '2023-08-03', revenue: 12.0 },
+    { date: '2023-08-10', revenue: 12.5 },
+    { date: '2023-08-17', revenue: 13.0 },
+    { date: '2023-08-24', revenue: 13.5 },
+    { date: '2023-08-31', revenue: 14.0 }
+  ];
+  
   // Revenue by event (based on actual user NFTs)
   const revenueByEvent = userNFTs.slice(0, 5).map(nft => ({
     name: nft.title,
     revenue: parseFloat(nft.price.replace(' ETH', '')) || 0,
     ticketsSold: Math.floor(Math.random() * 30) + 5 // Simulated data
   }));
-  
-  // Top selling tickets (based on actual user NFTs)
-  const topSellingTickets = [...userNFTs]
-    .sort(() => 0.5 - Math.random()) // Random sort for demo
-    .slice(0, 3)
-    .map(nft => ({
-      id: nft.id,
-      name: nft.title,
-      price: nft.price,
-      soldCount: Math.floor(Math.random() * 50) + 5,
-      image: nft.image
-    }));
 
   // Ensure only hosts can access this page and user is authenticated
   useEffect(() => {
@@ -637,45 +664,104 @@ const HostPage = () => {
               </Paper>
             </Grid>
 
-            {/* Top Selling Tickets */}
-            <Grid item xs={12} lg={4}>
-              <Paper sx={{ p: 4, borderRadius: 2, background: 'rgba(22, 28, 36, 0.9)', backdropFilter: 'blur(10px)', mt: 2, boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)', height: '100%' }}>
+            {/* Revenue by Date Chart */}
+            <Grid item xs={12} lg={8}>
+              <Paper sx={{ p: 4, borderRadius: 2, background: 'rgba(22, 28, 36, 0.95)', backdropFilter: 'blur(10px)', mt: 2, boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)' }}>
                 <Typography variant="h5" sx={{ color: 'white', mb: 4, fontWeight: 'bold' }}>
-                  Top Selling Tickets
+                  Revenue by Date
                 </Typography>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                  {topSellingTickets.length > 0 ? (
-                    topSellingTickets.map((ticket, index) => (
-                      <Box key={index} sx={{ display: 'flex', gap: 3, alignItems: 'center', p: 2, borderRadius: 2, background: 'rgba(255, 255, 255, 0.05)', transition: 'all 0.3s ease', '&:hover': { background: 'rgba(255, 255, 255, 0.1)' } }}>
-                        <img 
-                          src={ticket.image} 
-                          alt={ticket.name} 
-                          style={{ 
-                            width: 70, 
-                            height: 70, 
-                            borderRadius: 10, 
-                            objectFit: 'cover',
-                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15)' 
-                          }} 
-                        />
-                        <Box sx={{ flex: 1 }}>
-                          <Typography variant="subtitle1" sx={{ color: 'white', fontWeight: 'bold' }}>
-                            {ticket.name}
-                          </Typography>
-                          <Typography variant="body1" sx={{ color: '#9c27b0', fontWeight: 'bold' }}>
-                            {ticket.price}
-                          </Typography>
-                          <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                            {ticket.soldCount} tickets sold
-                          </Typography>
+                <Box sx={{ height: 400, display: 'flex', alignItems: 'flex-end', gap: 1, px: 2, position: 'relative' }}>
+                  {/* Horizontal grid lines */}
+                  {[0, 25, 50, 75, 100].map((percent) => (
+                    <Box 
+                      key={`grid-${percent}`} 
+                      sx={{ 
+                        position: 'absolute', 
+                        left: 0, 
+                        right: 0, 
+                        top: `${100 - percent * 0.75}%`, 
+                        height: '1px', 
+                        bgcolor: 'rgba(255, 255, 255, 0.1)',
+                        zIndex: 1,
+                        '&::after': {
+                          content: `"${(percent * 0.14).toFixed(1)} ETH"`,
+                          position: 'absolute',
+                          left: '-30px',
+                          top: '-10px',
+                          color: 'rgba(255, 255, 255, 0.7)',
+                          fontSize: '12px'
+                        }
+                      }} 
+                    />
+                  ))}
+                  
+                  {revenueByDate.map((data, index) => (
+                    <Box key={index} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, zIndex: 2 }}>
+                      <Box 
+                        sx={{ 
+                          height: `${(data.revenue / Math.max(...revenueByDate.map(d => d.revenue)) * 300)}px`,
+                          width: '85%', 
+                          background: index === revenueByDate.length - 1 
+                            ? 'linear-gradient(180deg, rgba(33, 150, 243, 1) 0%, rgba(25, 118, 210, 1) 100%)' 
+                            : 'linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.15) 100%)',
+                          borderRadius: '10px',
+                          transition: 'all 0.5s ease-in-out',
+                          position: 'relative',
+                          boxShadow: '0 6px 16px rgba(0, 0, 0, 0.3)',
+                          '&:hover': {
+                            transform: 'translateY(-8px) scale(1.03)',
+                            boxShadow: '0 12px 24px rgba(0, 0, 0, 0.4)',
+                            background: index === revenueByDate.length - 1 
+                              ? 'linear-gradient(180deg, rgba(64, 196, 255, 1) 0%, rgba(33, 150, 243, 1) 100%)' 
+                              : 'linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.25) 100%)',
+                          }
+                        }} 
+                      >
+                        <Box sx={{ 
+                          position: 'absolute',
+                          top: '-40px',
+                          left: '50%',
+                          transform: 'translateX(-50%)',
+                          bgcolor: index === revenueByDate.length - 1 ? '#2196f3' : 'rgba(255, 255, 255, 0.2)',
+                          color: 'white',
+                          fontWeight: 'bold',
+                          fontSize: '16px',
+                          py: 0.5,
+                          px: 1.5,
+                          borderRadius: '12px',
+                          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                          whiteSpace: 'nowrap',
+                          minWidth: '40px',
+                          textAlign: 'center'
+                        }}>
+                          {data.revenue.toFixed(1)}
                         </Box>
                       </Box>
-                    ))
-                  ) : (
-                    <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.7)', textAlign: 'center' }}>
-                      No tickets sold yet
-                    </Typography>
-                  )}
+                      <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <Typography 
+                          variant="subtitle1" 
+                          sx={{ 
+                            color: 'white', 
+                            fontWeight: index === revenueByDate.length - 1 ? 'bold' : 'normal',
+                            bgcolor: index === revenueByDate.length - 1 ? 'rgba(33, 150, 243, 0.2)' : 'transparent',
+                            py: index === revenueByDate.length - 1 ? 0.5 : 0,
+                            px: index === revenueByDate.length - 1 ? 1.5 : 0,
+                            borderRadius: index === revenueByDate.length - 1 ? '4px' : '0'
+                          }}
+                        >
+                          {new Date(data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  ))}
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 5, borderTop: '1px solid rgba(255, 255, 255, 0.1)', pt: 2 }}>
+                  <Typography variant="body2" sx={{ color: '#bbdefb', fontWeight: 'medium' }}>
+                    Current week: <strong>{revenueByDate[revenueByDate.length - 1].revenue.toFixed(1)} ETH</strong>
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                    Average: {(revenueByDate.reduce((sum, data) => sum + data.revenue, 0) / revenueByDate.length).toFixed(1)} ETH/week
+                  </Typography>
                 </Box>
               </Paper>
             </Grid>
