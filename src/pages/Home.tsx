@@ -67,11 +67,11 @@ const nftAssets = {
 // Featured NFTs data
 const featuredNFTs = [
   {
-    "title": "Dreamscape",
-    "creator": "PixelWizard.eth",
-    "platform": "Surreal",
+    "title": "Bollywood Beats Live",
+    "creator": "Arijit Singh",
+    "platform": "Mumbai Arena",
     "price": "0.00420 ETH",
-    "description": "A journey into the subconscious through shapes and shades. Vibrant hues meet deep symbolism.",
+    "description": "An electrifying night with Arijit’s soulful melodies and surprise Bollywood collaborations. Don’t miss the vibe!",
     "image": nftAssets['1'],
     "status": "AVAILABLE NOW",
     "mintedCount": "24",
@@ -81,11 +81,11 @@ const featuredNFTs = [
     gradient: 'linear-gradient(135deg, #00ff9d 0%, #00ff9d40 100%)'
   },
   {
-    title: "Digital Renaissance",
-    creator: "CryptoMaster.eth",
-    platform: "Abstract",
+    title: "India vs Pakistan - T20 Clash",
+    creator: "ICC Cricket World Cup",
+    platform: "Eden Gardens, Kolkata",
     price: "0.0089 ETH",
-    description: "A fusion of classical art and digital innovation, where Renaissance masterpieces meet contemporary digital techniques. Each stroke represents the bridge between centuries of artistic evolution...",
+    description: "Witness the fiercest cricket rivalry on the grandest stage. Full house expected. Cheer for your nation!",
     image: nftAssets['2'],
     status: "MINTING NOW",
     mintedCount: "8",
@@ -95,11 +95,11 @@ const featuredNFTs = [
     gradient: 'linear-gradient(135deg, #FF6B6B 0%, #FF6B6B40 100%)'
   },
   {
-    title: "Quantum Dreamscape",
-    creator: "NeonArtist.eth",
-    platform: "Abstract",
+    title: "Echoes of Carnatic",
+    creator: "Ranjani-Gayatri Sisters",
+    platform: "Chennai Music Festival",
     price: "0.0075 ETH",
-    description: "Dive into a world where quantum mechanics meets digital art. This piece explores the multiple realities of our existence through vibrant colors and geometric patterns...",
+    description: "A spiritually rich evening of traditional Carnatic music celebrating rhythm and raga in its purest form.",
     image: nftAssets['3'],
     status: "MINTING NOW",
     mintedCount: "15",
@@ -110,12 +110,13 @@ const featuredNFTs = [
   }
 ];
 
+
 // Mock data for latest drops
 const allNFTs = [
   {
     id: 1,
-    title: 'Abstract Thought of Art',
-    creator: 'ZafGod.eth',
+    title: 'Sufi Night with Kailash Kher',
+    creator: 'Kailasa Band',
     price: '0.00069 ETH',
     image: nftAssets['4'],
     status: 'Now',
@@ -123,8 +124,8 @@ const allNFTs = [
   },
   {
     id: 2,
-    title: 'Harvested Opulence',
-    creator: 'Fame Identity',
+    title: 'Pro Kabaddi Final',
+    creator: 'PKL 2025',
     price: '0.005 ETH',
     image: nftAssets['5'],
     status: '23 hours',
@@ -132,8 +133,8 @@ const allNFTs = [
   },
   {
     id: 3,
-    title: 'RELAX',
-    creator: 'brain pasta',
+    title: 'Punjabi Beats ft. Diljit Dosanjh',
+    creator: 'Diljit Live',
     price: '0.0038 ETH',
     image: nftAssets['6'],
     status: 'Now',
@@ -141,8 +142,8 @@ const allNFTs = [
   },
   {
     id: 4,
-    title: 'Spring will come',
-    creator: 'Reza Milani',
+    title: 'Spring Classical Gala',
+    creator: 'IndianRaga Ensemble',
     price: '0.0004 ETH',
     image: nftAssets['7'],
     status: 'Now',
@@ -150,8 +151,8 @@ const allNFTs = [
   },
   {
     id: 5,
-    title: 'Cyber Dreams',
-    creator: 'neon.eth',
+    title: 'Techno Mahotsav',
+    creator: 'Sunburn Goa',
     price: '0.0089 ETH',
     image: nftAssets['8'],
     status: 'Now',
@@ -159,8 +160,8 @@ const allNFTs = [
   },
   {
     id: 6,
-    title: 'Digital Wilderness',
-    creator: 'artmaster',
+    title: 'India vs Australia – ODI Series',
+    creator: 'BCCI Official',
     price: '0.0123 ETH',
     image: nftAssets['9'],
     status: '2 hours',
@@ -168,8 +169,8 @@ const allNFTs = [
   },
   {
     id: 7,
-    title: 'Neon Nights',
-    creator: 'pixelart.eth',
+    title: 'Midnight Indie Jam',
+    creator: 'Prateek Kuhad',
     price: '0.0075 ETH',
     image: nftAssets['10'],
     status: 'Now',
@@ -177,8 +178,8 @@ const allNFTs = [
   },
   {
     id: 8,
-    title: 'Future Past',
-    creator: 'retro.eth',
+    title: 'Retro Bollywood Rewind',
+    creator: 'Bollywood Classics',
     price: '0.0055 ETH',
     image: nftAssets['11'],
     status: '5 hours',
@@ -186,8 +187,8 @@ const allNFTs = [
   },
   {
     id: 9,
-    title: 'Quantum Dreams',
-    creator: 'quantum.art',
+    title: 'Indian Ocean - Live in Concert',
+    creator: 'Indian Ocean Band',
     price: '0.0095 ETH',
     image: nftAssets['12'],
     status: 'Now',
@@ -195,8 +196,8 @@ const allNFTs = [
   },
   {
     id: 10,
-    title: 'Virtual Reality',
-    creator: 'vr.master',
+    title: 'Virtual Garba Night',
+    creator: 'Gujarati Beats',
     price: '0.0082 ETH',
     image: nftAssets['13'],
     status: '12 hours',
@@ -204,8 +205,8 @@ const allNFTs = [
   },
   {
     id: 11,
-    title: 'Digital Genesis',
-    creator: 'crypto.art',
+    title: 'Desi Hip-Hop Cypher',
+    creator: 'Raftaar x KR$NA',
     price: '0.0067 ETH',
     image: nftAssets['14'],
     status: 'Now',
@@ -213,16 +214,17 @@ const allNFTs = [
   },
   {
     id: 12,
-    title: 'Pixel Paradise',
-    creator: 'pixel.master',
+    title: 'Monsoon Melodies',
+    creator: 'Shreya Ghoshal',
     price: '0.0043 ETH',
     image: nftAssets['15'],
     status: '8 hours',
     isVerified: true
-  },{
+  },
+  {
     id: 13,
-    title: 'Spectral Mirage',
-    creator: 'VoidCrafter.eth',
+    title: 'Mystic Folk Fusion',
+    creator: 'Swarathma',
     price: '0.0091 ETH',
     image: nftAssets['16'],
     status: 'Now',
@@ -230,8 +232,8 @@ const allNFTs = [
   },
   {
     id: 14,
-    title: 'Drift Circuit',
-    creator: 'HelixDriver',
+    title: 'Formula India: Street Drift',
+    creator: 'IN Drift League',
     price: '0.007 ETH',
     image: nftAssets['17'],
     status: '1 hour',
@@ -239,8 +241,8 @@ const allNFTs = [
   },
   {
     id: 15,
-    title: 'Rustcore Bloom',
-    creator: 'IronMoth',
+    title: 'Rustic Symphony',
+    creator: 'Rural Strings Ensemble',
     price: '0.0063 ETH',
     image: nftAssets['18'],
     status: 'Now',
@@ -248,8 +250,8 @@ const allNFTs = [
   },
   {
     id: 16,
-    title: 'Liminal Tape',
-    creator: 'NoSignal404',
+    title: 'Darkwave Delhi',
+    creator: 'Synth Lab',
     price: '0.0056 ETH',
     image: nftAssets['19'],
     status: '3 hours',
@@ -257,8 +259,8 @@ const allNFTs = [
   },
   {
     id: 17,
-    title: 'PERFECTL00P: Link Formations',
-    creator: 'StudioEcho',
+    title: 'Looped Motion Tour',
+    creator: 'Nucleya Live',
     price: '0.0049 ETH',
     image: nftAssets['20'],
     status: 'Now',
@@ -266,8 +268,8 @@ const allNFTs = [
   },
   {
     id: 18,
-    title: 'Dreams in Ascii',
-    creator: 'bitform',
+    title: 'Code & Chill Hackathon',
+    creator: 'Dev Bharat',
     price: '0.0034 ETH',
     image: nftAssets['21'],
     status: '2 hours',
@@ -275,8 +277,8 @@ const allNFTs = [
   },
   {
     id: 19,
-    title: 'Shadow Protocol',
-    creator: 'EncryptedArtz',
+    title: 'Cyber Sitar Night',
+    creator: 'DJ Ravi + SitarFusion',
     price: '0.011 ETH',
     image: nftAssets['22'],
     status: 'Now',
@@ -284,14 +286,15 @@ const allNFTs = [
   },
   {
     id: 20,
-    title: 'Skybound Memories',
-    creator: 'CloudWalker',
+    title: 'Sky Lantern Festival',
+    creator: 'Jaipur Nights',
     price: '0.0081 ETH',
     image: nftAssets['23'],
     status: '6 hours',
     isVerified: true
   }
 ];
+
 
 const ITEMS_PER_PAGE = 5;
 

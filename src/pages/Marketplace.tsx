@@ -67,329 +67,186 @@ const nftAssets = {
 const allNFTs = [
   {
     id: 1,
-    title: 'Abstract Thought of Art',
-    creator: 'ZafGod.eth',
+    title: 'Sufi Night with Kailash Kher',
+    creator: 'Kailasa Band',
     price: '0.00069 ETH',
-    image: nftAssets['1'],
-    status: 'Now',
-    isVerified: true
-  },
-  {
-    id: 2,
-    title: 'Harvested Opulence',
-    creator: 'Fame Identity',
-    price: '0.005 ETH',
-    image: nftAssets['2'],
-    status: '23 hours',
-    isVerified: true
-  },
-  {
-    id: 3,
-    title: 'RELAX',
-    creator: 'brain pasta',
-    price: '0.0038 ETH',
-    image: nftAssets['3'],
-    status: 'Now',
-    isVerified: true
-  },
-  {
-    id: 4,
-    title: 'Spring will come',
-    creator: 'Reza Milani',
-    price: '0.0004 ETH',
     image: nftAssets['4'],
     status: 'Now',
     isVerified: true
   },
   {
-    id: 5,
-    title: 'Cyber Dreams',
-    creator: 'neon.eth',
-    price: '0.0089 ETH',
+    id: 2,
+    title: 'Pro Kabaddi Final',
+    creator: 'PKL 2025',
+    price: '0.005 ETH',
     image: nftAssets['5'],
+    status: '23 hours',
+    isVerified: true
+  },
+  {
+    id: 3,
+    title: 'Punjabi Beats ft. Diljit Dosanjh',
+    creator: 'Diljit Live',
+    price: '0.0038 ETH',
+    image: nftAssets['6'],
     status: 'Now',
     isVerified: true
   },
   {
-    id: 6,
-    title: 'Digital Wilderness',
-    creator: 'artmaster',
-    price: '0.0123 ETH',
-    image: nftAssets['6'],
-    status: '2 hours',
-    isVerified: true
-  },
-  {
-    id: 7,
-    title: 'Neon Nights',
-    creator: 'pixelart.eth',
-    price: '0.0075 ETH',
+    id: 4,
+    title: 'Spring Classical Gala',
+    creator: 'IndianRaga Ensemble',
+    price: '0.0004 ETH',
     image: nftAssets['7'],
     status: 'Now',
     isVerified: true
   },
   {
-    id: 8,
-    title: 'Future Past',
-    creator: 'retro.eth',
-    price: '0.0055 ETH',
+    id: 5,
+    title: 'Techno Mahotsav',
+    creator: 'Sunburn Goa',
+    price: '0.0089 ETH',
     image: nftAssets['8'],
+    status: 'Now',
+    isVerified: true
+  },
+  {
+    id: 6,
+    title: 'India vs Australia – ODI Series',
+    creator: 'BCCI Official',
+    price: '0.0123 ETH',
+    image: nftAssets['9'],
+    status: '2 hours',
+    isVerified: true
+  },
+  {
+    id: 7,
+    title: 'Midnight Indie Jam',
+    creator: 'Prateek Kuhad',
+    price: '0.0075 ETH',
+    image: nftAssets['10'],
+    status: 'Now',
+    isVerified: true
+  },
+  {
+    id: 8,
+    title: 'Retro Bollywood Rewind',
+    creator: 'Bollywood Classics',
+    price: '0.0055 ETH',
+    image: nftAssets['11'],
     status: '5 hours',
     isVerified: true
   },
   {
     id: 9,
-    title: 'Quantum Dreams',
-    creator: 'quantum.art',
+    title: 'Indian Ocean - Live in Concert',
+    creator: 'Indian Ocean Band',
     price: '0.0095 ETH',
-    image: nftAssets['9'],
+    image: nftAssets['12'],
     status: 'Now',
     isVerified: true
   },
   {
     id: 10,
-    title: 'Virtual Reality',
-    creator: 'vr.master',
+    title: 'Virtual Garba Night',
+    creator: 'Gujarati Beats',
     price: '0.0082 ETH',
-    image: nftAssets['10'],
+    image: nftAssets['13'],
     status: '12 hours',
     isVerified: true
   },
   {
     id: 11,
-    title: 'Digital Genesis',
-    creator: 'crypto.art',
+    title: 'Desi Hip-Hop Cypher',
+    creator: 'Raftaar x KR$NA',
     price: '0.0067 ETH',
-    image: nftAssets['11'],
+    image: nftAssets['14'],
     status: 'Now',
     isVerified: true
   },
   {
     id: 12,
-    title: 'Pixel Paradise',
-    creator: 'pixel.master',
+    title: 'Monsoon Melodies',
+    creator: 'Shreya Ghoshal',
     price: '0.0043 ETH',
-    image: nftAssets['12'],
+    image: nftAssets['15'],
     status: '8 hours',
     isVerified: true
   },
   {
     id: 13,
-    title: 'Spectral Mirage',
-    creator: 'VoidCrafter.eth',
+    title: 'Mystic Folk Fusion',
+    creator: 'Swarathma',
     price: '0.0091 ETH',
-    image: nftAssets['13'],
+    image: nftAssets['16'],
     status: 'Now',
     isVerified: true
   },
   {
     id: 14,
-    title: 'Drift Circuit',
-    creator: 'HelixDriver',
+    title: 'Formula India: Street Drift',
+    creator: 'IN Drift League',
     price: '0.007 ETH',
-    image: nftAssets['14'],
+    image: nftAssets['17'],
     status: '1 hour',
     isVerified: true
   },
   {
     id: 15,
-    title: 'Rustcore Bloom',
-    creator: 'IronMoth',
+    title: 'Rustic Symphony',
+    creator: 'Rural Strings Ensemble',
     price: '0.0063 ETH',
-    image: nftAssets['15'],
+    image: nftAssets['18'],
     status: 'Now',
     isVerified: false
   },
   {
     id: 16,
-    title: 'Liminal Tape',
-    creator: 'NoSignal404',
+    title: 'Darkwave Delhi',
+    creator: 'Synth Lab',
     price: '0.0056 ETH',
-    image: nftAssets['16'],
+    image: nftAssets['19'],
     status: '3 hours',
     isVerified: true
   },
   {
     id: 17,
-    title: 'PERFECTL00P: Link Formations',
-    creator: 'StudioEcho',
+    title: 'Looped Motion Tour',
+    creator: 'Nucleya Live',
     price: '0.0049 ETH',
-    image: nftAssets['17'],
+    image: nftAssets['20'],
     status: 'Now',
     isVerified: false
   },
   {
     id: 18,
-    title: 'Dreams in Ascii',
-    creator: 'bitform',
+    title: 'Code & Chill Hackathon',
+    creator: 'Dev Bharat',
     price: '0.0034 ETH',
-    image: nftAssets['18'],
+    image: nftAssets['21'],
     status: '2 hours',
     isVerified: true
   },
   {
     id: 19,
-    title: 'Shadow Protocol',
-    creator: 'EncryptedArtz',
+    title: 'Cyber Sitar Night',
+    creator: 'DJ Ravi + SitarFusion',
     price: '0.011 ETH',
-    image: nftAssets['19'],
+    image: nftAssets['22'],
     status: 'Now',
     isVerified: true
   },
   {
     id: 20,
-    title: 'Skybound Memories',
-    creator: 'CloudWalker',
+    title: 'Sky Lantern Festival',
+    creator: 'Jaipur Nights',
     price: '0.0081 ETH',
-    image: nftAssets['20'],
-    status: '6 hours',
-    isVerified: true
-  },
-  {
-    id: 21,
-    title: 'Neural Meadow',
-    creator: 'CoreWeaver',
-    price: '0.0099 ETH',
-    image: nftAssets['21'],
-    status: 'Now',
-    isVerified: true
-  },
-  {
-    id: 22,
-    title: 'Crystalline Flux',
-    creator: 'AltShaper',
-    price: '0.0077 ETH',
-    image: nftAssets['22'],
-    status: '6 hours',
-    isVerified: false
-  },
-  {
-    id: 23,
-    title: 'Tangent Bloom',
-    creator: 'DeltaArtist',
-    price: '0.0023 ETH',
     image: nftAssets['23'],
-    status: 'Now',
-    isVerified: true
-  },
-  {
-    id: 24,
-    title: 'Dark Code Sonata',
-    creator: 'StackTrace.eth',
-    price: '0.0101 ETH',
-    image: nftAssets['24'],
-    status: '1 hour',
-    isVerified: true
-  },
-  {
-    id: 25,
-    title: 'Chrome Embers',
-    creator: 'ByteInferno',
-    price: '0.005 ETH',
-    image: nftAssets['25'],
-    status: 'Now',
-    isVerified: true
-  },
-  {
-    id: 26,
-    title: 'Long Live NFTs',
-    creator: 'SignalJunkie',
-    price: '0.0042 ETH',
-    image: nftAssets['26'],
-    status: '3 hours',
-    isVerified: true
-  },
-  {
-    id: 27,
-    title: 'Based Rocket',
-    creator: 'NeutrinoDrop',
-    price: '0.0088 ETH',
-    image: nftAssets['27'],
-    status: 'Now',
-    isVerified: false
-  },
-  {
-    id: 28,
-    title: 'Solar Syntax',
-    creator: 'SunlitHex',
-    price: '0.0066 ETH',
-    image: nftAssets['28'],
-    status: 'Upcoming',
-    isVerified: true
-  },
-  {
-    id: 29,
-    title: 'The Hellish Swing!',
-    creator: 'DeepEchoLab',
-    price: '0.0092 ETH',
-    image: nftAssets['29'],
-    status: 'Upcoming',
-    isVerified: true
-  },
-  {
-    id: 30,
-    title: 'El Capy',
-    creator: 'ArtPhantom',
-    price: '0.0039 ETH',
-    image: nftAssets['30'],
-    status: 'Upcoming',
-    isVerified: false
-  },
-  {
-    id: 31,
-    title: 'Mirrorverse Ritual',
-    creator: 'TheOtherPixel',
-    price: '0.0115 ETH',
-    image: nftAssets['31'],
-    status: 'Upcoming',
-    isVerified: true
-  },
-  {
-    id: 32,
-    title: 'HYPE Fight Club',
-    creator: 'FluxGarden',
-    price: '0.006 ETH',
-    image: nftAssets['32'],
-    status: 'Upcoming',
-    isVerified: true
-  },
-  {
-    id: 33,
-    title: 'Digital Renaissance',
-    creator: 'CryptoMaster.eth',
-    price: '0.0089 ETH',
-    image: nftAssets['33'],
-    status: 'Minting',
-    isVerified: true
-  },
-  {
-    id: 34,
-    title: 'Quantum Shift',
-    creator: 'NeonArtist.eth',
-    price: '0.0075 ETH',
-    image: nftAssets['34'],
-    status: 'Minting',
-    isVerified: true
-  },
-  {
-    id: 35,
-    title: 'Holographic Echo',
-    creator: 'DigitalSculptor',
-    price: '0.0082 ETH',
-    image: nftAssets['35'],
-    status: 'Minting',
-    isVerified: true
-  },
-  {
-    id: 36,
-    title: 'Dreamscape',
-    creator: 'PixelWizard.eth',
-    price: '0.00420 ETH',
-    image: nftAssets['36'],
-    status: 'Available',
+    status: '6 hours',
     isVerified: true
   }
 ];
+
 
 const ITEMS_PER_PAGE = 5;
 
