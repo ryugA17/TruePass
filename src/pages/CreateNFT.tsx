@@ -68,6 +68,10 @@ const CreateNFT = () => {
   
     try {
       if (!window.ethereum) throw new Error('MetaMask is not installed.');
+
+      if (!user) {
+        throw new Error('You must be logged in to create NFT tickets');
+      }
   
       await window.ethereum.request({ method: 'eth_requestAccounts' });
   
@@ -75,31 +79,73 @@ const CreateNFT = () => {
       const signer = provider.getSigner();
       const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
   
-      const userAddress = await signer.getAddress(); // ✅ "to" parameter
-      const priceInWei = ethers.utils.parseEther(formData.price);
-  
-      // For now, hardcode some dummy values since your contract expects:
-      // (address to, string eventName, string seatNumber, uint256 eventDate)
+      const userAddress = await signer.getAddress();
+      
+      // Get values from form
       const eventName = formData.name;
-      const seatNumber = "A1"; // Placeholder
+      const seatNumber = formData.seatNumber;
       const eventDate = Math.floor(Date.now() / 1000) + 3600 * 24 * 30; // 30 days from now as timestamp
   
+      // Mint the ticket on blockchain
       const tx = await contract.mintTicket(eventName, seatNumber, eventDate);
       await tx.wait();
   
-      setNotification({
-        open: true,
-        message: 'NFT minted successfully!',
-        severity: 'success'
-      });
-  
-      setFormData({ name: '', seatNumber: '', price: '', image: null });
+      // Save NFT data to context for profile display
+      if (formData.image) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          // Add NFT to context
+          addNFT({
+            title: eventName,
+            description: `Seat: ${seatNumber}`,
+            price: `${formData.price} ETH`,
+            image: reader.result as string,
+            creator: user.email,
+            isVerified: true
+          });
 
-      setPreviewUrl(null);
-  
-      setTimeout(() => {
-        navigate('/marketplace');
-      }, 2000);
+          // Clear form and show success notification
+          setFormData({ name: '', seatNumber: '', price: '', image: null });
+          setPreviewUrl(null);
+          
+          setNotification({
+            open: true,
+            message: 'NFT ticket created successfully!',
+            severity: 'success'
+          });
+          
+          // Navigate to profile to see the new NFT
+          setTimeout(() => {
+            navigate('/profile');
+          }, 2000);
+        };
+        reader.readAsDataURL(formData.image);
+      } else {
+        // Use placeholder image if no image uploaded
+        addNFT({
+          title: eventName,
+          description: `Seat: ${seatNumber}`,
+          price: `${formData.price} ETH`,
+          image: "https://source.unsplash.com/random/300x200/?ticket",
+          creator: user.email,
+          isVerified: true
+        });
+
+        // Clear form and show success notification
+        setFormData({ name: '', seatNumber: '', price: '', image: null });
+        setPreviewUrl(null);
+        
+        setNotification({
+          open: true,
+          message: 'NFT ticket created successfully!',
+          severity: 'success'
+        });
+        
+        // Navigate to profile to see the new NFT
+        setTimeout(() => {
+          navigate('/profile');
+        }, 2000);
+      }
     } catch (err: any) {
       console.error(err);
       setNotification({
@@ -107,7 +153,6 @@ const CreateNFT = () => {
         message: err.message || 'Failed to mint NFT',
         severity: 'error'
       });
-    } finally {
       setLoading(false);
     }
   };

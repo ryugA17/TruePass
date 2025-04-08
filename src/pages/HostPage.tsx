@@ -18,7 +18,8 @@ import {
   Tab,
   Card,
   CardContent,
-  CardMedia
+  CardMedia,
+  LinearProgress
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useNFTs } from '../context/NFTContext';
@@ -27,6 +28,10 @@ import EventIcon from '@mui/icons-material/Event';
 import EventSeatIcon from '@mui/icons-material/EventSeat';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import PeopleIcon from '@mui/icons-material/People';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import LocalActivityIcon from '@mui/icons-material/LocalActivity';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -55,7 +60,7 @@ function TabPanel(props: TabPanelProps) {
 }
 
 const HostPage = () => {
-  const { addNFT } = useNFTs();
+  const { addNFT, nfts } = useNFTs();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [tabValue, setTabValue] = useState(0);
@@ -75,13 +80,50 @@ const HostPage = () => {
     severity: 'success' as 'success' | 'error',
   });
 
-  // Dashboard stats (could be fetched from an API in a real application)
+  // Calculate dashboard stats based on user's NFTs
+  const userNFTs = nfts.filter(nft => nft.creator === user?.email);
+  
+  // Dashboard stats with calculated values from actual NFTs
   const dashboardStats = {
-    totalEvents: 5,
-    activeEvents: 3,
-    totalTicketsSold: 157,
-    revenue: 4.32
+    totalEvents: userNFTs.length,
+    activeEvents: userNFTs.filter(nft => new Date(nft.createdAt) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)).length,
+    totalTicketsSold: Math.floor(Math.random() * 50) + userNFTs.length * 5, // Simulated data
+    revenue: userNFTs.reduce((total, nft) => {
+      const price = parseFloat(nft.price.replace(' ETH', '')) || 0;
+      return total + price;
+    }, 0).toFixed(2)
   };
+  
+  // Monthly sales data (simulated)
+  const monthlySalesData = [
+    { month: 'Jan', sales: 12 },
+    { month: 'Feb', sales: 19 },
+    { month: 'Mar', sales: 15 },
+    { month: 'Apr', sales: 25 },
+    { month: 'May', sales: 32 },
+    { month: 'Jun', sales: 40 },
+    { month: 'Jul', sales: 35 },
+    { month: 'Aug', sales: dashboardStats.totalTicketsSold }
+  ];
+  
+  // Revenue by event (based on actual user NFTs)
+  const revenueByEvent = userNFTs.slice(0, 5).map(nft => ({
+    name: nft.title,
+    revenue: parseFloat(nft.price.replace(' ETH', '')) || 0,
+    ticketsSold: Math.floor(Math.random() * 30) + 5 // Simulated data
+  }));
+  
+  // Top selling tickets (based on actual user NFTs)
+  const topSellingTickets = [...userNFTs]
+    .sort(() => 0.5 - Math.random()) // Random sort for demo
+    .slice(0, 3)
+    .map(nft => ({
+      id: nft.id,
+      name: nft.title,
+      price: nft.price,
+      soldCount: Math.floor(Math.random() * 50) + 5,
+      image: nft.image
+    }));
 
   // Ensure only hosts can access this page and user is authenticated
   useEffect(() => {
@@ -143,12 +185,12 @@ const HostPage = () => {
       try {
         const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
         
-        // For now, hardcode some dummy values since your contract expects:
-        // (address to, string eventName, string seatNumber, uint256 eventDate)
+        // Get values from form
         const eventName = formData.name;
         const seatNumber = formData.seatNumber;
-        const eventDate = Math.floor(Date.now() / 1000) + 3600 * 24 * 30; // 30 days from now as timestamp
+        const eventDate = Math.floor(Date.now() / 1000) + 3600 * 24 * 30; // 30 days from now
         
+        // Mint the ticket on blockchain
         const tx = await contract.mintTicket(eventName, seatNumber, eventDate);
         await tx.wait();
         
@@ -159,11 +201,27 @@ const HostPage = () => {
             addNFT({
               title: eventName,
               description: `Seat: ${seatNumber}`,
-              price: formData.price,
+              price: `${formData.price} ETH`,
               image: reader.result as string,
               creator: user.email,
               isVerified: true
             });
+            
+            // Show success notification
+            setNotification({
+              open: true,
+              message: 'NFT ticket created successfully!',
+              severity: 'success'
+            });
+            
+            // Clear form
+            setFormData({ name: '', seatNumber: '', price: '', image: null });
+            setPreviewUrl(null);
+            
+            // Navigate to profile after short delay
+            setTimeout(() => {
+              navigate('/profile');
+            }, 2000);
           };
           reader.readAsDataURL(formData.image);
         } else {
@@ -171,26 +229,26 @@ const HostPage = () => {
           addNFT({
             title: eventName,
             description: `Seat: ${seatNumber}`,
-            price: formData.price,
+            price: `${formData.price} ETH`,
             image: "https://source.unsplash.com/random/300x200/?ticket",
             creator: user.email,
             isVerified: true
           });
+        
+          setNotification({
+            open: true,
+            message: 'NFT ticket created successfully!',
+            severity: 'success'
+          });
+        
+          setFormData({ name: '', seatNumber: '', price: '', image: null });
+          setPreviewUrl(null);
+        
+          // Navigate to profile after short delay
+          setTimeout(() => {
+            navigate('/profile');
+          }, 2000);
         }
-      
-        setNotification({
-          open: true,
-          message: 'NFT ticket created successfully!',
-          severity: 'success'
-        });
-      
-        setFormData({ name: '', seatNumber: '', price: '', image: null });
-        setPreviewUrl(null);
-      
-        // Refresh the page after 2 seconds to show the new event
-        setTimeout(() => {
-          setTabValue(0); // Switch to the Dashboard tab
-        }, 2000);
       } catch (contractError: any) {
         console.error("Contract error:", contractError);
         setNotification({
@@ -198,6 +256,7 @@ const HostPage = () => {
           message: 'Contract error: ' + (contractError.message || 'Failed to interact with contract'),
           severity: 'error'
         });
+        setLoading(false);
       }
     } catch (err: any) {
       console.error(err);
@@ -206,7 +265,6 @@ const HostPage = () => {
         message: err.message || 'Failed to create ticket',
         severity: 'error'
       });
-    } finally {
       setLoading(false);
     }
   };
@@ -277,57 +335,561 @@ const HostPage = () => {
         <TabPanel value={tabValue} index={0}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={6} lg={3}>
-              <Paper sx={{ p: 3, borderRadius: 2, background: 'rgba(22, 28, 36, 0.8)', backdropFilter: 'blur(10px)' }}>
-                <Typography variant="h6" sx={{ color: 'white', mb: 1 }}>
-                  Total Events
-                </Typography>
-                <Typography variant="h3" sx={{ color: 'white' }}>
+              <Paper sx={{ 
+                p: 4, 
+                borderRadius: 2, 
+                background: 'linear-gradient(135deg, rgba(156, 39, 176, 0.1) 0%, rgba(106, 27, 154, 0.4) 100%)', 
+                backdropFilter: 'blur(10px)',
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100%',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+                border: '1px solid rgba(156, 39, 176, 0.2)',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  transform: 'translateY(-5px)',
+                  boxShadow: '0 12px 40px rgba(0, 0, 0, 0.3)',
+                }
+              }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Box sx={{ 
+                    p: 1.5, 
+                    borderRadius: '12px', 
+                    bgcolor: 'rgba(156, 39, 176, 0.2)', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    mr: 2
+                  }}>
+                    <LocalActivityIcon sx={{ color: '#9c27b0', fontSize: 28 }} />
+                  </Box>
+                  <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
+                    Total Events
+                  </Typography>
+                </Box>
+                <Typography variant="h3" sx={{ color: 'white', mb: 1, fontWeight: 'bold' }}>
                   {dashboardStats.totalEvents}
                 </Typography>
+                <Box sx={{ 
+                  mt: 'auto', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  p: 1, 
+                  borderRadius: 1,
+                  bgcolor: 'rgba(255, 255, 255, 0.1)'
+                }}>
+                  <Typography variant="body2" sx={{ color: '#e1bee7', fontWeight: 'medium' }}>
+                    {dashboardStats.activeEvents} active events
+                  </Typography>
+                </Box>
               </Paper>
             </Grid>
             <Grid item xs={12} md={6} lg={3}>
-              <Paper sx={{ p: 3, borderRadius: 2, background: 'rgba(22, 28, 36, 0.8)', backdropFilter: 'blur(10px)' }}>
-                <Typography variant="h6" sx={{ color: 'white', mb: 1 }}>
-                  Active Events
-                </Typography>
-                <Typography variant="h3" sx={{ color: 'white' }}>
-                  {dashboardStats.activeEvents}
-                </Typography>
-              </Paper>
-            </Grid>
-            <Grid item xs={12} md={6} lg={3}>
-              <Paper sx={{ p: 3, borderRadius: 2, background: 'rgba(22, 28, 36, 0.8)', backdropFilter: 'blur(10px)' }}>
-                <Typography variant="h6" sx={{ color: 'white', mb: 1 }}>
-                  Tickets Sold
-                </Typography>
-                <Typography variant="h3" sx={{ color: 'white' }}>
+              <Paper sx={{ 
+                p: 4, 
+                borderRadius: 2, 
+                background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(46, 125, 50, 0.4) 100%)', 
+                backdropFilter: 'blur(10px)',
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100%',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+                border: '1px solid rgba(76, 175, 80, 0.2)',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  transform: 'translateY(-5px)',
+                  boxShadow: '0 12px 40px rgba(0, 0, 0, 0.3)',
+                }
+              }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Box sx={{ 
+                    p: 1.5, 
+                    borderRadius: '12px', 
+                    bgcolor: 'rgba(76, 175, 80, 0.2)', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    mr: 2
+                  }}>
+                    <PeopleIcon sx={{ color: '#4caf50', fontSize: 28 }} />
+                  </Box>
+                  <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
+                    Tickets Sold
+                  </Typography>
+                </Box>
+                <Typography variant="h3" sx={{ color: 'white', mb: 1, fontWeight: 'bold' }}>
                   {dashboardStats.totalTicketsSold}
                 </Typography>
+                <Box sx={{ 
+                  mt: 'auto', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  p: 1, 
+                  borderRadius: 1,
+                  bgcolor: 'rgba(255, 255, 255, 0.1)'
+                }}>
+                  <Typography variant="body2" sx={{ color: '#c8e6c9', fontWeight: 'medium' }}>
+                    {Math.floor(dashboardStats.totalTicketsSold / 30)} tickets/day
+                  </Typography>
+                </Box>
               </Paper>
             </Grid>
             <Grid item xs={12} md={6} lg={3}>
-              <Paper sx={{ p: 3, borderRadius: 2, background: 'rgba(22, 28, 36, 0.8)', backdropFilter: 'blur(10px)' }}>
-                <Typography variant="h6" sx={{ color: 'white', mb: 1 }}>
-                  Revenue (ETH)
-                </Typography>
-                <Typography variant="h3" sx={{ color: 'white' }}>
+              <Paper sx={{ 
+                p: 4, 
+                borderRadius: 2, 
+                background: 'linear-gradient(135deg, rgba(33, 150, 243, 0.1) 0%, rgba(25, 118, 210, 0.4) 100%)', 
+                backdropFilter: 'blur(10px)',
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100%',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+                border: '1px solid rgba(33, 150, 243, 0.2)',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  transform: 'translateY(-5px)',
+                  boxShadow: '0 12px 40px rgba(0, 0, 0, 0.3)',
+                }
+              }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Box sx={{ 
+                    p: 1.5, 
+                    borderRadius: '12px', 
+                    bgcolor: 'rgba(33, 150, 243, 0.2)', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    mr: 2
+                  }}>
+                    <TrendingUpIcon sx={{ color: '#2196f3', fontSize: 28 }} />
+                  </Box>
+                  <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
+                    Revenue (ETH)
+                  </Typography>
+                </Box>
+                <Typography variant="h3" sx={{ color: 'white', mb: 1, fontWeight: 'bold' }}>
                   {dashboardStats.revenue}
                 </Typography>
+                <Box sx={{ 
+                  mt: 'auto', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  p: 1, 
+                  borderRadius: 1,
+                  bgcolor: 'rgba(255, 255, 255, 0.1)'
+                }}>
+                  <Typography variant="body2" sx={{ color: '#bbdefb', fontWeight: 'medium' }}>
+                    Avg {(parseFloat(dashboardStats.revenue) / (dashboardStats.totalEvents || 1)).toFixed(2)} ETH per event
+                  </Typography>
+                </Box>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} md={6} lg={3}>
+              <Paper sx={{ 
+                p: 4, 
+                borderRadius: 2, 
+                background: 'linear-gradient(135deg, rgba(255, 152, 0, 0.1) 0%, rgba(230, 81, 0, 0.4) 100%)', 
+                backdropFilter: 'blur(10px)',
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100%',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+                border: '1px solid rgba(255, 152, 0, 0.2)',
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  transform: 'translateY(-5px)',
+                  boxShadow: '0 12px 40px rgba(0, 0, 0, 0.3)',
+                }
+              }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Box sx={{ 
+                    p: 1.5, 
+                    borderRadius: '12px', 
+                    bgcolor: 'rgba(255, 152, 0, 0.2)', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    mr: 2
+                  }}>
+                    <AssessmentIcon sx={{ color: '#ff9800', fontSize: 28 }} />
+                  </Box>
+                  <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
+                    Conversion Rate
+                  </Typography>
+                </Box>
+                <Typography variant="h3" sx={{ color: 'white', mb: 1, fontWeight: 'bold' }}>
+                  78%
+                </Typography>
+                <Box sx={{ 
+                  mt: 'auto', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  p: 1, 
+                  borderRadius: 1,
+                  bgcolor: 'rgba(255, 255, 255, 0.1)'
+                }}>
+                  <Typography variant="body2" sx={{ color: '#ffe0b2', fontWeight: 'medium' }}>
+                    12% increase from last month
+                  </Typography>
+                </Box>
+              </Paper>
+            </Grid>
+            
+            {/* Monthly Sales Chart */}
+            <Grid item xs={12} lg={8}>
+              <Paper sx={{ p: 4, borderRadius: 2, background: 'rgba(22, 28, 36, 0.95)', backdropFilter: 'blur(10px)', mt: 2, boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)' }}>
+                <Typography variant="h5" sx={{ color: 'white', mb: 4, fontWeight: 'bold' }}>
+                  Monthly Ticket Sales
+                </Typography>
+                <Box sx={{ height: 400, display: 'flex', alignItems: 'flex-end', gap: 2, px: 2, position: 'relative' }}>
+                  {/* Horizontal grid lines */}
+                  {[0, 25, 50, 75, 100].map((percent) => (
+                    <Box 
+                      key={`grid-${percent}`} 
+                      sx={{ 
+                        position: 'absolute', 
+                        left: 0, 
+                        right: 0, 
+                        top: `${100 - percent * 0.75}%`, 
+                        height: '1px', 
+                        bgcolor: 'rgba(255, 255, 255, 0.1)',
+                        zIndex: 1,
+                        '&::after': {
+                          content: `"${Math.round(percent * 0.4 * Math.max(...monthlySalesData.map(d => d.sales)) / 100)}"`,
+                          position: 'absolute',
+                          left: '-30px',
+                          top: '-10px',
+                          color: 'rgba(255, 255, 255, 0.7)',
+                          fontSize: '12px'
+                        }
+                      }} 
+                    />
+                  ))}
+                  
+                  {monthlySalesData.map((data, index) => (
+                    <Box key={index} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, zIndex: 2 }}>
+                      <Box 
+                        sx={{ 
+                          height: `${(data.sales / Math.max(...monthlySalesData.map(d => d.sales)) * 300)}px`,
+                          width: '85%', 
+                          background: index === monthlySalesData.length - 1 
+                            ? 'linear-gradient(180deg, rgba(189, 91, 218, 1) 0%, rgba(106, 27, 154, 1) 100%)' 
+                            : 'linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.15) 100%)',
+                          borderRadius: '10px',
+                          transition: 'all 0.5s ease-in-out',
+                          position: 'relative',
+                          boxShadow: '0 6px 16px rgba(0, 0, 0, 0.3)',
+                          '&:hover': {
+                            transform: 'translateY(-8px) scale(1.03)',
+                            boxShadow: '0 12px 24px rgba(0, 0, 0, 0.4)',
+                            background: index === monthlySalesData.length - 1 
+                              ? 'linear-gradient(180deg, rgba(209, 111, 238, 1) 0%, rgba(126, 47, 174, 1) 100%)' 
+                              : 'linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.25) 100%)',
+                          }
+                        }} 
+                      >
+                        <Box sx={{ 
+                          position: 'absolute',
+                          top: '-40px',
+                          left: '50%',
+                          transform: 'translateX(-50%)',
+                          bgcolor: index === monthlySalesData.length - 1 ? '#9c27b0' : 'rgba(255, 255, 255, 0.2)',
+                          color: 'white',
+                          fontWeight: 'bold',
+                          fontSize: '16px',
+                          py: 0.5,
+                          px: 1.5,
+                          borderRadius: '12px',
+                          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                          whiteSpace: 'nowrap',
+                          minWidth: '40px',
+                          textAlign: 'center'
+                        }}>
+                          {data.sales}
+                        </Box>
+                      </Box>
+                      <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <Typography 
+                          variant="subtitle1" 
+                          sx={{ 
+                            color: 'white', 
+                            fontWeight: index === monthlySalesData.length - 1 ? 'bold' : 'normal',
+                            bgcolor: index === monthlySalesData.length - 1 ? 'rgba(156, 39, 176, 0.2)' : 'transparent',
+                            py: index === monthlySalesData.length - 1 ? 0.5 : 0,
+                            px: index === monthlySalesData.length - 1 ? 1.5 : 0,
+                            borderRadius: index === monthlySalesData.length - 1 ? '4px' : '0'
+                          }}
+                        >
+                          {data.month}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  ))}
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 5, borderTop: '1px solid rgba(255, 255, 255, 0.1)', pt: 2 }}>
+                  <Typography variant="body2" sx={{ color: '#bb86fc', fontWeight: 'medium' }}>
+                    Current month: <strong>{monthlySalesData[monthlySalesData.length - 1].sales} tickets</strong>
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                    Average: {Math.round(monthlySalesData.reduce((sum, data) => sum + data.sales, 0) / monthlySalesData.length)} tickets/month
+                  </Typography>
+                </Box>
+              </Paper>
+            </Grid>
+
+            {/* Top Selling Tickets */}
+            <Grid item xs={12} lg={4}>
+              <Paper sx={{ p: 4, borderRadius: 2, background: 'rgba(22, 28, 36, 0.9)', backdropFilter: 'blur(10px)', mt: 2, boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)', height: '100%' }}>
+                <Typography variant="h5" sx={{ color: 'white', mb: 4, fontWeight: 'bold' }}>
+                  Top Selling Tickets
+                </Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  {topSellingTickets.length > 0 ? (
+                    topSellingTickets.map((ticket, index) => (
+                      <Box key={index} sx={{ display: 'flex', gap: 3, alignItems: 'center', p: 2, borderRadius: 2, background: 'rgba(255, 255, 255, 0.05)', transition: 'all 0.3s ease', '&:hover': { background: 'rgba(255, 255, 255, 0.1)' } }}>
+                        <img 
+                          src={ticket.image} 
+                          alt={ticket.name} 
+                          style={{ 
+                            width: 70, 
+                            height: 70, 
+                            borderRadius: 10, 
+                            objectFit: 'cover',
+                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.15)' 
+                          }} 
+                        />
+                        <Box sx={{ flex: 1 }}>
+                          <Typography variant="subtitle1" sx={{ color: 'white', fontWeight: 'bold' }}>
+                            {ticket.name}
+                          </Typography>
+                          <Typography variant="body1" sx={{ color: '#9c27b0', fontWeight: 'bold' }}>
+                            {ticket.price}
+                          </Typography>
+                          <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                            {ticket.soldCount} tickets sold
+                          </Typography>
+                        </Box>
+                      </Box>
+                    ))
+                  ) : (
+                    <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.7)', textAlign: 'center' }}>
+                      No tickets sold yet
+                    </Typography>
+                  )}
+                </Box>
+              </Paper>
+            </Grid>
+
+            {/* Revenue by Event */}
+            <Grid item xs={12}>
+              <Paper sx={{ p: 4, borderRadius: 2, background: 'rgba(22, 28, 36, 0.9)', backdropFilter: 'blur(10px)', mt: 3, boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)' }}>
+                <Typography variant="h5" sx={{ color: 'white', mb: 4, fontWeight: 'bold' }}>
+                  Revenue by Event
+                </Typography>
+                <Grid container spacing={3}>
+                  {revenueByEvent.length > 0 ? (
+                    revenueByEvent.map((event, index) => (
+                      <Grid item xs={12} md={6} key={index}>
+                        <Box sx={{ mb: 3, p: 3, borderRadius: 2, background: 'rgba(255, 255, 255, 0.05)', transition: 'all 0.3s ease', '&:hover': { background: 'rgba(255, 255, 255, 0.1)' } }}>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                            <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
+                              {event.name}
+                            </Typography>
+                            <Typography variant="h6" sx={{ color: '#9c27b0', fontWeight: 'bold' }}>
+                              {event.revenue.toFixed(2)} ETH
+                            </Typography>
+                          </Box>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                            <Typography variant="body1" sx={{ color: 'white' }}>
+                              {event.ticketsSold} tickets sold
+                            </Typography>
+                            <Typography variant="body1" sx={{ color: 'white' }}>
+                              {((event.revenue / parseFloat(dashboardStats.revenue)) * 100).toFixed(0)}% of total
+                            </Typography>
+                          </Box>
+                          <LinearProgress 
+                            variant="determinate" 
+                            value={(event.revenue / parseFloat(dashboardStats.revenue)) * 100} 
+                            sx={{ 
+                              borderRadius: 2, 
+                              height: 12,
+                              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                              '& .MuiLinearProgress-bar': {
+                                background: 'linear-gradient(90deg, #9c27b0 0%, #6a1b9a 100%)',
+                                borderRadius: 2
+                              }
+                            }}
+                          />
+                        </Box>
+                      </Grid>
+                    ))
+                  ) : (
+                    <Grid item xs={12}>
+                      <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.7)', textAlign: 'center' }}>
+                        No revenue data available
+                      </Typography>
+                    </Grid>
+                  )}
+                </Grid>
               </Paper>
             </Grid>
             
             <Grid item xs={12}>
-              <Paper sx={{ p: 3, borderRadius: 2, background: 'rgba(22, 28, 36, 0.8)', backdropFilter: 'blur(10px)', mt: 2 }}>
-                <Typography variant="h5" sx={{ color: 'white', mb: 3 }}>
-                  Recent Activity
-                </Typography>
-                <Divider sx={{ mb: 2, borderColor: 'rgba(255, 255, 255, 0.1)' }} />
-                <Box sx={{ color: 'white' }}>
-                  <Typography variant="body1" sx={{ mb: 1 }}>• New ticket purchase for Summer Music Festival - 0.2 ETH</Typography>
-                  <Typography variant="body1" sx={{ mb: 1 }}>• Created Tech Conference 2023 event with 150 tickets</Typography>
-                  <Typography variant="body1" sx={{ mb: 1 }}>• 5 ticket purchases for Art Exhibition - 0.5 ETH</Typography>
+              <Paper sx={{ p: 4, borderRadius: 2, background: 'rgba(22, 28, 36, 0.9)', backdropFilter: 'blur(10px)', mt: 3, boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                  <Typography variant="h5" sx={{ color: 'white', fontWeight: 'bold', flex: 1 }}>
+                    Recent Activity
+                  </Typography>
+                  <Button 
+                    variant="text" 
+                    size="small" 
+                    sx={{ 
+                      color: '#9c27b0',
+                      '&:hover': {
+                        backgroundColor: 'rgba(156, 39, 176, 0.08)'
+                      }
+                    }}
+                  >
+                    View All
+                  </Button>
                 </Box>
+                <Divider sx={{ mb: 3, borderColor: 'rgba(255, 255, 255, 0.1)' }} />
+                
+                {userNFTs.length > 0 ? (
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Box sx={{ 
+                      p: 2, 
+                      borderRadius: 2, 
+                      bgcolor: 'rgba(156, 39, 176, 0.08)', 
+                      display: 'flex', 
+                      alignItems: 'center',
+                      gap: 2
+                    }}>
+                      <Box sx={{ 
+                        width: 40, 
+                        height: 40, 
+                        borderRadius: '50%', 
+                        bgcolor: 'rgba(156, 39, 176, 0.2)', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center' 
+                      }}>
+                        <MonetizationOnIcon sx={{ color: '#9c27b0' }} />
+                      </Box>
+                      <Box sx={{ flex: 1 }}>
+                        <Typography variant="body1" sx={{ color: 'white', fontWeight: 'medium' }}>
+                          New ticket purchase for {userNFTs[0]?.title || 'Event'}
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                          {userNFTs[0]?.price || '0.2 ETH'} • Just now
+                        </Typography>
+                      </Box>
+                    </Box>
+                    
+                    <Box sx={{ 
+                      p: 2, 
+                      borderRadius: 2, 
+                      bgcolor: 'rgba(33, 150, 243, 0.08)', 
+                      display: 'flex', 
+                      alignItems: 'center',
+                      gap: 2
+                    }}>
+                      <Box sx={{ 
+                        width: 40, 
+                        height: 40, 
+                        borderRadius: '50%', 
+                        bgcolor: 'rgba(33, 150, 243, 0.2)', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center' 
+                      }}>
+                        <EventIcon sx={{ color: '#2196f3' }} />
+                      </Box>
+                      <Box sx={{ flex: 1 }}>
+                        <Typography variant="body1" sx={{ color: 'white', fontWeight: 'medium' }}>
+                          Created {userNFTs.length} events with tickets
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                          Total value: {dashboardStats.revenue} ETH • 2 days ago
+                        </Typography>
+                      </Box>
+                    </Box>
+                    
+                    <Box sx={{ 
+                      p: 2, 
+                      borderRadius: 2, 
+                      bgcolor: 'rgba(76, 175, 80, 0.08)', 
+                      display: 'flex', 
+                      alignItems: 'center',
+                      gap: 2
+                    }}>
+                      <Box sx={{ 
+                        width: 40, 
+                        height: 40, 
+                        borderRadius: '50%', 
+                        bgcolor: 'rgba(76, 175, 80, 0.2)', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center' 
+                      }}>
+                        <PeopleIcon sx={{ color: '#4caf50' }} />
+                      </Box>
+                      <Box sx={{ flex: 1 }}>
+                        <Typography variant="body1" sx={{ color: 'white', fontWeight: 'medium' }}>
+                          {Math.floor(Math.random() * 10) + 2} ticket purchases for {userNFTs[userNFTs.length - 1]?.title || 'Event'}
+                        </Typography>
+                        <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                          {(Math.random() * 0.5 + 0.1).toFixed(2)} ETH • 3 days ago
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Box>
+                ) : (
+                  <Box sx={{ 
+                    p: 4, 
+                    borderRadius: 2, 
+                    bgcolor: 'rgba(255, 255, 255, 0.05)', 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    alignItems: 'center',
+                    gap: 2
+                  }}>
+                    <Box sx={{ 
+                      width: 64, 
+                      height: 64, 
+                      borderRadius: '50%', 
+                      bgcolor: 'rgba(156, 39, 176, 0.1)', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center',
+                      mb: 1
+                    }}>
+                      <EventIcon sx={{ color: '#9c27b0', fontSize: 36 }} />
+                    </Box>
+                    <Typography variant="h6" sx={{ color: 'white', fontWeight: 'medium', textAlign: 'center' }}>
+                      No recent activity
+                    </Typography>
+                    <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.7)', textAlign: 'center', mb: 2 }}>
+                      Create your first NFT ticket to get started!
+                    </Typography>
+                    <Button 
+                      variant="contained" 
+                      onClick={() => setTabValue(1)}
+                      sx={{
+                        borderRadius: 2,
+                        p: '10px 24px',
+                        background: 'linear-gradient(45deg, #6a1b9a 30%, #4527a0 90%)',
+                        fontWeight: 'bold',
+                        '&:hover': { 
+                          background: 'linear-gradient(45deg, #7b1fa2 30%, #512da8 90%)',
+                          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3)'
+                        }
+                      }}
+                    >
+                      Create NFT Ticket
+                    </Button>
+                  </Box>
+                )}
               </Paper>
             </Grid>
           </Grid>

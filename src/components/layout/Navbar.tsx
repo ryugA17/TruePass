@@ -277,40 +277,32 @@ const Navbar = () => {
     });
   };
   
+  const handleUserMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setUserMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleUserMenuClose = () => {
+    setUserMenuAnchorEl(null);
+  };
+  
   const handleLogout = () => {
     logout();
-    setUserMenuAnchorEl(null);
-    setNotification({
-      show: true,
-      message: 'You have been logged out',
-      type: 'info'
-    });
+    handleUserMenuClose();
+    navigate('/');
+  };
+
+  const handleProfileClick = () => {
+    navigate('/profile');
+    handleUserMenuClose();
   };
   
-  const handleLogin = () => {
-    navigate('/login');
-    setUserMenuAnchorEl(null);
-  };
-  
-  const handleCreateNFT = () => {
+  const handleCreateNFTClick = () => {
     navigate('/create-nft');
-    setUserMenuAnchorEl(null);
+    handleUserMenuClose();
   };
   
   const handleWalletClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
-  };
-  
-  const handleUserMenuClick = (event: React.MouseEvent<HTMLElement>) => {
-    setUserMenuAnchorEl(event.currentTarget);
-  };
-  
-  const handleCloseMenu = () => {
-    setAnchorEl(null);
-  };
-  
-  const handleCloseUserMenu = () => {
-    setUserMenuAnchorEl(null);
   };
   
   const copyAddressToClipboard = () => {
@@ -330,6 +322,14 @@ const Navbar = () => {
       ...notification,
       show: false
     });
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogin = () => {
+    navigate('/login');
   };
 
   return (
@@ -425,14 +425,15 @@ const Navbar = () => {
             
             <Tooltip title="Create NFT">
               <IconButton
-                onClick={isAuthenticated ? handleCreateNFT : handleLogin}
+                onClick={isAuthenticated && user?.userType === 'host' ? handleCreateNFTClick : handleLogin}
                 sx={{ 
                   p: 1,
                   bgcolor: 'rgba(255, 255, 255, 0.1)',
                   borderRadius: '50%',
                   '&:hover': {
                     bgcolor: 'rgba(255, 255, 255, 0.2)',
-                  }
+                  },
+                  display: isAuthenticated && user?.userType !== 'host' ? 'none' : 'flex'
                 }}
               >
                 <img 
@@ -524,109 +525,106 @@ const Navbar = () => {
               />
             )}
             
-            {isAuthenticated ? (
-              <Chip
-                avatar={<Avatar sx={{ bgcolor: 'primary.main' }}>{user?.email.charAt(0).toUpperCase()}</Avatar>}
-                label={user?.email.split('@')[0]}
-                onClick={handleUserMenuClick}
-                deleteIcon={<KeyboardArrowDownIcon />}
-                onDelete={handleUserMenuClick}
-                sx={{
-                  color: 'white',
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  '&:hover': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.2)'
-                  },
-                  borderRadius: '20px',
-                  px: 1
-                }}
-              />
+            {/* User Menu */}
+            {isAuthenticated && user ? (
+              <>
+                <Button
+                  onClick={handleUserMenuOpen}
+                  color="inherit"
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    borderRadius: 3,
+                    px: 2,
+                    py: 1,
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    '&:hover': {
+                      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    },
+                  }}
+                  endIcon={<KeyboardArrowDownIcon />}
+                >
+                  <Avatar
+                    sx={{
+                      width: 28,
+                      height: 28,
+                      mr: 1,
+                      bgcolor: 'secondary.main'
+                    }}
+                  >
+                    {user.email.charAt(0).toUpperCase()}
+                  </Avatar>
+                  <Typography variant="subtitle2" noWrap>
+                    {user.email.split('@')[0]}
+                  </Typography>
+                </Button>
+                <Menu
+                  anchorEl={userMenuAnchorEl}
+                  open={Boolean(userMenuAnchorEl)}
+                  onClose={handleUserMenuClose}
+                  PaperProps={{
+                    sx: {
+                      borderRadius: 3,
+                      minWidth: 180,
+                      boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
+                      mt: 1.5,
+                      '& .MuiMenuItem-root': {
+                        px: 2,
+                        py: 1.5,
+                      },
+                    },
+                  }}
+                  transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                  anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                >
+                  <Typography
+                    variant="subtitle2"
+                    sx={{ px: 2, pt: 1, pb: 0.5, fontWeight: 'bold', color: 'text.secondary' }}
+                  >
+                    My Account
+                  </Typography>
+                  <MenuItem onClick={handleProfileClick}>
+                    <PersonIcon fontSize="small" sx={{ mr: 2 }} />
+                    Profile
+                  </MenuItem>
+                  {user?.userType === 'host' && (
+                    <MenuItem onClick={handleCreateNFTClick}>
+                      <Avatar
+                        src={editPencilIcon}
+                        sx={{ width: 20, height: 20, mr: 2 }}
+                      />
+                      Create NFT Ticket
+                    </MenuItem>
+                  )}
+                  <Divider sx={{ my: 1 }} />
+                  <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>
+                    <LogoutIcon fontSize="small" sx={{ mr: 2 }} />
+                    Logout
+                  </MenuItem>
+                </Menu>
+              </>
             ) : (
               <Button
                 variant="contained"
                 startIcon={<LoginIcon />}
                 onClick={handleLogin}
-                size="small"
-                color="primary"
                 sx={{
+                  borderRadius: 3,
                   textTransform: 'none',
-                  borderRadius: '20px',
-                  fontSize: '0.875rem'
+                  bgcolor: 'primary.main',
+                  color: 'white',
+                  px: 2,
+                  py: 1,
+                  fontWeight: 'medium',
+                  '&:hover': {
+                    bgcolor: 'primary.dark',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
+                  }
                 }}
               >
                 Login
               </Button>
             )}
-            
-            {/* Wallet Menu */}
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleCloseMenu}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'right',
-              }}
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              PaperProps={{
-                sx: {
-                  mt: 1,
-                  bgcolor: 'background.paper',
-                  boxShadow: 3,
-                  borderRadius: 2,
-                  minWidth: 200
-                }
-              }}
-            >
-              <MenuItem onClick={copyAddressToClipboard}>
-                <Typography variant="body2">Copy Address</Typography>
-              </MenuItem>
-              <Divider />
-              <MenuItem onClick={handleDisconnectWallet}>
-                <Typography variant="body2" color="error">Disconnect Wallet</Typography>
-              </MenuItem>
-            </Menu>
-            
-            {/* User Menu */}
-            <Menu
-              anchorEl={userMenuAnchorEl}
-              open={Boolean(userMenuAnchorEl)}
-              onClose={handleCloseUserMenu}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'right',
-              }}
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              PaperProps={{
-                sx: {
-                  mt: 1,
-                  bgcolor: 'background.paper',
-                  boxShadow: 3,
-                  borderRadius: 2,
-                  minWidth: 200
-                }
-              }}
-            >
-              <MenuItem
-                component={RouterLink}
-                to="/profile"
-                onClick={handleCloseUserMenu}
-              >
-                <PersonIcon fontSize="small" sx={{ mr: 1 }} />
-                <Typography variant="body2">Profile</Typography>
-              </MenuItem>
-              <Divider />
-              <MenuItem onClick={handleLogout}>
-                <LogoutIcon fontSize="small" sx={{ mr: 1 }} />
-                <Typography variant="body2" color="error">Logout</Typography>
-              </MenuItem>
-            </Menu>
           </Box>
         </Toolbar>
       </AppBar>
