@@ -18,6 +18,7 @@ import {
   Modal,
   Paper,
   Tooltip,
+  ListItemIcon,
 } from '@mui/material';
 import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
@@ -34,6 +35,7 @@ import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import editPencilIcon from '../../assets/Edit_Pencil_01.png';
 import shoppingCartIcon from '../../assets/Shopping_Cart_01.png';
+import AddIcon from '@mui/icons-material/Add';
 
 // Define window.ethereum for TypeScript
 declare global {
@@ -423,9 +425,9 @@ const Navbar = () => {
               Marketplace
             </Button>
             
-            <Tooltip title="Create NFT">
+            <Tooltip title={isAuthenticated && user?.userType === 'host' ? "Create Event" : "Login to create events"}>
               <IconButton
-                onClick={isAuthenticated && user?.userType === 'host' ? handleCreateNFTClick : handleLogin}
+                onClick={isAuthenticated && user?.userType !== 'host' ? handleLogin : handleConnectWallet}
                 sx={{ 
                   p: 1,
                   bgcolor: 'rgba(255, 255, 255, 0.1)',
@@ -589,11 +591,12 @@ const Navbar = () => {
                   </MenuItem>
                   {user?.userType === 'host' && (
                     <MenuItem onClick={handleCreateNFTClick}>
-                      <Avatar
-                        src={editPencilIcon}
-                        sx={{ width: 20, height: 20, mr: 2 }}
-                      />
-                      Create NFT Ticket
+                      <>
+                        <ListItemIcon>
+                          <AddIcon fontSize="small" />
+                        </ListItemIcon>
+                        Create Event
+                      </>
                     </MenuItem>
                   )}
                   <Divider sx={{ my: 1 }} />

@@ -210,7 +210,7 @@ const HostPage = () => {
             // Show success notification
             setNotification({
               open: true,
-              message: 'NFT ticket created successfully!',
+              message: 'Event created successfully!',
               severity: 'success'
             });
             
@@ -237,7 +237,7 @@ const HostPage = () => {
         
           setNotification({
             open: true,
-            message: 'NFT ticket created successfully!',
+            message: 'Event created successfully!',
             severity: 'success'
           });
         
@@ -870,7 +870,7 @@ const HostPage = () => {
                       No recent activity
                     </Typography>
                     <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.7)', textAlign: 'center', mb: 2 }}>
-                      Create your first NFT ticket to get started!
+                      Create your first event to get started!
                     </Typography>
                     <Button 
                       variant="contained" 
@@ -886,7 +886,7 @@ const HostPage = () => {
                         }
                       }}
                     >
-                      Create NFT Ticket
+                      Create Event
                     </Button>
                   </Box>
                 )}
@@ -899,7 +899,7 @@ const HostPage = () => {
         <TabPanel value={tabValue} index={1}>
           <Paper sx={{ p: 4, borderRadius: 2, background: 'rgba(22, 28, 36, 0.8)', backdropFilter: 'blur(10px)' }}>
             <Typography variant="h5" sx={{ color: 'white', mb: 3 }}>
-              Create New NFT Ticket
+              Create New Event
             </Typography>
             <form onSubmit={handleSubmit}>
               <Grid container spacing={3}>
@@ -1012,7 +1012,7 @@ const HostPage = () => {
                       '&:hover': { background: 'linear-gradient(45deg, #7b1fa2 30%, #512da8 90%)' }
                     }}
                   >
-                    {loading ? <CircularProgress size={24} color="inherit" /> : 'Create NFT Ticket'}
+                    {loading ? <CircularProgress size={24} color="inherit" /> : 'Create Event'}
                   </Button>
                 </Grid>
               </Grid>

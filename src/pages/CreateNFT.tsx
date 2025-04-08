@@ -70,7 +70,7 @@ const CreateNFT = () => {
       if (!window.ethereum) throw new Error('MetaMask is not installed.');
 
       if (!user) {
-        throw new Error('You must be logged in to create NFT tickets');
+        throw new Error('You must be logged in to create events');
       }
   
       await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -110,7 +110,7 @@ const CreateNFT = () => {
           
           setNotification({
             open: true,
-            message: 'NFT ticket created successfully!',
+            message: 'Event created successfully!',
             severity: 'success'
           });
           
@@ -137,7 +137,7 @@ const CreateNFT = () => {
         
         setNotification({
           open: true,
-          message: 'NFT ticket created successfully!',
+          message: 'Event created successfully!',
           severity: 'success'
         });
         
@@ -150,7 +150,7 @@ const CreateNFT = () => {
       console.error(err);
       setNotification({
         open: true,
-        message: err.message || 'Failed to mint NFT',
+        message: err.message || 'Failed to create event',
         severity: 'error'
       });
       setLoading(false);
@@ -165,7 +165,7 @@ const CreateNFT = () => {
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
       <Typography variant="h4" component="h1" gutterBottom sx={{ color: 'white' }}>
-        Create New NFT
+        Create New Event
       </Typography>
       <Paper sx={{ p: 4, borderRadius: 2, background: 'rgba(22, 28, 36, 0.8)', backdropFilter: 'blur(10px)' }}>
         <form onSubmit={handleSubmit}>
@@ -239,7 +239,7 @@ const CreateNFT = () => {
                 <Box sx={{ mt: 1, borderRadius: 2, overflow: 'hidden', height: '120px' }}>
                   <img
                     src={previewUrl}
-                    alt="NFT Preview"
+                    alt="Event Preview"
                     style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }}
                   />
                 </Box>
@@ -259,7 +259,7 @@ const CreateNFT = () => {
                   '&:hover': { background: 'linear-gradient(45deg, #7b1fa2 30%, #512da8 90%)' }
                 }}
               >
-                {loading ? <CircularProgress size={24} color="inherit" /> : 'Create NFT'}
+                {loading ? <CircularProgress size={24} color="inherit" /> : 'Create Event'}
               </Button>
             </Grid>
           </Grid>
