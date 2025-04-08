@@ -21,10 +21,10 @@ interface AuthUser {
 interface AuthContextType {
   isAuthenticated: boolean;
   user: AuthUser | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, userType?: UserType) => Promise<void>;
   signup: (email: string, password: string, userType: UserType, displayName?: string) => Promise<void>;
   logout: () => void;
-  googleLogin: () => Promise<void>;
+  googleLogin: (userType?: UserType) => Promise<void>;
   updateUserType: (userType: UserType) => void;
 }
 
@@ -77,22 +77,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  const login = async (email: string, password: string): Promise<void> => {
+  const login = async (email: string, password: string, userType?: UserType): Promise<void> => {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const firebaseUser = userCredential.user;
       
-      // Get user type from localStorage if available
-      let userType: UserType = 'user';
-      const storedUserType = localStorage.getItem(`userType_${firebaseUser.uid}`);
-      if (storedUserType === 'host' || storedUserType === 'user') {
-        userType = storedUserType as UserType;
+      // Determine user type: use provided type, or retrieve from localStorage
+      let finalUserType: UserType = 'user';
+      if (userType) {
+        // Use provided userType and update localStorage
+        finalUserType = userType;
+        localStorage.setItem(`userType_${firebaseUser.uid}`, userType);
+      } else {
+        // Get from localStorage if available
+        const storedUserType = localStorage.getItem(`userType_${firebaseUser.uid}`);
+        if (storedUserType === 'host' || storedUserType === 'user') {
+          finalUserType = storedUserType as UserType;
+        }
       }
 
       const userData: AuthUser = { 
         email: firebaseUser.email || '', 
         displayName: firebaseUser.displayName || undefined,
-        userType
+        userType: finalUserType
       };
       
       setIsAuthenticated(true);
@@ -134,26 +141,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const googleLogin = async (): Promise<void> => {
+  const googleLogin = async (userType?: UserType): Promise<void> => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const firebaseUser = result.user;
       
-      // Default to 'user' type for Google login
-      // Check if user already has a stored type
-      let userType: UserType = 'user';
-      const storedUserType = localStorage.getItem(`userType_${firebaseUser.uid}`);
-      if (storedUserType === 'host' || storedUserType === 'user') {
-        userType = storedUserType as UserType;
-      } else {
-        // Store default user type
+      // Determine user type: use provided type, or retrieve from localStorage or default to 'user'
+      let finalUserType: UserType = 'user';
+      if (userType) {
+        // Use provided userType and update localStorage
+        finalUserType = userType;
         localStorage.setItem(`userType_${firebaseUser.uid}`, userType);
+      } else {
+        // Get from localStorage if available
+        const storedUserType = localStorage.getItem(`userType_${firebaseUser.uid}`);
+        if (storedUserType === 'host' || storedUserType === 'user') {
+          finalUserType = storedUserType as UserType;
+        } else {
+          // Store default user type
+          localStorage.setItem(`userType_${firebaseUser.uid}`, finalUserType);
+        }
       }
       
       const userData: AuthUser = { 
         email: firebaseUser.email || '', 
         displayName: firebaseUser.displayName || undefined,
-        userType
+        userType: finalUserType
       };
       
       setIsAuthenticated(true);

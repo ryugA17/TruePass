@@ -30,7 +30,7 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || '/create-nft';
-  const { login, googleLogin, user } = useAuth();
+  const { login, googleLogin, user, updateUserType } = useAuth();
 
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
@@ -38,7 +38,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const [userType, setUserType] = useState(0); // 0 for User, 1 for Host
 
-  // Check if user is already logged in
+  // Check if user is already logged in and redirect based on user type
   useEffect(() => {
     if (user) {
       if (user.userType === 'host') {
@@ -57,18 +57,30 @@ const Login = () => {
 
   const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
 
+  const handleUserTypeChange = (event: React.SyntheticEvent, newValue: number) => {
+    setUserType(newValue);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
     try {
-      await login(formData.email, formData.password);
+      // Determine selected user type
+      const selectedUserType: 'user' | 'host' = userType === 0 ? 'user' : 'host';
       
-      // Redirect is handled in the useEffect
+      // Login with selected user type
+      await login(formData.email, formData.password, selectedUserType);
+      
+      // Redirect based on selected type
+      if (selectedUserType === 'host') {
+        navigate('/host');
+      } else {
+        navigate('/marketplace');
+      }
     } catch (err: any) {
       setError(err.message || 'Authentication failed');
-    } finally {
       setIsLoading(false);
     }
   };
@@ -77,17 +89,22 @@ const Login = () => {
     setIsLoading(true);
     setError('');
     try {
-      await googleLogin();
-      // Redirect is handled in the useEffect
+      // Determine selected user type
+      const selectedUserType: 'user' | 'host' = userType === 0 ? 'user' : 'host';
+      
+      // Login with Google using selected user type
+      await googleLogin(selectedUserType);
+      
+      // Redirect based on selected type
+      if (selectedUserType === 'host') {
+        navigate('/host');
+      } else {
+        navigate('/marketplace');
+      }
     } catch (err: any) {
       setError(err.message || 'Google login failed');
-    } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleUserTypeChange = (event: React.SyntheticEvent, newValue: number) => {
-    setUserType(newValue);
   };
 
   return (
