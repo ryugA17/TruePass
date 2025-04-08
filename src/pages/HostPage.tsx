@@ -562,248 +562,249 @@ const HostPage = () => {
               </Paper>
             </Grid>
             
-            {/* Monthly Sales Chart */}
-            <Grid item xs={12} lg={8}>
-              <Paper sx={{ p: 4, borderRadius: 2, background: 'rgba(22, 28, 36, 0.95)', backdropFilter: 'blur(10px)', mt: 2, boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)' }}>
-                <Typography variant="h5" sx={{ color: 'white', mb: 4, fontWeight: 'bold' }}>
-                  Monthly Ticket Sales
-                </Typography>
-                <Box sx={{ height: 400, display: 'flex', alignItems: 'flex-end', gap: 2, px: 2, position: 'relative' }}>
-                  {/* Horizontal grid lines */}
-                  {[0, 25, 50, 75, 100].map((percent) => (
-                    <Box 
-                      key={`grid-${percent}`} 
-                      sx={{ 
-                        position: 'absolute', 
-                        left: 0, 
-                        right: 0, 
-                        top: `${100 - percent * 0.75}%`, 
-                        height: '1px', 
-                        bgcolor: 'rgba(255, 255, 255, 0.1)',
-                        zIndex: 1,
-                        '&::after': {
-                          content: `"${Math.round(percent * 0.4 * Math.max(...monthlySalesData.map(d => d.sales)) / 100)}"`,
-                          position: 'absolute',
-                          left: '-30px',
-                          top: '-10px',
-                          color: 'rgba(255, 255, 255, 0.7)',
-                          fontSize: '12px'
-                        }
-                      }} 
-                    />
-                  ))}
-                  
-                  {monthlySalesData.map((data, index) => (
-                    <Box key={index} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, zIndex: 2 }}>
+            {/* Monthly Sales Chart and Revenue by Date Chart */}
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6}>
+                <Paper sx={{ p: 4, borderRadius: 2, background: 'rgba(22, 28, 36, 0.95)', backdropFilter: 'blur(10px)', mt: 2, boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)', height: '100%' }}>
+                  <Typography variant="h5" sx={{ color: 'white', mb: 4, fontWeight: 'bold' }}>
+                    Monthly Ticket Sales
+                  </Typography>
+                  <Box sx={{ height: 400, display: 'flex', alignItems: 'flex-end', gap: 2, px: 2, position: 'relative' }}>
+                    {/* Horizontal grid lines */}
+                    {[0, 25, 50, 75, 100].map((percent) => (
                       <Box 
+                        key={`grid-${percent}`} 
                         sx={{ 
-                          height: `${(data.sales / Math.max(...monthlySalesData.map(d => d.sales)) * 300)}px`,
-                          width: '55%', 
-                          background: index === monthlySalesData.length - 1 
-                            ? 'linear-gradient(180deg, rgba(189, 91, 218, 1) 0%, rgba(106, 27, 154, 1) 100%)' 
-                            : 'linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.15) 100%)',
-                          borderRadius: '10px',
-                          transition: 'all 0.5s ease-in-out',
-                          position: 'relative',
-                          boxShadow: '0 6px 16px rgba(0, 0, 0, 0.3)',
-                          '&:hover': {
-                            transform: 'translateY(-8px) scale(1.03)',
-                            boxShadow: '0 12px 24px rgba(0, 0, 0, 0.4)',
-                            background: index === monthlySalesData.length - 1 
-                              ? 'linear-gradient(180deg, rgba(209, 111, 238, 1) 0%, rgba(126, 47, 174, 1) 100%)' 
-                              : 'linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.25) 100%)',
+                          position: 'absolute', 
+                          left: 0, 
+                          right: 0, 
+                          top: `${100 - percent * 0.75}%`, 
+                          height: '1px', 
+                          bgcolor: 'rgba(255, 255, 255, 0.1)',
+                          zIndex: 1,
+                          '&::after': {
+                            content: `"${Math.round(percent * 0.4 * Math.max(...monthlySalesData.map(d => d.sales)) / 100)}"`,
+                            position: 'absolute',
+                            left: '-30px',
+                            top: '-10px',
+                            color: 'rgba(255, 255, 255, 0.7)',
+                            fontSize: '12px'
                           }
                         }} 
-                      >
-                        <Box sx={{ 
-                          position: 'absolute',
-                          top: '-40px',
-                          left: '50%',
-                          transform: 'translateX(-50%)',
-                          bgcolor: index === monthlySalesData.length - 1 ? '#9c27b0' : 'rgba(255, 255, 255, 0.2)',
-                          color: 'white',
-                          fontWeight: 'bold',
-                          fontSize: '16px',
-                          py: 0.5,
-                          px: 1.5,
-                          borderRadius: '12px',
-                          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-                          whiteSpace: 'nowrap',
-                          minWidth: '40px',
-                          textAlign: 'center'
-                        }}>
-                          {data.sales}
-                        </Box>
-                      </Box>
-                      <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <Typography 
-                          variant="subtitle1" 
-                          sx={{ 
-                            color: 'white', 
-                            fontWeight: index === monthlySalesData.length - 1 ? 'bold' : 'normal',
-                            bgcolor: index === monthlySalesData.length - 1 ? 'rgba(156, 39, 176, 0.2)' : 'transparent',
-                            py: index === monthlySalesData.length - 1 ? 0.5 : 0,
-                            px: index === monthlySalesData.length - 1 ? 1.5 : 0,
-                            borderRadius: index === monthlySalesData.length - 1 ? '4px' : '0'
-                          }}
-                        >
-                          {data.month}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  ))}
-                </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 5, borderTop: '1px solid rgba(255, 255, 255, 0.1)', pt: 2 }}>
-                  <Typography variant="body2" sx={{ color: '#bb86fc', fontWeight: 'medium' }}>
-                    Current month: <strong>{monthlySalesData[monthlySalesData.length - 1].sales} tickets</strong>
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                    Average: {Math.round(monthlySalesData.reduce((sum, data) => sum + data.sales, 0) / monthlySalesData.length)} tickets/month
-                  </Typography>
-                </Box>
-              </Paper>
-            </Grid>
-
-            {/* Revenue by Date Chart */}
-            <Grid item xs={12} lg={8}>
-              <Paper sx={{ p: 4, borderRadius: 2, background: 'rgba(22, 28, 36, 0.95)', backdropFilter: 'blur(10px)', mt: 2, boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)' }}>
-                <Typography variant="h5" sx={{ color: 'white', mb: 4, fontWeight: 'bold' }}>
-                  Revenue by Date
-                </Typography>
-                <Box sx={{ 
-                  height: 400, 
-                  display: 'flex', 
-                  alignItems: 'flex-end', 
-                  gap: 0.1, 
-                  px: 4, 
-                  position: 'relative',
-                  overflow: 'visible',
-                  overflowX: 'auto',
-                  pb: 6
-                }}>
-                  {/* Horizontal grid lines */}
-                  {[0, 25, 50, 75, 100].map((percent) => (
-                    <Box 
-                      key={`grid-${percent}`} 
-                      sx={{ 
-                        position: 'absolute', 
-                        left: 0, 
-                        right: 0, 
-                        top: `${100 - percent * 0.75}%`, 
-                        height: '1px', 
-                        bgcolor: 'rgba(255, 255, 255, 0.1)',
-                        zIndex: 1,
-                        '&::after': {
-                          content: `"${(percent * 0.14).toFixed(1)} ETH"`,
-                          position: 'absolute',
-                          left: '-30px',
-                          top: '-10px',
-                          color: 'rgba(255, 255, 255, 0.7)',
-                          fontSize: '12px'
-                        }
-                      }} 
-                    />
-                  ))}
-                  
-                  <Box sx={{ 
-                    display: 'flex', 
-                    alignItems: 'flex-end', 
-                    gap: 0.1, 
-                    position: 'relative',
-                    minWidth: 'max-content', 
-                    width: '100%'
-                  }}>
-                    {revenueByDate.map((data, index) => (
-                      <Box key={index} sx={{ 
-                        display: 'flex', 
-                        flexDirection: 'column', 
-                        alignItems: 'center', 
-                        width: '24px', 
-                        minWidth: '24px',
-                        position: 'relative',
-                        overflow: 'visible',
-                        mx: 0.1
-                      }}>
+                      />
+                    ))}
+                    
+                    {monthlySalesData.map((data, index) => (
+                      <Box key={index} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, zIndex: 2 }}>
                         <Box 
                           sx={{ 
-                            height: `${(data.revenue / Math.max(...revenueByDate.map(d => d.revenue)) * 300)}px`,
-                            width: '100%', 
-                            background: index === revenueByDate.length - 1 
-                              ? 'linear-gradient(180deg, rgba(33, 150, 243, 1) 0%, rgba(25, 118, 210, 1) 100%)' 
+                            height: `${(data.sales / Math.max(...monthlySalesData.map(d => d.sales)) * 300)}px`,
+                            width: '55%', 
+                            background: index === monthlySalesData.length - 1 
+                              ? 'linear-gradient(180deg, rgba(189, 91, 218, 1) 0%, rgba(106, 27, 154, 1) 100%)' 
                               : 'linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.15) 100%)',
-                            borderRadius: '6px',
+                            borderRadius: '10px',
                             transition: 'all 0.5s ease-in-out',
                             position: 'relative',
                             boxShadow: '0 6px 16px rgba(0, 0, 0, 0.3)',
                             '&:hover': {
                               transform: 'translateY(-8px) scale(1.03)',
                               boxShadow: '0 12px 24px rgba(0, 0, 0, 0.4)',
-                              background: index === revenueByDate.length - 1 
-                                ? 'linear-gradient(180deg, rgba(64, 196, 255, 1) 0%, rgba(33, 150, 243, 1) 100%)' 
+                              background: index === monthlySalesData.length - 1 
+                                ? 'linear-gradient(180deg, rgba(209, 111, 238, 1) 0%, rgba(126, 47, 174, 1) 100%)' 
                                 : 'linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.25) 100%)',
                             }
                           }} 
                         >
-                          {index % 5 === 0 && (
-                            <Box sx={{ 
-                              position: 'absolute',
-                              top: '-30px',
-                              left: '50%',
-                              transform: 'translateX(-50%)',
-                              bgcolor: index === revenueByDate.length - 1 ? '#2196f3' : 'rgba(255, 255, 255, 0.2)',
-                              color: 'white',
-                              fontWeight: 'bold',
-                              fontSize: '12px',
-                              py: 0.3,
-                              px: 0.8,
-                              borderRadius: '8px',
-                              boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-                              whiteSpace: 'nowrap',
-                              minWidth: '30px',
-                              textAlign: 'center',
-                              zIndex: 3
-                            }}>
-                              {data.revenue.toFixed(1)}
-                            </Box>
-                          )}
-                        </Box>
-                        {index % 5 === 0 && (
                           <Box sx={{ 
                             position: 'absolute',
-                            bottom: '-28px',
+                            top: '-40px',
                             left: '50%',
                             transform: 'translateX(-50%)',
-                            minWidth: 'max-content'
+                            bgcolor: index === monthlySalesData.length - 1 ? '#9c27b0' : 'rgba(255, 255, 255, 0.2)',
+                            color: 'white',
+                            fontWeight: 'bold',
+                            fontSize: '16px',
+                            py: 0.5,
+                            px: 1.5,
+                            borderRadius: '12px',
+                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                            whiteSpace: 'nowrap',
+                            minWidth: '40px',
+                            textAlign: 'center'
                           }}>
-                            <Typography 
-                              variant="caption" 
-                              sx={{ 
-                                color: 'white', 
-                                fontWeight: index === revenueByDate.length - 1 ? 'bold' : 'normal',
-                                bgcolor: index === revenueByDate.length - 1 ? 'rgba(33, 150, 243, 0.2)' : 'transparent',
-                                py: index === revenueByDate.length - 1 ? 0.3 : 0,
-                                px: index === revenueByDate.length - 1 ? 0.8 : 0,
-                                borderRadius: index === revenueByDate.length - 1 ? '4px' : '0',
-                                fontSize: '10px'
-                              }}
-                            >
-                              {new Date(data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                            </Typography>
+                            {data.sales}
                           </Box>
-                        )}
+                        </Box>
+                        <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                          <Typography 
+                            variant="subtitle1" 
+                            sx={{ 
+                              color: 'white', 
+                              fontWeight: index === monthlySalesData.length - 1 ? 'bold' : 'normal',
+                              bgcolor: index === monthlySalesData.length - 1 ? 'rgba(156, 39, 176, 0.2)' : 'transparent',
+                              py: index === monthlySalesData.length - 1 ? 0.5 : 0,
+                              px: index === monthlySalesData.length - 1 ? 1.5 : 0,
+                              borderRadius: index === monthlySalesData.length - 1 ? '4px' : '0'
+                            }}
+                          >
+                            {data.month}
+                          </Typography>
+                        </Box>
                       </Box>
                     ))}
                   </Box>
-                </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 5, borderTop: '1px solid rgba(255, 255, 255, 0.1)', pt: 2 }}>
-                  <Typography variant="body2" sx={{ color: '#bbdefb', fontWeight: 'medium' }}>
-                    Current week: <strong>{revenueByDate[revenueByDate.length - 1].revenue.toFixed(1)} ETH</strong>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 5, borderTop: '1px solid rgba(255, 255, 255, 0.1)', pt: 2 }}>
+                    <Typography variant="body2" sx={{ color: '#bb86fc', fontWeight: 'medium' }}>
+                      Current month: <strong>{monthlySalesData[monthlySalesData.length - 1].sales} tickets</strong>
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                      Average: {Math.round(monthlySalesData.reduce((sum, data) => sum + data.sales, 0) / monthlySalesData.length)} tickets/month
+                    </Typography>
+                  </Box>
+                </Paper>
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <Paper sx={{ p: 4, borderRadius: 2, background: 'rgba(22, 28, 36, 0.95)', backdropFilter: 'blur(10px)', mt: 2, boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)', height: '100%' }}>
+                  <Typography variant="h5" sx={{ color: 'white', mb: 4, fontWeight: 'bold' }}>
+                    Revenue by Date
                   </Typography>
-                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-                    Average: {(revenueByDate.reduce((sum, data) => sum + data.revenue, 0) / revenueByDate.length).toFixed(1)} ETH/week
-                  </Typography>
-                </Box>
-              </Paper>
+                  <Box sx={{ 
+                    height: 400, 
+                    display: 'flex', 
+                    alignItems: 'flex-end', 
+                    gap: 0.1, 
+                    px: 4, 
+                    position: 'relative',
+                    overflow: 'visible',
+                    pb: 6,
+                    width: '100%'
+                  }}>
+                    {/* Horizontal grid lines */}
+                    {[0, 25, 50, 75, 100].map((percent) => (
+                      <Box 
+                        key={`grid-${percent}`} 
+                        sx={{ 
+                          position: 'absolute', 
+                          left: 0, 
+                          right: 0, 
+                          top: `${100 - percent * 0.75}%`, 
+                          height: '1px', 
+                          bgcolor: 'rgba(255, 255, 255, 0.1)',
+                          zIndex: 1,
+                          '&::after': {
+                            content: `"${(percent * 0.14).toFixed(1)} ETH"`,
+                            position: 'absolute',
+                            left: '-30px',
+                            top: '-10px',
+                            color: 'rgba(255, 255, 255, 0.7)',
+                            fontSize: '12px'
+                          }
+                        }} 
+                      />
+                    ))}
+                    
+                    <Box sx={{ 
+                      display: 'flex', 
+                      alignItems: 'flex-end', 
+                      gap: 0.1, 
+                      position: 'relative',
+                      width: '100%',
+                      justifyContent: 'space-between'
+                    }}>
+                      {revenueByDate.map((data, index) => (
+                        <Box key={index} sx={{ 
+                          display: 'flex', 
+                          flexDirection: 'column', 
+                          alignItems: 'center', 
+                          flex: 1,
+                          maxWidth: '40px',
+                          position: 'relative',
+                          overflow: 'visible',
+                          mx: 0.1
+                        }}>
+                          <Box 
+                            sx={{ 
+                              height: `${(data.revenue / Math.max(...revenueByDate.map(d => d.revenue)) * 300)}px`,
+                              width: '100%', 
+                              background: index === revenueByDate.length - 1 
+                                ? 'linear-gradient(180deg, rgba(33, 150, 243, 1) 0%, rgba(25, 118, 210, 1) 100%)' 
+                                : 'linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.15) 100%)',
+                              borderRadius: '6px',
+                              transition: 'all 0.5s ease-in-out',
+                              position: 'relative',
+                              boxShadow: '0 6px 16px rgba(0, 0, 0, 0.3)',
+                              '&:hover': {
+                                transform: 'translateY(-8px) scale(1.03)',
+                                boxShadow: '0 12px 24px rgba(0, 0, 0, 0.4)',
+                                background: index === revenueByDate.length - 1 
+                                  ? 'linear-gradient(180deg, rgba(64, 196, 255, 1) 0%, rgba(33, 150, 243, 1) 100%)' 
+                                  : 'linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.25) 100%)',
+                              }
+                            }} 
+                          >
+                            {index % 3 === 0 && (
+                              <Box sx={{ 
+                                position: 'absolute',
+                                top: '-30px',
+                                left: '50%',
+                                transform: 'translateX(-50%)',
+                                bgcolor: index === revenueByDate.length - 1 ? '#2196f3' : 'rgba(255, 255, 255, 0.2)',
+                                color: 'white',
+                                fontWeight: 'bold',
+                                fontSize: '12px',
+                                py: 0.3,
+                                px: 0.8,
+                                borderRadius: '8px',
+                                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
+                                whiteSpace: 'nowrap',
+                                minWidth: '30px',
+                                textAlign: 'center',
+                                zIndex: 3
+                              }}>
+                                {data.revenue.toFixed(1)}
+                              </Box>
+                            )}
+                          </Box>
+                          {index % 3 === 0 && (
+                            <Box sx={{ 
+                              position: 'absolute',
+                              bottom: '-28px',
+                              left: '50%',
+                              transform: 'translateX(-50%)',
+                              minWidth: 'max-content'
+                            }}>
+                              <Typography 
+                                variant="caption" 
+                                sx={{ 
+                                  color: 'white', 
+                                  fontWeight: index === revenueByDate.length - 1 ? 'bold' : 'normal',
+                                  bgcolor: index === revenueByDate.length - 1 ? 'rgba(33, 150, 243, 0.2)' : 'transparent',
+                                  py: index === revenueByDate.length - 1 ? 0.3 : 0,
+                                  px: index === revenueByDate.length - 1 ? 0.8 : 0,
+                                  borderRadius: index === revenueByDate.length - 1 ? '4px' : '0',
+                                  fontSize: '10px'
+                                }}
+                              >
+                                {new Date(data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              </Typography>
+                            </Box>
+                          )}
+                        </Box>
+                      ))}
+                    </Box>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 5, borderTop: '1px solid rgba(255, 255, 255, 0.1)', pt: 2 }}>
+                    <Typography variant="body2" sx={{ color: '#bbdefb', fontWeight: 'medium' }}>
+                      Current week: <strong>{revenueByDate[revenueByDate.length - 1].revenue.toFixed(1)} ETH</strong>
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
+                      Average: {(revenueByDate.reduce((sum, data) => sum + data.revenue, 0) / revenueByDate.length).toFixed(1)} ETH/week
+                    </Typography>
+                  </Box>
+                </Paper>
+              </Grid>
             </Grid>
 
             {/* Revenue by Event */}
