@@ -4,15 +4,21 @@ import { useAuth } from '../context/AuthContext';
 
 interface AuthRouteProps {
   children: React.ReactNode;
+  hostOnly?: boolean;
 }
 
-const AuthRoute: React.FC<AuthRouteProps> = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+const AuthRoute: React.FC<AuthRouteProps> = ({ children, hostOnly = false }) => {
+  const { isAuthenticated, user } = useAuth();
   const location = useLocation();
 
+  // If not authenticated, redirect to login
   if (!isAuthenticated) {
-    // Redirect to login page with the location they were trying to access
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // If host-only route but user is not a host
+  if (hostOnly && user?.userType !== 'host') {
+    return <Navigate to="/marketplace" replace />;
   }
 
   return <>{children}</>;

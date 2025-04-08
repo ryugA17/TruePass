@@ -17,6 +17,7 @@ import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
 import { NFTProvider } from './context/NFTContext';
 import AuthRoute from './components/AuthRoute';
+import HostRedirect from './components/HostRedirect';
 
 function App() {
   return (
@@ -45,7 +46,9 @@ function App() {
                     }}>
                       <Navbar />
                       <Box sx={{ pt: '64px' }}>
-                        <Home />
+                        <HostRedirect>
+                          <Home />
+                        </HostRedirect>
                       </Box>
                     </Box>
                   </CartProvider>
@@ -129,7 +132,7 @@ function App() {
                     }}>
                       <Navbar />
                       <Box sx={{ pt: '64px' }}>
-                        <AuthRoute>
+                        <AuthRoute hostOnly={true}>
                           <HostPage />
                         </AuthRoute>
                       </Box>

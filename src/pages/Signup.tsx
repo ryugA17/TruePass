@@ -28,7 +28,7 @@ import { UserType, useAuth } from '../context/AuthContext';
 
 const Signup = () => {
   const navigate = useNavigate();
-  const { signup, googleLogin, user } = useAuth();
+  const { signup, googleLogin, user, updateUserType } = useAuth();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -106,11 +106,20 @@ const Signup = () => {
     setLoading(true);
     setError('');
     try {
-      await googleLogin();
-      navigate('/marketplace');
+      // Get the selected user type
+      const selectedUserType: UserType = userType === 0 ? 'user' : 'host';
+      
+      // Login with Google using selected user type
+      await googleLogin(selectedUserType);
+      
+      // Redirect based on user type
+      if (selectedUserType === 'host') {
+        navigate('/host');
+      } else {
+        navigate('/marketplace');
+      }
     } catch (err: any) {
       setError(err.message || 'Google signup failed');
-    } finally {
       setLoading(false);
     }
   };
