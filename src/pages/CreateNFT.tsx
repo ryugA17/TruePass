@@ -90,6 +90,26 @@ const CreateNFT = () => {
       await tx.wait();
 
       const saveData = async (base64Image: string) => {
+        
+        await saveTicketToFirestore({
+          eventName,
+          seatNumber,
+          price: formData.price,
+          image: base64Image,
+          creatorEmail: user.email,
+          walletAddress: userAddress,
+          timestamp: new Date().toISOString()
+        });
+      
+        addNFT({
+          title: eventName,
+          description: `Seat: ${seatNumber}`,
+          price: `${formData.price} ETH`,
+          image: base64Image,
+          creator: user.email,
+          isVerified: true
+        });
+
         await saveTicketToFirestore({
           eventName,
           seatNumber,

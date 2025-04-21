@@ -1,22 +1,21 @@
 import { db } from "../components/layout/firebase";
 import { doc, setDoc } from "firebase/firestore";
 
-export const saveTicketToFirestore = async (
-  userId: string,
-  walletAddress: string,
-  ticketId: string,
-  eventName: string,
-  seatNumber: string,
-  eventDate: number
-) => {
-  const ticketRef = doc(db, "tickets", ticketId);
+interface TicketData {
+  eventName: string;
+  seatNumber: string;
+  price: string;
+  image: string;
+  creatorEmail: string;
+  walletAddress: string;
+  timestamp: string;
+}
+
+export const saveTicketToFirestore = async (ticketData: TicketData) => {
+  const ticketRef = doc(db, "tickets", `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
   await setDoc(ticketRef, {
-    userId,
-    walletAddress,
-    eventName,
-    seatNumber,
-    eventDate,
+    ...ticketData,
     used: false,
-    timestamp: Date.now()
+    createdAt: Date.now()
   });
 };
