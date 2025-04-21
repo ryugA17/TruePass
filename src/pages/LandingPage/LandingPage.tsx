@@ -12,14 +12,14 @@ const LandingPage: React.FC = () => {
   useEffect(() => {
     // Load SVG
     fetch(process.env.PUBLIC_URL + '/city.svg')
-      .then((response) => response.text())
-      .then((svg) => {
+      .then(response => response.text())
+      .then(svg => {
         const bgCity = document.getElementById('bg_city');
         if (bgCity) {
           bgCity.innerHTML = svg;
           const svgElement = document.querySelector('#bg_city svg');
           if (svgElement) {
-            svgElement.setAttribute("preserveAspectRatio", "xMidYMid slice");
+            svgElement.setAttribute('preserveAspectRatio', 'xMidYMid slice');
             setAnimationScroll();
           }
         }
@@ -30,64 +30,69 @@ const LandingPage: React.FC = () => {
 
     return () => {
       // Clean up ScrollTrigger on component unmount
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
     };
   }, []);
 
   const setAnimationScroll = () => {
     let runAnimation = gsap.timeline({
       scrollTrigger: {
-        trigger: "#bg_city",
-        start: "top top",
-        end: "+=1000",
+        trigger: '#bg_city',
+        start: 'top top',
+        end: '+=1000',
         scrub: true,
-        pin: true
-      }
+        pin: true,
+      },
     });
 
-    runAnimation.add([
-      gsap.to("#bg_city svg", { duration: 2, scale: 1.5 }),
-      gsap.to("#full_city", { duration: 2, opacity: 0 })
-    ])
-    .add([
-      gsap.to("#building_top", { duration: 2, y: -200, opacity: 0 }),
-      gsap.to("#wall_side", { duration: 2, x: -200, opacity: 0 }),
-      gsap.to("#wall_front", { duration: 2, x: 200, y: 200, opacity: 0 })
-    ])
-    .add([
-      gsap.to("#interior_wall_side", { duration: 2, x: -200, opacity: 0 }),
-      gsap.to("#interior_wall_top", { duration: 2, y: -200, opacity: 0 }),
-      gsap.to("#interior_wall_side_2", { duration: 2, opacity: 0 }),
-      gsap.to("#interior_wall_front", { duration: 2, opacity: 0 })
-    ]);
+    runAnimation
+      .add([
+        gsap.to('#bg_city svg', { duration: 2, scale: 1.5 }),
+        gsap.to('#full_city', { duration: 2, opacity: 0 }),
+      ])
+      .add([
+        gsap.to('#building_top', { duration: 2, y: -200, opacity: 0 }),
+        gsap.to('#wall_side', { duration: 2, x: -200, opacity: 0 }),
+        gsap.to('#wall_front', { duration: 2, x: 200, y: 200, opacity: 0 }),
+      ])
+      .add([
+        gsap.to('#interior_wall_side', { duration: 2, x: -200, opacity: 0 }),
+        gsap.to('#interior_wall_top', { duration: 2, y: -200, opacity: 0 }),
+        gsap.to('#interior_wall_side_2', { duration: 2, opacity: 0 }),
+        gsap.to('#interior_wall_front', { duration: 2, opacity: 0 }),
+      ]);
   };
 
   return (
     <Box className="landing-page">
-      <Box component="header" className="header" sx={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        padding: '1rem 2rem',
-        position: 'relative',
-        zIndex: 10
-      }}>
+      <Box
+        component="header"
+        className="header"
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '1rem 2rem',
+          position: 'relative',
+          zIndex: 10,
+        }}
+      >
         <Box className="logo">
           <RouterLink to="/">
             <img src={process.env.PUBLIC_URL + '/img/logoweb.png'} alt="TruePass Logo" />
           </RouterLink>
         </Box>
         <Stack direction="row" spacing={2}>
-          <Button 
+          <Button
             variant="outlined"
             onClick={() => navigate('/login')}
-            sx={{ 
-              color: '#FFF', 
+            sx={{
+              color: '#FFF',
               borderColor: '#FFF',
               '&:hover': {
                 borderColor: 'chocolate',
-                color: 'chocolate'
-              }
+                color: 'chocolate',
+              },
             }}
           >
             Login
@@ -102,7 +107,10 @@ const LandingPage: React.FC = () => {
           <Box className="item title">
             <Typography variant="h2">TRANSPARENCY,</Typography>
             <Typography variant="h2">
-              <Box component="span" sx={{ color: 'chocolate' }}>TRUEPASS</Box> DOES THAT
+              <Box component="span" sx={{ color: 'chocolate' }}>
+                TRUEPASS
+              </Box>{' '}
+              DOES THAT
             </Typography>
           </Box>
         </Box>
@@ -122,22 +130,30 @@ const LandingPage: React.FC = () => {
         </Box>
 
         <Grid container className="grid grid-3">
-          <Grid item className="autoBLur">Scalper-Proof</Grid>
-          <Grid item className="autoBLur">Secure</Grid>
-          <Grid item className="autoBLur">Fraud-Free</Grid>
-          <Grid item className="autoBLur">Seamless</Grid>
           <Grid item className="autoBLur">
-            <Button 
-              component={RouterLink} 
-              to="/signup" 
-              sx={{ 
-                textDecoration: 'none', 
+            Scalper-Proof
+          </Grid>
+          <Grid item className="autoBLur">
+            Secure
+          </Grid>
+          <Grid item className="autoBLur">
+            Fraud-Free
+          </Grid>
+          <Grid item className="autoBLur">
+            Seamless
+          </Grid>
+          <Grid item className="autoBLur">
+            <Button
+              component={RouterLink}
+              to="/signup"
+              sx={{
+                textDecoration: 'none',
                 color: 'chocolate',
                 fontWeight: 'bold',
                 fontSize: '1.2rem',
                 '&:hover': {
                   backgroundColor: 'transparent',
-                }
+                },
               }}
             >
               JOIN THE FUTURE&#8599;
@@ -146,11 +162,11 @@ const LandingPage: React.FC = () => {
         </Grid>
 
         <Box component="footer">
-          <Typography>A project by Team Roots</Typography>
+          <Typography>A project by Team Roots.</Typography>
         </Box>
       </Container>
     </Box>
   );
 };
 
-export default LandingPage; 
+export default LandingPage;

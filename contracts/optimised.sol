@@ -12,9 +12,12 @@ contract EventTicketNFT is ERC721, Ownable2Step, ReentrancyGuard {
         string eventName;
         string seatNumber;
         uint256 eventDate;
+        bool isUsed;         // Track if ticket has been used
+        string secretHash;   // Hash of TOTP secret (optional, for on-chain verification)
     }
 
     mapping(uint256 tokenId => Ticket) private _tickets;
+    mapping(string => bool) private _usedOTPs; // Track used OTPs to prevent replay attacks
 
     event TicketMinted(
         uint256 indexed tokenId,
@@ -22,6 +25,12 @@ contract EventTicketNFT is ERC721, Ownable2Step, ReentrancyGuard {
         string eventName,
         string seatNumber,
         uint256 eventDate
+    );
+
+    event TicketValidated(
+        uint256 indexed tokenId,
+        address indexed validator,
+        uint256 timestamp
     );
 
     event ContractDeployed(address indexed owner);
@@ -35,7 +44,8 @@ contract EventTicketNFT is ERC721, Ownable2Step, ReentrancyGuard {
         address to,
         string memory eventName,
         string memory seatNumber,
-        uint256 eventDate
+        uint256 eventDate,
+        string memory secretHash
     ) external payable nonReentrant onlyOwner {
         require(to != address(0), "Invalid address");
 
@@ -48,14 +58,39 @@ contract EventTicketNFT is ERC721, Ownable2Step, ReentrancyGuard {
         t.eventName = eventName;
         t.seatNumber = seatNumber;
         t.eventDate = eventDate;
+        t.isUsed = false;
+        t.secretHash = secretHash; // Store hash of TOTP secret
 
         emit TicketMinted(tokenId, to, eventName, seatNumber, eventDate);
     }
 
-    function getTicket(uint256 tokenId) external view {
-    Ticket storage t = _tickets[tokenId];
-    // No return, function used for access or external inspection (e.g., via call)
-}
+    function getTicket(uint256 tokenId) external view returns (
+        string memory eventName,
+        string memory seatNumber,
+        uint256 eventDate,
+        bool isUsed
+    ) {
+        require(_exists(tokenId), "Ticket does not exist");
+        Ticket storage t = _tickets[tokenId];
+        return (t.eventName, t.seatNumber, t.eventDate, t.isUsed);
+    }
 
+    function validateTicket(uint256 tokenId, string memory otpHash) external {
+        require(_exists(tokenId), "Ticket does not exist");
+        require(!_tickets[tokenId].isUsed, "Ticket already used");
+        require(!_usedOTPs[otpHash], "OTP already used");
+
+        // Mark ticket as used
+        _tickets[tokenId].isUsed = true;
+
+        // Mark OTP as used to prevent replay attacks
+        _usedOTPs[otpHash] = true;
+
+        // Emit validation event
+        emit TicketValidated(tokenId, msg.sender, block.timestamp);
+    }
+
+    function _exists(uint256 tokenId) internal view returns (bool) {
+        return tokenId < _nextTokenId && tokenId > 0;
+    }
 }
- 
