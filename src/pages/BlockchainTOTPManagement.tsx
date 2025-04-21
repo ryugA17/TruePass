@@ -81,14 +81,14 @@ const BlockchainTOTPManagement: React.FC = () => {
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
     // Reload secrets when switching to the manage tab
-    if (newValue === 2) {
+    if (newValue === 1) {
       loadSecrets();
     }
   };
 
   const handleSecretGenerated = (secret: TOTPSecret) => {
     loadSecrets();
-    // Switch to the validate tab
+    // Switch to the manage tab
     setTabValue(1);
   };
 
@@ -151,8 +151,7 @@ const BlockchainTOTPManagement: React.FC = () => {
             centered
           >
             <Tab label="Generate Tickets" {...a11yProps(0)} />
-            <Tab label="Validate Tickets" {...a11yProps(1)} />
-            <Tab label="Manage Tickets" {...a11yProps(2)} />
+            <Tab label="Manage Tickets" {...a11yProps(1)} />
           </Tabs>
         </Box>
 
@@ -161,10 +160,6 @@ const BlockchainTOTPManagement: React.FC = () => {
         </TabPanel>
 
         <TabPanel value={tabValue} index={1}>
-          <BlockchainTOTPValidator />
-        </TabPanel>
-
-        <TabPanel value={tabValue} index={2}>
           <Typography variant="h6" gutterBottom>
             Manage Tickets
           </Typography>

@@ -54,6 +54,8 @@ const BlockchainTOTPGenerator: React.FC<BlockchainTOTPGeneratorProps> = ({ onSec
 
     setLoading(true);
     try {
+      console.log('Generating blockchain TOTP secret for:', { ticketId, eventName, expiryHours });
+
       // Generate a new TOTP secret
       const newSecret = BlockchainTOTPService.generateSecret(
         ticketId,
@@ -61,11 +63,16 @@ const BlockchainTOTPGenerator: React.FC<BlockchainTOTPGeneratorProps> = ({ onSec
         expiryHours ? Number(expiryHours) : undefined
       );
 
+      console.log('Blockchain secret generated successfully:', newSecret.id);
+
       // Generate QR code
+      console.log('Generating blockchain QR code...');
       const qrCode = await BlockchainTOTPService.generateQRCode(newSecret);
+      console.log('Blockchain QR code generated successfully');
 
       // Save the secret to local storage
       BlockchainTOTPService.saveSecret(newSecret);
+      console.log('Blockchain secret saved to local storage');
 
       // Update state
       setSecret(newSecret);
@@ -82,10 +89,24 @@ const BlockchainTOTPGenerator: React.FC<BlockchainTOTPGeneratorProps> = ({ onSec
         severity: 'success',
       });
     } catch (error) {
-      console.error('Error generating TOTP secret:', error);
+      console.error('Error generating blockchain TOTP secret:', error);
+
+      // Provide more specific error messages based on where the error occurred
+      let errorMessage = 'Failed to generate blockchain TOTP secret';
+
+      if (error instanceof Error) {
+        if (error.message.includes('QR code')) {
+          errorMessage = 'Failed to generate QR code. Please try again.';
+        } else if (error.message.includes('storage')) {
+          errorMessage = 'Failed to save ticket data. Please check browser storage permissions.';
+        } else if (error.message.includes('blockchain') || error.message.includes('contract')) {
+          errorMessage = 'Failed to interact with blockchain. Please check your wallet connection.';
+        }
+      }
+
       setNotification({
         open: true,
-        message: 'Failed to generate TOTP secret',
+        message: errorMessage,
         severity: 'error',
       });
     } finally {

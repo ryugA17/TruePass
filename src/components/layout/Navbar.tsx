@@ -627,22 +627,6 @@ const Navbar = () => {
                       Verify Tickets
                     </>
                   </MenuItem>
-                  <MenuItem onClick={() => navigate('/blockchain-tickets')}>
-                    <>
-                      <ListItemIcon>
-                        <QrCodeIcon fontSize="small" color="secondary" />
-                      </ListItemIcon>
-                      Blockchain Tickets
-                    </>
-                  </MenuItem>
-                  <MenuItem onClick={() => navigate('/payment-history')}>
-                    <>
-                      <ListItemIcon>
-                        <PaymentIcon fontSize="small" />
-                      </ListItemIcon>
-                      Payment History
-                    </>
-                  </MenuItem>
                   <Divider sx={{ my: 1 }} />
                   <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>
                     <LogoutIcon fontSize="small" sx={{ mr: 2 }} />
