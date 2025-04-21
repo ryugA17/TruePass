@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -16,11 +16,19 @@ import {
   Divider,
   Chip,
 } from '@mui/material';
-import { TOTPService, TOTPSecret } from '../../services/TOTPService';
+import { TOTPService, TOTPSecret as StandardTOTPSecret } from '../../services/TOTPService';
+import { BlockchainTOTPService } from '../../services/BlockchainTOTPService';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { authenticator } from 'otplib';
+
+// Create a unified TOTPSecret type that includes blockchain properties
+type TOTPSecret = StandardTOTPSecret & {
+  blockchain?: boolean;
+  tokenId?: string;
+  secretHash?: string;
+};
 
 interface TOTPValidatorProps {
   onValidationResult?: (result: boolean, ticketId?: string) => void;
@@ -30,7 +38,10 @@ const TOTPValidator: React.FC<TOTPValidatorProps> = ({ onValidationResult }) => 
   const [token, setToken] = useState('');
   const [selectedSecretId, setSelectedSecretId] = useState<string>('');
   const [secrets, setSecrets] = useState<TOTPSecret[]>([]);
-  const [validationResult, setValidationResult] = useState<boolean | null>(null);
+  const [validationResult, setValidationResult] = useState<{
+    success: boolean;
+    message: string;
+  } | null>(null);
   const [loading, setLoading] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [notification, setNotification] = useState({
@@ -56,181 +67,138 @@ const TOTPValidator: React.FC<TOTPValidatorProps> = ({ onValidationResult }) => 
 
   // Update time left for token
   useEffect(() => {
-    if (!validationResult) return;
+    if (!validationResult?.success) return;
 
+    // Initial calculation
+    const secondsLeft = 30 - (Math.floor(Date.now() / 1000) % 30);
+    setTimeLeft(secondsLeft);
+
+    // Update every second
     const interval = setInterval(() => {
       const secondsLeft = 30 - (Math.floor(Date.now() / 1000) % 30);
       setTimeLeft(secondsLeft);
+
+      // If we reach zero, the token has expired and is no longer valid
+      if (secondsLeft === 0) {
+        // Clear the validation result after a brief delay to allow the UI to show 0
+        setTimeout(() => {
+          setValidationResult(null);
+          clearInterval(interval);
+        }, 1000);
+      }
     }, 1000);
 
+    // Clean up interval on unmount or when validation result changes
     return () => clearInterval(interval);
   }, [validationResult]);
 
-  const handleValidateToken = () => {
-    if (!token) {
-      setNotification({
-        open: true,
-        message: 'Please enter a token',
-        severity: 'warning',
-      });
-      return;
-    }
-
-    // Clean token of any non-digit characters
-    const cleanToken = token.replace(/[^0-9]/g, '');
-
-    if (cleanToken.length !== 6) {
-      setNotification({
-        open: true,
-        message: 'Token must be 6 digits',
-        severity: 'warning',
-      });
-      return;
-    }
-
-    if (!selectedSecretId) {
-      setNotification({
-        open: true,
-        message: 'Please select a ticket to validate',
-        severity: 'warning',
-      });
-      return;
-    }
-
+  const handleValidateToken = useCallback(async () => {
     setLoading(true);
-
-    // For debugging
-    console.log('=== STARTING VALIDATION ===');
-    console.log('Token to validate:', cleanToken);
-    console.log('Selected secret ID:', selectedSecretId);
+    let validationSuccess = false;
+    let resultForNotification: { success: boolean; message: string } | null = null;
 
     try {
-      // Get the secret from storage
-      const secret = TOTPService.getSecretById(selectedSecretId);
-      console.log('Secret retrieved:', !!secret, 'ID:', selectedSecretId);
+      // Normalize token to digits only
+      const normalizedToken = token.replace(/[^0-9]/g, '');
 
+      if (!normalizedToken || normalizedToken.length !== 6) {
+        const result = {
+          success: false,
+          message: 'Please enter a valid 6-digit code from your authenticator app',
+        };
+        setValidationResult(result);
+        resultForNotification = result;
+        return;
+      }
+
+      if (!selectedSecretId) {
+        const result = {
+          success: false,
+          message: 'Please select a secret to validate against',
+        };
+        setValidationResult(result);
+        resultForNotification = result;
+        return;
+      }
+
+      const secret = secrets.find(s => s.id === selectedSecretId);
       if (!secret) {
-        setNotification({
-          open: true,
-          message: 'Selected ticket not found',
-          severity: 'error',
-        });
-        setValidationResult(false);
-        setLoading(false);
+        const result = {
+          success: false,
+          message: 'Selected secret not found',
+        };
+        setValidationResult(result);
+        resultForNotification = result;
         return;
       }
 
-      // Check if the secret has expired
-      if (secret.expiresAt && secret.expiresAt < Date.now()) {
-        setNotification({
-          open: true,
-          message: 'This ticket has expired',
-          severity: 'error',
-        });
-        setValidationResult(false);
-        setLoading(false);
-        return;
-      }
+      // Use the appropriate service based on the secret type
+      const isValid = secret.blockchain
+        ? BlockchainTOTPService.verifyToken(normalizedToken, secret.secret)
+        : TOTPService.verifyToken(normalizedToken, secret.secret);
 
-      // Always accept debug tokens for demo purposes
-      if (
-        [
-          '123456',
-          '000000',
-          '111111',
-          '222222',
-          '333333',
-          '444444',
-          '555555',
-          '654321',
-          '999999',
-        ].includes(cleanToken)
-      ) {
-        console.log('Debug token detected, automatically accepting');
+      if (isValid) {
+        const result = {
+          success: true,
+          message: 'Token validated successfully!',
+        };
+        setValidationResult(result);
+        resultForNotification = result;
+        validationSuccess = true;
 
-        try {
-          // Get info for display
-          const tokenInfo = TOTPService.getCurrentTokenInfo(secret.secret);
-          setTimeLeft(tokenInfo.timeLeft);
-        } catch (e) {
-          console.error('Error getting token info, setting default time left');
-          setTimeLeft(30);
-        }
+        // Clear the token input on successful validation
+        setToken('');
 
-        // Set validation success
-        setValidationResult(true);
-
+        // Call the validation result callback if provided
         if (onValidationResult) {
           onValidationResult(true, secret.id);
         }
+      } else {
+        const result = {
+          success: false,
+          message: 'Invalid token. Please try again.',
+        };
+        setValidationResult(result);
+        resultForNotification = result;
 
-        setNotification({
-          open: true,
-          message: 'Valid ticket! Entry approved.',
-          severity: 'success',
-        });
-
-        setLoading(false);
-        return;
-      }
-
-      // Get current token info
-      let tokenInfo;
-      try {
-        tokenInfo = TOTPService.getCurrentTokenInfo(secret.secret);
-        setTimeLeft(tokenInfo.timeLeft);
-        console.log('Current token info:', tokenInfo);
-      } catch (tokenInfoError) {
-        console.error('Error getting token info, using default time left', tokenInfoError);
-        setTimeLeft(30);
-      }
-
-      // Perform the actual validation
-      console.log('Performing token validation...');
-      const isValid = TOTPService.verifyToken(cleanToken, secret.secret);
-      console.log('Validation result:', isValid);
-
-      // Set the validation result
-      setValidationResult(isValid);
-
-      // Notify parent component
-      if (onValidationResult) {
-        onValidationResult(isValid, secret.id);
-      }
-
-      setNotification({
-        open: true,
-        message: isValid
-          ? 'Valid ticket! Entry approved.'
-          : 'Invalid code. Please check the code and try again. Make sure you are using the latest code from your authenticator app.',
-        severity: isValid ? 'success' : 'error',
-      });
-    } catch (error) {
-      console.error('Unexpected error during validation:', error);
-
-      // Graceful error handling - accept the token for demo purposes
-      // REMOVE THIS IN PRODUCTION
-      const isValid = true;
-      setValidationResult(isValid);
-
-      if (onValidationResult) {
-        try {
-          onValidationResult(isValid, selectedSecretId);
-        } catch (callbackError) {
-          console.error('Error in validation callback:', callbackError);
+        // Call the validation result callback if provided
+        if (onValidationResult) {
+          onValidationResult(false, secret.id);
         }
       }
+    } catch (error) {
+      console.error('Error validating token:', error);
+      const result = {
+        success: false,
+        message: `Validation error: ${error instanceof Error ? error.message : String(error)}`,
+      };
+      setValidationResult(result);
+      resultForNotification = result;
 
-      setNotification({
-        open: true,
-        message: 'Valid ticket! Entry approved. (Error override active)',
-        severity: 'success',
-      });
+      // Call the validation result callback with failure
+      if (onValidationResult) {
+        onValidationResult(false, selectedSecretId);
+      }
     } finally {
       setLoading(false);
-      console.log('=== VALIDATION COMPLETE ===');
+
+      // Show notification if we have a result to display
+      if (resultForNotification) {
+        setNotification({
+          open: true,
+          message: resultForNotification.message,
+          severity: resultForNotification.success ? 'success' : 'error',
+        });
+
+        // Auto-hide notification after 5 seconds if successful
+        if (validationSuccess) {
+          setTimeout(() => {
+            setNotification(prev => ({ ...prev, open: false }));
+          }, 5000);
+        }
+      }
     }
-  };
+  }, [token, selectedSecretId, secrets, onValidationResult]);
 
   const handleSecretChange = (event: SelectChangeEvent<string>) => {
     setSelectedSecretId(event.target.value);
@@ -301,7 +269,7 @@ const TOTPValidator: React.FC<TOTPValidatorProps> = ({ onValidationResult }) => 
           }
           placeholder="e.g. 123456 or 123-456"
           inputProps={{
-            inputMode: 'text', // Changed from numeric to allow for formatting
+            inputMode: 'text', // Allow text input for formatting characters
             maxLength: 10,
           }}
         />
@@ -318,7 +286,7 @@ const TOTPValidator: React.FC<TOTPValidatorProps> = ({ onValidationResult }) => 
         </Button>
       </Box>
 
-      {validationResult !== null && (
+      {validationResult && (
         <Box sx={{ mt: 3, textAlign: 'center' }}>
           <Divider sx={{ my: 2 }}>
             <Chip label="Validation Result" />
@@ -331,11 +299,11 @@ const TOTPValidator: React.FC<TOTPValidatorProps> = ({ onValidationResult }) => 
               alignItems: 'center',
               p: 2,
               borderRadius: 2,
-              bgcolor: validationResult ? 'success.light' : 'error.light',
+              bgcolor: validationResult.success ? 'success.light' : 'error.light',
               color: 'white',
             }}
           >
-            {validationResult ? (
+            {validationResult.success ? (
               <>
                 <CheckCircleIcon sx={{ fontSize: 60, mb: 1 }} />
                 <Typography variant="h6">Valid Ticket!</Typography>
@@ -361,13 +329,13 @@ const TOTPValidator: React.FC<TOTPValidatorProps> = ({ onValidationResult }) => 
                 <CancelIcon sx={{ fontSize: 60, mb: 1 }} />
                 <Typography variant="h6">Verification Failed</Typography>
                 <Typography variant="body2" sx={{ mt: 1 }}>
-                  The code is invalid or has expired
+                  {validationResult.message}
                 </Typography>
               </>
             )}
           </Box>
 
-          {validationResult && (
+          {validationResult.success && (
             <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <AccessTimeIcon sx={{ mr: 1, color: 'text.secondary' }} />
               <Typography variant="body2" color="text.secondary">
@@ -376,7 +344,7 @@ const TOTPValidator: React.FC<TOTPValidatorProps> = ({ onValidationResult }) => 
             </Box>
           )}
 
-          {!validationResult && selectedSecretId && (
+          {!validationResult.success && selectedSecretId && (
             <Box sx={{ mt: 2 }}>
               <Typography variant="subtitle2" color="text.secondary">
                 Ticket Details:

@@ -84,30 +84,19 @@ export class BlockchainTOTPService {
    */
   static verifyToken(token: string, secret: string): boolean {
     try {
-      // ===== OVERRIDE FOR TESTING =====
-      // Accept any of these test tokens for easier testing
-      const testTokens = [
-        '123456',
-        '000000',
-        '111111',
-        '222222',
-        '333333',
-        '444444',
-        '555555',
-        '654321',
-        '999999',
-      ];
+      // Ensure token is properly formatted - remove all non-digit characters
       const cleanToken = this.normalizeToken(token);
 
-      if (testTokens.includes(cleanToken)) {
-        console.log('Test token accepted:', cleanToken);
-        return true;
+      // Check if token is valid length
+      if (cleanToken.length !== 6) {
+        console.log('Token is not 6 digits:', cleanToken);
+        return false;
       }
 
-      // ===== APP GENERATED TOKEN VALIDATION =====
-      // Check user's input against the current time window token
+      console.log('Validating token:', cleanToken);
+
+      // Try direct token comparison first (most accurate)
       try {
-        // Try with direct token generation from secret
         const currentToken = authenticator.generate(secret);
         console.log('Current token:', currentToken, 'User token:', cleanToken);
 
@@ -119,15 +108,21 @@ export class BlockchainTOTPService {
         console.log('Error generating token directly:', e);
       }
 
-      // Try standard verification with a wider window
+      // Try standard verification with moderate window
       try {
-        // Set a wide verification window (10 time steps = 5 minutes)
-        authenticator.options.window = 10;
+        // Store original window setting
+        const originalWindow = authenticator.options.window;
+
+        // Set a moderate verification window (2 time steps = 1 minute)
+        authenticator.options.window = 2;
 
         const isValid = authenticator.verify({
           token: cleanToken,
           secret: secret,
         });
+
+        // Restore original window
+        authenticator.options.window = originalWindow;
 
         if (isValid) {
           console.log('Token verified with standard verification');
@@ -135,37 +130,14 @@ export class BlockchainTOTPService {
         }
       } catch (e) {
         console.log('Error during standard verification:', e);
-      } finally {
-        // Reset window to default
-        authenticator.options.window = 1;
-      }
-
-      // ===== LAST CHANCE VERIFICATION =====
-      // If everything else has failed, try a more permissive check
-
-      // 1. Check if numbers are sequential or close (like 123456 vs 123455)
-      try {
-        const userToken = parseInt(cleanToken, 10);
-        const generatedToken = parseInt(authenticator.generate(secret), 10);
-        const diff = Math.abs(userToken - generatedToken);
-
-        // Accept if the difference is very small (within 5 digits) or very large (wraparound)
-        if (diff <= 5 || diff >= 999950) {
-          console.log('Token accepted with numeric approximation, diff:', diff);
-          return true;
-        }
-      } catch (e) {
-        console.log('Error during numeric comparison:', e);
       }
 
       // Nothing worked, validation failed
       console.log('All validation methods failed. Token is invalid.');
       return false;
     } catch (error) {
-      console.error('Fatal error in token verification:', error);
-      // In case of complete failure, accept the token for better user experience
-      // REMOVE THIS IN PRODUCTION
-      return true;
+      console.error('Error verifying token:', error);
+      return false;
     }
   }
 
