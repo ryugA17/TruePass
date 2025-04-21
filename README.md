@@ -1,10 +1,12 @@
-# TruePass - NFT Marketplace & Blockchain Ticket Validation
+# TruePass - NFT Marketplace & Blockchain Ticket Validation with INR Payments
 
-A modern NFT marketplace and blockchain-based ticket validation system built with React, TypeScript, and Ethereum smart contracts.
+A modern NFT marketplace and blockchain-based ticket validation system built with React, TypeScript, and Ethereum smart contracts. Now with Indian Rupee (INR) payment integration!
 
 ## Project Overview
 
 TruePass is a decentralized marketplace for buying, selling, and trading NFTs, with an integrated blockchain-based ticket validation system. The platform connects to Ethereum wallets and allows users to interact with smart contracts to manage their digital assets and validate event tickets using Time-based One-Time Passwords (TOTP).
+
+The platform now features a fully automated INR-native experience that allows users to purchase tickets using Indian Rupee (UPI/Paytm/Credit Card) while still receiving NFT tickets on the blockchain.
 
 ## Features
 
@@ -12,7 +14,7 @@ TruePass is a decentralized marketplace for buying, selling, and trading NFTs, w
 
 - Browse and search NFT collections
 - Connect to Ethereum wallets
-- Buy, sell, and trade NFTs
+- Buy, sell, and trade NFTs with Indian Rupee (INR) payments
 - View transaction history
 - User profiles and collections
 
@@ -24,6 +26,14 @@ TruePass is a decentralized marketplace for buying, selling, and trading NFTs, w
 - QR code generation for authenticator apps
 - Comprehensive ticket management system
 
+### INR Payment Integration
+
+- Purchase tickets using Indian Rupee (INR)
+- Support for UPI, Paytm, and Credit Card payments
+- Automatic conversion from INR to ETH behind the scenes
+- Gasless minting of NFT tickets after successful payment
+- Non-transferable tickets to prevent resale
+
 ## Tech Stack
 
 - **Frontend**: React, TypeScript, Material UI
@@ -32,6 +42,8 @@ TruePass is a decentralized marketplace for buying, selling, and trading NFTs, w
 - **Animations**: GSAP
 - **TOTP**: otplib for TOTP generation and validation
 - **QR Codes**: qrcode for QR code generation
+- **Payment**: Transak for INR to ETH conversion
+- **Signatures**: ECDSA for gasless minting
 
 ## Getting Started
 
@@ -68,6 +80,8 @@ TruePass is a decentralized marketplace for buying, selling, and trading NFTs, w
    REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id
    REACT_APP_FIREBASE_APP_ID=your_firebase_app_id
    REACT_APP_CONTRACT_ADDRESS=your_contract_address
+   REACT_APP_TRANSAK_API_KEY=your_transak_api_key
+   REACT_APP_TRANSAK_ENV=STAGING
    ```
 
 4. Start the development server:
@@ -146,6 +160,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [React](https://reactjs.org/) for the UI framework
 - [otplib](https://github.com/yeojz/otplib) for TOTP implementation
 - [qrcode](https://github.com/soldair/node-qrcode) for QR code generation
+- [Transak](https://transak.com/) for fiat-to-crypto payment processing
 
 ## Blockchain TOTP Ticket System
 
@@ -179,3 +194,20 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - **Blockchain Verification**: Validation is recorded on the blockchain
 - **Expiry Dates**: Tickets can be set to expire after a certain time
 - **Offline Validation**: Works without internet connection
+- **Non-transferable**: Tickets cannot be resold or transferred
+- **Signature Verification**: Secure gasless minting with ECDSA signatures
+
+## INR Payment Flow
+
+### Payment Process
+
+1. **Browse Tickets**: User browses tickets with prices in INR (e.g., ₹499)
+2. **Connect Wallet**: User connects their Ethereum wallet (one-time step)
+3. **Initiate Purchase**: User clicks "Buy Now" button
+4. **Payment**: Transak payment popup appears with UPI/Paytm/Credit Card options
+5. **Complete Payment**: User completes payment in INR
+6. **Conversion**: INR is converted to ETH behind the scenes
+7. **Minting**: NFT ticket is automatically minted to the user's wallet
+8. **Confirmation**: User receives confirmation with ticket details
+
+This flow provides a seamless experience for Indian users while maintaining the security and validation benefits of blockchain technology.

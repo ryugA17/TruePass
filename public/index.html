@@ -16,12 +16,13 @@
       href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
     />
     <title>TruePass</title>
+    <!-- No external payment SDKs needed for direct payments -->
     <script>
       // Redirect to landing page on first load
       if (!window.location.pathname.includes('/landing-page/')) {
         // Check if we've already visited
         const visited = localStorage.getItem('visited') === 'true';
-        
+
         if (!visited) {
           console.log('First visit detected, redirecting to landing page...');
           window.location.href = '/landing-page/index.html';
@@ -33,4 +34,4 @@
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
   </body>
-</html> 
+</html>

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '../constants/contract';
+import { PaymentService } from '../services/PaymentService';
+import { BlockchainTOTPService } from '../services/BlockchainTOTPService';
 import {
   Container,
   Typography,
@@ -71,7 +73,7 @@ const HostPage = () => {
     price: '',
     image: null as File | null,
   });
-  
+
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState({
@@ -82,7 +84,7 @@ const HostPage = () => {
 
   // Calculate dashboard stats based on user's NFTs
   const userNFTs = nfts.filter(nft => nft.creator === user?.email);
-  
+
   // Dashboard stats with calculated values from actual NFTs
   const dashboardStats = {
     totalEvents: userNFTs.length,
@@ -93,7 +95,7 @@ const HostPage = () => {
       return total + price;
     }, 0).toFixed(2)
   };
-  
+
   // Monthly sales data (simulated)
   const monthlySalesData = [
     { month: 'Jan', sales: 12 },
@@ -105,7 +107,7 @@ const HostPage = () => {
     { month: 'Jul', sales: 35 },
     { month: 'Aug', sales: dashboardStats.totalTicketsSold }
   ];
-  
+
   // Revenue by date data (mockup)
   const revenueByDate = [
     { date: '2023-01-05', revenue: 0.5 },
@@ -144,7 +146,7 @@ const HostPage = () => {
     { date: '2023-08-24', revenue: 13.5 },
     { date: '2023-08-31', revenue: 14.0 }
   ];
-  
+
   // Revenue by event (based on actual user NFTs)
   const revenueByEvent = userNFTs.slice(0, 5).map(nft => ({
     name: nft.title,
@@ -159,7 +161,7 @@ const HostPage = () => {
       navigate('/login');
       return;
     }
-    
+
     // Redirect if user is not a host
     if (user.userType !== 'host') {
       navigate('/marketplace');
@@ -196,31 +198,57 @@ const HostPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-  
+
     try {
       if (!window.ethereum) throw new Error('MetaMask is not installed.');
-      
+
       if (!user) {
         throw new Error('You must be logged in to create tickets');
       }
-  
+
       await window.ethereum.request({ method: 'eth_requestAccounts' });
-  
+
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
-      
+
       try {
         const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-        
+
         // Get values from form
         const eventName = formData.name;
         const seatNumber = formData.seatNumber;
         const eventDate = Math.floor(Date.now() / 1000) + 3600 * 24 * 30; // 30 days from now
-        
-        // Mint the ticket on blockchain
-        const tx = await contract.mintTicket(eventName, seatNumber, eventDate);
+
+        // Generate TOTP secret for ticket validation
+        const ticketId = `ticket-${Date.now()}`;
+        const secret = BlockchainTOTPService.generateSecret(ticketId, eventName, 24 * 365); // 1 year expiry
+
+        // Simulate payment processing
+        const payment = PaymentService.initializePayment(parseFloat(formData.price), {
+          eventName,
+          seatNumber,
+          userEmail: user.email,
+          walletAddress: await signer.getAddress()
+        });
+
+        const paymentResponse = await PaymentService.processPayment(payment);
+
+        if (!paymentResponse.success) {
+          throw new Error('Payment processing failed: ' + (paymentResponse.error || 'Unknown error'));
+        }
+
+        // Mint ticket with payment ID
+        const tx = await contract.mintTicket(
+          await signer.getAddress(),
+          eventName,
+          seatNumber,
+          eventDate,
+          secret.secretHash,
+          paymentResponse.paymentId
+        );
+
         await tx.wait();
-        
+
         // Add to NFT context
         if (formData.image) {
           const reader = new FileReader();
@@ -228,23 +256,24 @@ const HostPage = () => {
             addNFT({
               title: eventName,
               description: `Seat: ${seatNumber}`,
-              price: `${formData.price} ETH`,
+              price: PaymentService.formatPrice(parseFloat(formData.price)),
               image: reader.result as string,
               creator: user.email,
-              isVerified: true
+              isVerified: true,
+              transferable: false
             });
-            
+
             // Show success notification
             setNotification({
               open: true,
               message: 'Event created successfully!',
               severity: 'success'
             });
-            
+
             // Clear form
             setFormData({ name: '', seatNumber: '', price: '', image: null });
             setPreviewUrl(null);
-            
+
             // Navigate to profile after short delay
             setTimeout(() => {
               navigate('/profile');
@@ -256,21 +285,22 @@ const HostPage = () => {
           addNFT({
             title: eventName,
             description: `Seat: ${seatNumber}`,
-            price: `${formData.price} ETH`,
+            price: PaymentService.formatPrice(parseFloat(formData.price)),
             image: "https://source.unsplash.com/random/300x200/?ticket",
             creator: user.email,
-            isVerified: true
+            isVerified: true,
+            transferable: false
           });
-        
+
           setNotification({
             open: true,
             message: 'Event created successfully!',
             severity: 'success'
           });
-        
+
           setFormData({ name: '', seatNumber: '', price: '', image: null });
           setPreviewUrl(null);
-        
+
           // Navigate to profile after short delay
           setTimeout(() => {
             navigate('/profile');
@@ -295,7 +325,7 @@ const HostPage = () => {
       setLoading(false);
     }
   };
-  
+
   const handleCloseNotification = () => {
     setNotification((prev) => ({ ...prev, open: false }));
   };
@@ -329,8 +359,8 @@ const HostPage = () => {
   ];
 
   return (
-    <Container maxWidth="lg" sx={{ 
-      mt: 4, 
+    <Container maxWidth="lg" sx={{
+      mt: 4,
       mb: 6,
       background: 'linear-gradient(135deg, #040615 0%, #040615 100%)',
       minHeight: '100vh',
@@ -342,9 +372,9 @@ const HostPage = () => {
 
       <Box sx={{ width: '100%' }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <Tabs 
-            value={tabValue} 
-            onChange={handleTabChange} 
+          <Tabs
+            value={tabValue}
+            onChange={handleTabChange}
             aria-label="host dashboard tabs"
             sx={{
               '& .MuiTab-root': {
@@ -368,10 +398,10 @@ const HostPage = () => {
         <TabPanel value={tabValue} index={0}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={6} lg={3}>
-              <Paper sx={{ 
-                p: 4, 
-                borderRadius: 2, 
-                background: 'linear-gradient(135deg, rgba(156, 39, 176, 0.1) 0%, rgba(106, 27, 154, 0.4) 100%)', 
+              <Paper sx={{
+                p: 4,
+                borderRadius: 2,
+                background: 'linear-gradient(135deg, rgba(156, 39, 176, 0.1) 0%, rgba(106, 27, 154, 0.4) 100%)',
                 backdropFilter: 'blur(10px)',
                 display: 'flex',
                 flexDirection: 'column',
@@ -385,12 +415,12 @@ const HostPage = () => {
                 }
               }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Box sx={{ 
-                    p: 1.5, 
-                    borderRadius: '12px', 
-                    bgcolor: 'rgba(156, 39, 176, 0.2)', 
-                    display: 'flex', 
-                    alignItems: 'center', 
+                  <Box sx={{
+                    p: 1.5,
+                    borderRadius: '12px',
+                    bgcolor: 'rgba(156, 39, 176, 0.2)',
+                    display: 'flex',
+                    alignItems: 'center',
                     justifyContent: 'center',
                     mr: 2
                   }}>
@@ -403,11 +433,11 @@ const HostPage = () => {
                 <Typography variant="h3" sx={{ color: 'white', mb: 1, fontWeight: 'bold' }}>
                   {dashboardStats.totalEvents}
                 </Typography>
-                <Box sx={{ 
-                  mt: 'auto', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  p: 1, 
+                <Box sx={{
+                  mt: 'auto',
+                  display: 'flex',
+                  alignItems: 'center',
+                  p: 1,
                   borderRadius: 1,
                   bgcolor: 'rgba(255, 255, 255, 0.1)'
                 }}>
@@ -418,10 +448,10 @@ const HostPage = () => {
               </Paper>
             </Grid>
             <Grid item xs={12} md={6} lg={3}>
-              <Paper sx={{ 
-                p: 4, 
-                borderRadius: 2, 
-                background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(46, 125, 50, 0.4) 100%)', 
+              <Paper sx={{
+                p: 4,
+                borderRadius: 2,
+                background: 'linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(46, 125, 50, 0.4) 100%)',
                 backdropFilter: 'blur(10px)',
                 display: 'flex',
                 flexDirection: 'column',
@@ -435,12 +465,12 @@ const HostPage = () => {
                 }
               }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Box sx={{ 
-                    p: 1.5, 
-                    borderRadius: '12px', 
-                    bgcolor: 'rgba(76, 175, 80, 0.2)', 
-                    display: 'flex', 
-                    alignItems: 'center', 
+                  <Box sx={{
+                    p: 1.5,
+                    borderRadius: '12px',
+                    bgcolor: 'rgba(76, 175, 80, 0.2)',
+                    display: 'flex',
+                    alignItems: 'center',
                     justifyContent: 'center',
                     mr: 2
                   }}>
@@ -453,11 +483,11 @@ const HostPage = () => {
                 <Typography variant="h3" sx={{ color: 'white', mb: 1, fontWeight: 'bold' }}>
                   {dashboardStats.totalTicketsSold}
                 </Typography>
-                <Box sx={{ 
-                  mt: 'auto', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  p: 1, 
+                <Box sx={{
+                  mt: 'auto',
+                  display: 'flex',
+                  alignItems: 'center',
+                  p: 1,
                   borderRadius: 1,
                   bgcolor: 'rgba(255, 255, 255, 0.1)'
                 }}>
@@ -468,10 +498,10 @@ const HostPage = () => {
               </Paper>
             </Grid>
             <Grid item xs={12} md={6} lg={3}>
-              <Paper sx={{ 
-                p: 4, 
-                borderRadius: 2, 
-                background: 'linear-gradient(135deg, rgba(33, 150, 243, 0.1) 0%, rgba(25, 118, 210, 0.4) 100%)', 
+              <Paper sx={{
+                p: 4,
+                borderRadius: 2,
+                background: 'linear-gradient(135deg, rgba(33, 150, 243, 0.1) 0%, rgba(25, 118, 210, 0.4) 100%)',
                 backdropFilter: 'blur(10px)',
                 display: 'flex',
                 flexDirection: 'column',
@@ -485,43 +515,43 @@ const HostPage = () => {
                 }
               }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Box sx={{ 
-                    p: 1.5, 
-                    borderRadius: '12px', 
-                    bgcolor: 'rgba(33, 150, 243, 0.2)', 
-                    display: 'flex', 
-                    alignItems: 'center', 
+                  <Box sx={{
+                    p: 1.5,
+                    borderRadius: '12px',
+                    bgcolor: 'rgba(33, 150, 243, 0.2)',
+                    display: 'flex',
+                    alignItems: 'center',
                     justifyContent: 'center',
                     mr: 2
                   }}>
                     <TrendingUpIcon sx={{ color: '#2196f3', fontSize: 28 }} />
                   </Box>
                   <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
-                    Revenue (ETH)
+                    Revenue (INR)
                   </Typography>
                 </Box>
                 <Typography variant="h3" sx={{ color: 'white', mb: 1, fontWeight: 'bold' }}>
                   {dashboardStats.revenue}
                 </Typography>
-                <Box sx={{ 
-                  mt: 'auto', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  p: 1, 
+                <Box sx={{
+                  mt: 'auto',
+                  display: 'flex',
+                  alignItems: 'center',
+                  p: 1,
                   borderRadius: 1,
                   bgcolor: 'rgba(255, 255, 255, 0.1)'
                 }}>
                   <Typography variant="body2" sx={{ color: '#bbdefb', fontWeight: 'medium' }}>
-                    Avg {(parseFloat(dashboardStats.revenue) / (dashboardStats.totalEvents || 1)).toFixed(2)} ETH per event
+                    Avg ₹{(parseFloat(dashboardStats.revenue) / (dashboardStats.totalEvents || 1)).toFixed(2)} per event
                   </Typography>
                 </Box>
               </Paper>
             </Grid>
             <Grid item xs={12} md={6} lg={3}>
-              <Paper sx={{ 
-                p: 4, 
-                borderRadius: 2, 
-                background: 'linear-gradient(135deg, rgba(255, 152, 0, 0.1) 0%, rgba(230, 81, 0, 0.4) 100%)', 
+              <Paper sx={{
+                p: 4,
+                borderRadius: 2,
+                background: 'linear-gradient(135deg, rgba(255, 152, 0, 0.1) 0%, rgba(230, 81, 0, 0.4) 100%)',
                 backdropFilter: 'blur(10px)',
                 display: 'flex',
                 flexDirection: 'column',
@@ -535,12 +565,12 @@ const HostPage = () => {
                 }
               }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Box sx={{ 
-                    p: 1.5, 
-                    borderRadius: '12px', 
-                    bgcolor: 'rgba(255, 152, 0, 0.2)', 
-                    display: 'flex', 
-                    alignItems: 'center', 
+                  <Box sx={{
+                    p: 1.5,
+                    borderRadius: '12px',
+                    bgcolor: 'rgba(255, 152, 0, 0.2)',
+                    display: 'flex',
+                    alignItems: 'center',
                     justifyContent: 'center',
                     mr: 2
                   }}>
@@ -553,11 +583,11 @@ const HostPage = () => {
                 <Typography variant="h3" sx={{ color: 'white', mb: 1, fontWeight: 'bold' }}>
                   78%
                 </Typography>
-                <Box sx={{ 
-                  mt: 'auto', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  p: 1, 
+                <Box sx={{
+                  mt: 'auto',
+                  display: 'flex',
+                  alignItems: 'center',
+                  p: 1,
                   borderRadius: 1,
                   bgcolor: 'rgba(255, 255, 255, 0.1)'
                 }}>
@@ -567,7 +597,7 @@ const HostPage = () => {
                 </Box>
               </Paper>
             </Grid>
-            
+
             {/* Monthly Sales Chart and Revenue by Date Chart */}
             <Grid container spacing={3}>
               <Grid item xs={12} md={6}>
@@ -578,14 +608,14 @@ const HostPage = () => {
                   <Box sx={{ height: 400, display: 'flex', alignItems: 'flex-end', gap: 2, px: 2, position: 'relative' }}>
                     {/* Horizontal grid lines */}
                     {[0, 25, 50, 75, 100].map((percent) => (
-                      <Box 
-                        key={`grid-${percent}`} 
-                        sx={{ 
-                          position: 'absolute', 
-                          left: 0, 
-                          right: 0, 
-                          top: `${100 - percent * 0.75}%`, 
-                          height: '1px', 
+                      <Box
+                        key={`grid-${percent}`}
+                        sx={{
+                          position: 'absolute',
+                          left: 0,
+                          right: 0,
+                          top: `${100 - percent * 0.75}%`,
+                          height: '1px',
                           bgcolor: 'rgba(255, 255, 255, 0.1)',
                           zIndex: 1,
                           '&::after': {
@@ -596,18 +626,18 @@ const HostPage = () => {
                             color: 'rgba(255, 255, 255, 0.7)',
                             fontSize: '12px'
                           }
-                        }} 
+                        }}
                       />
                     ))}
-                    
+
                     {monthlySalesData.map((data, index) => (
                       <Box key={index} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, zIndex: 2 }}>
-                        <Box 
-                          sx={{ 
+                        <Box
+                          sx={{
                             height: `${(data.sales / Math.max(...monthlySalesData.map(d => d.sales)) * 300)}px`,
-                            width: '55%', 
-                            background: index === monthlySalesData.length - 1 
-                              ? 'linear-gradient(180deg, rgba(189, 91, 218, 1) 0%, rgba(106, 27, 154, 1) 100%)' 
+                            width: '55%',
+                            background: index === monthlySalesData.length - 1
+                              ? 'linear-gradient(180deg, rgba(189, 91, 218, 1) 0%, rgba(106, 27, 154, 1) 100%)'
                               : 'linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.15) 100%)',
                             borderRadius: '10px',
                             transition: 'all 0.5s ease-in-out',
@@ -616,13 +646,13 @@ const HostPage = () => {
                             '&:hover': {
                               transform: 'translateY(-8px) scale(1.03)',
                               boxShadow: '0 12px 24px rgba(0, 0, 0, 0.4)',
-                              background: index === monthlySalesData.length - 1 
-                                ? 'linear-gradient(180deg, rgba(209, 111, 238, 1) 0%, rgba(126, 47, 174, 1) 100%)' 
+                              background: index === monthlySalesData.length - 1
+                                ? 'linear-gradient(180deg, rgba(209, 111, 238, 1) 0%, rgba(126, 47, 174, 1) 100%)'
                                 : 'linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.25) 100%)',
                             }
-                          }} 
+                          }}
                         >
-                          <Box sx={{ 
+                          <Box sx={{
                             position: 'absolute',
                             top: '-40px',
                             left: '50%',
@@ -643,10 +673,10 @@ const HostPage = () => {
                           </Box>
                         </Box>
                         <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                          <Typography 
-                            variant="subtitle1" 
-                            sx={{ 
-                              color: 'white', 
+                          <Typography
+                            variant="subtitle1"
+                            sx={{
+                              color: 'white',
                               fontWeight: index === monthlySalesData.length - 1 ? 'bold' : 'normal',
                               bgcolor: index === monthlySalesData.length - 1 ? 'rgba(156, 39, 176, 0.2)' : 'transparent',
                               py: index === monthlySalesData.length - 1 ? 0.5 : 0,
@@ -676,12 +706,12 @@ const HostPage = () => {
                   <Typography variant="h5" sx={{ color: 'white', mb: 4, fontWeight: 'bold' }}>
                     Revenue by Date
                   </Typography>
-                  <Box sx={{ 
-                    height: 400, 
-                    display: 'flex', 
-                    alignItems: 'flex-end', 
-                    gap: 0.1, 
-                    px: 4, 
+                  <Box sx={{
+                    height: 400,
+                    display: 'flex',
+                    alignItems: 'flex-end',
+                    gap: 0.1,
+                    px: 4,
                     position: 'relative',
                     overflow: 'visible',
                     pb: 6,
@@ -689,53 +719,53 @@ const HostPage = () => {
                   }}>
                     {/* Horizontal grid lines */}
                     {[0, 25, 50, 75, 100].map((percent) => (
-                      <Box 
-                        key={`grid-${percent}`} 
-                        sx={{ 
-                          position: 'absolute', 
-                          left: 0, 
-                          right: 0, 
-                          top: `${100 - percent * 0.75}%`, 
-                          height: '1px', 
+                      <Box
+                        key={`grid-${percent}`}
+                        sx={{
+                          position: 'absolute',
+                          left: 0,
+                          right: 0,
+                          top: `${100 - percent * 0.75}%`,
+                          height: '1px',
                           bgcolor: 'rgba(255, 255, 255, 0.1)',
                           zIndex: 1,
                           '&::after': {
-                            content: `"${(percent * 0.14).toFixed(1)} ETH"`,
+                            content: `"₹${(percent * 140).toFixed(0)}"`,
                             position: 'absolute',
                             left: '-30px',
                             top: '-10px',
                             color: 'rgba(255, 255, 255, 0.7)',
                             fontSize: '12px'
                           }
-                        }} 
+                        }}
                       />
                     ))}
-                    
-                    <Box sx={{ 
-                      display: 'flex', 
-                      alignItems: 'flex-end', 
-                      gap: 0.1, 
+
+                    <Box sx={{
+                      display: 'flex',
+                      alignItems: 'flex-end',
+                      gap: 0.1,
                       position: 'relative',
                       width: '100%',
                       justifyContent: 'space-between'
                     }}>
                       {revenueByDate.map((data, index) => (
-                        <Box key={index} sx={{ 
-                          display: 'flex', 
-                          flexDirection: 'column', 
-                          alignItems: 'center', 
+                        <Box key={index} sx={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
                           flex: 1,
                           maxWidth: '40px',
                           position: 'relative',
                           overflow: 'visible',
                           mx: 0.1
                         }}>
-                          <Box 
-                            sx={{ 
+                          <Box
+                            sx={{
                               height: `${(data.revenue / Math.max(...revenueByDate.map(d => d.revenue)) * 300)}px`,
-                              width: '100%', 
-                              background: index === revenueByDate.length - 1 
-                                ? 'linear-gradient(180deg, rgba(33, 150, 243, 1) 0%, rgba(25, 118, 210, 1) 100%)' 
+                              width: '100%',
+                              background: index === revenueByDate.length - 1
+                                ? 'linear-gradient(180deg, rgba(33, 150, 243, 1) 0%, rgba(25, 118, 210, 1) 100%)'
                                 : 'linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.15) 100%)',
                               borderRadius: '6px',
                               transition: 'all 0.5s ease-in-out',
@@ -744,14 +774,14 @@ const HostPage = () => {
                               '&:hover': {
                                 transform: 'translateY(-8px) scale(1.03)',
                                 boxShadow: '0 12px 24px rgba(0, 0, 0, 0.4)',
-                                background: index === revenueByDate.length - 1 
-                                  ? 'linear-gradient(180deg, rgba(64, 196, 255, 1) 0%, rgba(33, 150, 243, 1) 100%)' 
+                                background: index === revenueByDate.length - 1
+                                  ? 'linear-gradient(180deg, rgba(64, 196, 255, 1) 0%, rgba(33, 150, 243, 1) 100%)'
                                   : 'linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.25) 100%)',
                               }
-                            }} 
+                            }}
                           >
                             {index % 3 === 0 && (
-                              <Box sx={{ 
+                              <Box sx={{
                                 position: 'absolute',
                                 top: '-30px',
                                 left: '50%',
@@ -774,17 +804,17 @@ const HostPage = () => {
                             )}
                           </Box>
                           {index % 3 === 0 && (
-                            <Box sx={{ 
+                            <Box sx={{
                               position: 'absolute',
                               bottom: '-28px',
                               left: '50%',
                               transform: 'translateX(-50%)',
                               minWidth: 'max-content'
                             }}>
-                              <Typography 
-                                variant="caption" 
-                                sx={{ 
-                                  color: 'white', 
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  color: 'white',
                                   fontWeight: index === revenueByDate.length - 1 ? 'bold' : 'normal',
                                   bgcolor: index === revenueByDate.length - 1 ? 'rgba(33, 150, 243, 0.2)' : 'transparent',
                                   py: index === revenueByDate.length - 1 ? 0.3 : 0,
@@ -840,11 +870,11 @@ const HostPage = () => {
                               {((event.revenue / parseFloat(dashboardStats.revenue)) * 100).toFixed(0)}% of total
                             </Typography>
                           </Box>
-                          <LinearProgress 
-                            variant="determinate" 
-                            value={(event.revenue / parseFloat(dashboardStats.revenue)) * 100} 
-                            sx={{ 
-                              borderRadius: 2, 
+                          <LinearProgress
+                            variant="determinate"
+                            value={(event.revenue / parseFloat(dashboardStats.revenue)) * 100}
+                            sx={{
+                              borderRadius: 2,
                               height: 12,
                               backgroundColor: 'rgba(255, 255, 255, 0.2)',
                               '& .MuiLinearProgress-bar': {
@@ -866,17 +896,17 @@ const HostPage = () => {
                 </Grid>
               </Paper>
             </Grid>
-            
+
             <Grid item xs={12}>
               <Paper sx={{ p: 4, borderRadius: 2, background: 'rgba(22, 28, 36, 0.9)', backdropFilter: 'blur(10px)', mt: 3, boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
                   <Typography variant="h5" sx={{ color: 'white', fontWeight: 'bold', flex: 1 }}>
                     Recent Activity
                   </Typography>
-                  <Button 
-                    variant="text" 
-                    size="small" 
-                    sx={{ 
+                  <Button
+                    variant="text"
+                    size="small"
+                    sx={{
                       color: '#9c27b0',
                       '&:hover': {
                         backgroundColor: 'rgba(156, 39, 176, 0.08)'
@@ -887,25 +917,25 @@ const HostPage = () => {
                   </Button>
                 </Box>
                 <Divider sx={{ mb: 3, borderColor: 'rgba(255, 255, 255, 0.1)' }} />
-                
+
                 {userNFTs.length > 0 ? (
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    <Box sx={{ 
-                      p: 2, 
-                      borderRadius: 2, 
-                      bgcolor: 'rgba(156, 39, 176, 0.08)', 
-                      display: 'flex', 
+                    <Box sx={{
+                      p: 2,
+                      borderRadius: 2,
+                      bgcolor: 'rgba(156, 39, 176, 0.08)',
+                      display: 'flex',
                       alignItems: 'center',
                       gap: 2
                     }}>
-                      <Box sx={{ 
-                        width: 40, 
-                        height: 40, 
-                        borderRadius: '50%', 
-                        bgcolor: 'rgba(156, 39, 176, 0.2)', 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center' 
+                      <Box sx={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: '50%',
+                        bgcolor: 'rgba(156, 39, 176, 0.2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
                       }}>
                         <MonetizationOnIcon sx={{ color: '#9c27b0' }} />
                       </Box>
@@ -918,23 +948,23 @@ const HostPage = () => {
                         </Typography>
                       </Box>
                     </Box>
-                    
-                    <Box sx={{ 
-                      p: 2, 
-                      borderRadius: 2, 
-                      bgcolor: 'rgba(33, 150, 243, 0.08)', 
-                      display: 'flex', 
+
+                    <Box sx={{
+                      p: 2,
+                      borderRadius: 2,
+                      bgcolor: 'rgba(33, 150, 243, 0.08)',
+                      display: 'flex',
                       alignItems: 'center',
                       gap: 2
                     }}>
-                      <Box sx={{ 
-                        width: 40, 
-                        height: 40, 
-                        borderRadius: '50%', 
-                        bgcolor: 'rgba(33, 150, 243, 0.2)', 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center' 
+                      <Box sx={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: '50%',
+                        bgcolor: 'rgba(33, 150, 243, 0.2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
                       }}>
                         <EventIcon sx={{ color: '#2196f3' }} />
                       </Box>
@@ -947,23 +977,23 @@ const HostPage = () => {
                         </Typography>
                       </Box>
                     </Box>
-                    
-                    <Box sx={{ 
-                      p: 2, 
-                      borderRadius: 2, 
-                      bgcolor: 'rgba(76, 175, 80, 0.08)', 
-                      display: 'flex', 
+
+                    <Box sx={{
+                      p: 2,
+                      borderRadius: 2,
+                      bgcolor: 'rgba(76, 175, 80, 0.08)',
+                      display: 'flex',
                       alignItems: 'center',
                       gap: 2
                     }}>
-                      <Box sx={{ 
-                        width: 40, 
-                        height: 40, 
-                        borderRadius: '50%', 
-                        bgcolor: 'rgba(76, 175, 80, 0.2)', 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center' 
+                      <Box sx={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: '50%',
+                        bgcolor: 'rgba(76, 175, 80, 0.2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
                       }}>
                         <PeopleIcon sx={{ color: '#4caf50' }} />
                       </Box>
@@ -978,22 +1008,22 @@ const HostPage = () => {
                     </Box>
                   </Box>
                 ) : (
-                  <Box sx={{ 
-                    p: 4, 
-                    borderRadius: 2, 
-                    bgcolor: 'rgba(255, 255, 255, 0.05)', 
-                    display: 'flex', 
-                    flexDirection: 'column', 
+                  <Box sx={{
+                    p: 4,
+                    borderRadius: 2,
+                    bgcolor: 'rgba(255, 255, 255, 0.05)',
+                    display: 'flex',
+                    flexDirection: 'column',
                     alignItems: 'center',
                     gap: 2
                   }}>
-                    <Box sx={{ 
-                      width: 64, 
-                      height: 64, 
-                      borderRadius: '50%', 
-                      bgcolor: 'rgba(156, 39, 176, 0.1)', 
-                      display: 'flex', 
-                      alignItems: 'center', 
+                    <Box sx={{
+                      width: 64,
+                      height: 64,
+                      borderRadius: '50%',
+                      bgcolor: 'rgba(156, 39, 176, 0.1)',
+                      display: 'flex',
+                      alignItems: 'center',
                       justifyContent: 'center',
                       mb: 1
                     }}>
@@ -1005,15 +1035,15 @@ const HostPage = () => {
                     <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.7)', textAlign: 'center', mb: 2 }}>
                       Create your first event to get started!
                     </Typography>
-                    <Button 
-                      variant="contained" 
+                    <Button
+                      variant="contained"
                       onClick={() => setTabValue(1)}
                       sx={{
                         borderRadius: 2,
                         p: '10px 24px',
                         background: 'linear-gradient(45deg, #6a1b9a 30%, #4527a0 90%)',
                         fontWeight: 'bold',
-                        '&:hover': { 
+                        '&:hover': {
                           background: 'linear-gradient(45deg, #7b1fa2 30%, #512da8 90%)',
                           boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3)'
                         }
@@ -1044,7 +1074,7 @@ const HostPage = () => {
                     value={formData.name}
                     onChange={handleInputChange}
                     required
-                    InputProps={{ 
+                    InputProps={{
                       sx: { borderRadius: 2 },
                       startAdornment: (
                         <InputAdornment position="start">
@@ -1063,7 +1093,7 @@ const HostPage = () => {
                     value={formData.seatNumber}
                     onChange={handleInputChange}
                     required
-                    InputProps={{ 
+                    InputProps={{
                       sx: { borderRadius: 2 },
                       startAdornment: (
                         <InputAdornment position="start">
@@ -1180,8 +1210,8 @@ const HostPage = () => {
                         {Math.round(event.ticketsSold / event.totalTickets * 100)}%
                       </Typography>
                     </Box>
-                    <Button 
-                      variant="outlined" 
+                    <Button
+                      variant="outlined"
                       fullWidth
                       sx={{
                         borderColor: 'rgba(255, 255, 255, 0.3)',
@@ -1230,4 +1260,4 @@ const muiInputStyles = {
   }
 };
 
-export default HostPage; 
+export default HostPage;

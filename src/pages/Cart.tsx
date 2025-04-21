@@ -16,13 +16,25 @@ import {
   Stack,
   CircularProgress,
   Link,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  FormControl,
+  InputLabel,
+  OutlinedInput,
+  InputAdornment,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
+import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
+import { TransakService } from "../services/TransakService";
+import INRPaymentFlow from "../components/payment/INRPaymentFlow";
+import { useAuth } from "../context/AuthContext";
 
 // Define window.ethereum for TypeScript
 declare global {
@@ -36,11 +48,13 @@ declare global {
         callback: (...args: any[]) => void
       ) => void;
     };
+    // Razorpay is declared in RazorpayService.ts
   }
 }
 
 const Cart = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { cartItems, removeFromCart, updateQuantity, clearCart } = useCart();
   const [promoCode, setPromoCode] = useState("");
   const [promoApplied, setPromoApplied] = useState(false);
@@ -48,7 +62,7 @@ const Cart = () => {
     show: boolean;
     message: string;
     type: "error" | "info" | "success" | "warning";
-    txHash?: string;
+    paymentId?: string;
   }>({
     show: false,
     message: "",
@@ -57,6 +71,10 @@ const Cart = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [walletConnected, setWalletConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState("");
+
+  // Payment state
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [paymentTokenId, setPaymentTokenId] = useState<string | null>(null);
 
   // Check if MetaMask is installed
   const isMetaMaskInstalled = () => {
@@ -87,13 +105,19 @@ const Cart = () => {
 
   const calculateSubtotal = () => {
     return cartItems.reduce((total, item) => {
-      return total + parseFloat(item.price) * item.quantity;
+      // Remove ₹ symbol and commas if present
+      const price = item.price.replace(/[₹,]/g, '');
+      return total + parseFloat(price) * item.quantity;
     }, 0);
   };
 
   const calculateTotal = () => {
     const subtotal = calculateSubtotal();
     return promoApplied ? subtotal * 0.9 : subtotal;
+  };
+
+  const formatPrice = (price: number) => {
+    return TransakService.formatPrice(price);
   };
 
   const connectWallet = async () => {
@@ -146,80 +170,66 @@ const Cart = () => {
   };
 
   const handleCheckout = async () => {
+    if (!user) {
+      setNotification({
+        show: true,
+        message: "Please log in to continue with checkout",
+        type: "warning",
+      });
+      navigate('/login');
+      return;
+    }
+
+    // For NFT tickets, we still need a wallet for the blockchain part
     if (!walletConnected) {
       setNotification({
         show: true,
-        message: "Please connect your wallet first",
+        message: "Please connect your wallet to receive NFT tickets",
         type: "warning",
       });
       return;
     }
 
-    setIsProcessing(true);
+    // The actual payment and minting will be handled by the INRPaymentFlow component
+    // This function now just validates the user is logged in and has a wallet connected
+  };
 
-    try {
-      // Calculate total in wei (1 ETH = 10^18 wei)
-      const totalEth = calculateTotal();
-      const totalWei = "0x" + BigInt(Math.floor(totalEth * 1e18)).toString(16);
+  // Handle successful payment and minting
+  const handlePaymentSuccess = (tokenId: string, paymentId: string) => {
+    setPaymentTokenId(tokenId);
+    setPaymentSuccess(true);
 
-      // Simulate contract address where funds would be sent
-      // In a real app, this would be your marketplace contract
-      const marketplaceAddress = "0x37a9fbc5d3cd8b3f45752e39a4a0cce16a8ddce2";
+    setNotification({
+      show: true,
+      message: "Payment successful! Your NFT ticket has been minted.",
+      type: "success",
+      paymentId: paymentId
+    });
 
-      // Send transaction through MetaMask
-      const transactionHash = await window.ethereum!.request({
-        method: "eth_sendTransaction",
-        params: [
-          {
-            from: walletAddress,
-            to: marketplaceAddress,
-            value: totalWei,
-            gas: "0x5208", // Hexadecimal for 21000 gas
-            data: "0x", // Empty data field for simple ETH transfer
-          },
-        ],
-      });
+    // Clear cart after successful transaction
+    setTimeout(() => {
+      clearCart();
+      setPromoApplied(false);
+      setPromoCode("");
+    }, 3000);
+  };
 
-      setNotification({
-        show: true,
-        message: "Payment successful! Your NFTs will be transferred shortly.",
-        type: "success",
-        txHash: transactionHash,
-      });
-
-      // Clear cart after successful transaction
-      setTimeout(() => {
-        clearCart();
-        setPromoApplied(false);
-        setPromoCode("");
-      }, 3000);
-    } catch (error: any) {
-      console.error("Transaction failed:", error);
-
-      if (error.code === 4001) {
-        setNotification({
-          show: true,
-          message: "Transaction rejected by user",
-          type: "info",
-        });
-      } else {
-        setNotification({
-          show: true,
-          message: `Transaction failed: ${error.message || "Unknown error"}`,
-          type: "error",
-        });
-      }
-    } finally {
-      setIsProcessing(false);
-    }
+  // Handle payment error
+  const handlePaymentError = (error: string) => {
+    setNotification({
+      show: true,
+      message: `Payment failed: ${error}`,
+      type: "error"
+    });
   };
 
   const handleCloseNotification = () => {
     setNotification((prev) => ({ ...prev, show: false }));
   };
 
-  const getEtherscanLink = (txHash: string) => {
-    return `https://etherscan.io/tx/${txHash}`;
+  const getPaymentDetailsLink = (paymentId: string) => {
+    // In a real app, this would link to a payment details page
+    return `/payment-details/${paymentId}`;
   };
 
   return (
@@ -329,8 +339,7 @@ const Cart = () => {
                         variant="subtitle1"
                         sx={{ fontWeight: "bold" }}
                       >
-                        {(parseFloat(item.price) * item.quantity).toFixed(6)}{" "}
-                        ETH
+                        {formatPrice(TransakService.parsePrice(item.price) * item.quantity)}
                       </Typography>
                       <IconButton
                         onClick={() => handleRemoveItem(item.id)}
@@ -373,7 +382,7 @@ const Cart = () => {
                 >
                   <Typography variant="body1">Subtotal</Typography>
                   <Typography variant="body1">
-                    {calculateSubtotal().toFixed(6)} ETH
+                    {formatPrice(calculateSubtotal())}
                   </Typography>
                 </Box>
 
@@ -389,7 +398,7 @@ const Cart = () => {
                       Discount (10%)
                     </Typography>
                     <Typography variant="body1" color="success.main">
-                      -{(calculateSubtotal() * 0.1).toFixed(6)} ETH
+                      -{formatPrice(calculateSubtotal() * 0.1)}
                     </Typography>
                   </Box>
                 )}
@@ -403,7 +412,7 @@ const Cart = () => {
                 >
                   <Typography variant="h6">Total</Typography>
                   <Typography variant="h6">
-                    {calculateTotal().toFixed(6)} ETH
+                    {formatPrice(calculateTotal())}
                   </Typography>
                 </Box>
               </Box>
@@ -456,39 +465,17 @@ const Cart = () => {
                     },
                   }}
                 >
-                  Connect MetaMask to Checkout
+                  Connect Wallet for NFT Tickets
                 </Button>
               ) : (
-                <Button
-                  fullWidth
-                  variant="contained"
-                  size="large"
-                  onClick={handleCheckout}
-                  disabled={isProcessing}
-                  sx={{
-                    bgcolor: "#4caf50",
-                    color: "white",
-                    p: 1.5,
-                    "&:hover": {
-                      bgcolor: "#43a047",
-                    },
-                  }}
-                >
-                  {isProcessing ? (
-                    <Box sx={{ display: "flex", alignItems: "center" }}>
-                      <CircularProgress
-                        size={24}
-                        color="inherit"
-                        sx={{ mr: 1 }}
-                      />
-                      Processing...
-                    </Box>
-                  ) : (
-                    <>{`Pay ${calculateTotal().toFixed(
-                      6
-                    )} ETH with MetaMask`}</>
-                  )}
-                </Button>
+                <INRPaymentFlow
+                  eventName={cartItems.length > 0 ? cartItems[0].title : 'Event'}
+                  seatNumber={cartItems.length > 0 ? cartItems[0].id.toString() : '0'}
+                  price={calculateTotal()}
+                  image={cartItems.length > 0 ? cartItems[0].image : ''}
+                  onSuccess={handlePaymentSuccess}
+                  onError={handlePaymentError}
+                />
               )}
 
               <Box
@@ -531,21 +518,22 @@ const Cart = () => {
           sx={{ width: "100%" }}
         >
           {notification.message}
-          {notification.txHash && (
+          {notification.paymentId && (
             <Box sx={{ mt: 1 }}>
               <Link
-                href={getEtherscanLink(notification.txHash)}
+                href={getPaymentDetailsLink(notification.paymentId)}
                 target="_blank"
                 rel="noopener"
                 color="inherit"
                 sx={{ textDecoration: "underline" }}
               >
-                View transaction on Etherscan
+                View payment details
               </Link>
             </Box>
           )}
         </Alert>
       </Snackbar>
+
     </Container>
   );
 };

@@ -32,6 +32,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import LoginIcon from '@mui/icons-material/Login';
 import WarningIcon from '@mui/icons-material/Warning';
 import QrCodeIcon from '@mui/icons-material/QrCode';
+import PaymentIcon from '@mui/icons-material/Payment';
 import { useSearch } from '../../context/SearchContext';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
