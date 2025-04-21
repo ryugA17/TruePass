@@ -19,6 +19,7 @@ import {
   Paper,
   Tooltip,
   ListItemIcon,
+  ListItemText,
 } from '@mui/material';
 import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
@@ -30,6 +31,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import LogoutIcon from '@mui/icons-material/Logout';
 import LoginIcon from '@mui/icons-material/Login';
 import WarningIcon from '@mui/icons-material/Warning';
+import QrCodeIcon from '@mui/icons-material/QrCode';
 import { useSearch } from '../../context/SearchContext';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
@@ -57,7 +59,7 @@ const Navbar = () => {
   const { isAuthenticated, user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   // Wallet states
   const [walletConnected, setWalletConnected] = useState(false);
   const [walletAddress, setWalletAddress] = useState('');
@@ -71,20 +73,20 @@ const Navbar = () => {
   }>({
     show: false,
     message: '',
-    type: 'info'
+    type: 'info',
   });
-  
+
   // Check if MetaMask is installed
   const isMetaMaskInstalled = () => {
     return window.ethereum && window.ethereum.isMetaMask;
   };
-  
+
   // Format wallet address for display
   const formatAddress = (address: string) => {
     if (!address) return '';
     return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
   };
-  
+
   // Format balance to 4 decimal places
   const formatBalance = (balanceInWei: string) => {
     // Convert wei to ETH (1 ETH = 10^18 wei)
@@ -102,7 +104,7 @@ const Navbar = () => {
       setNotification({
         show: true,
         message: 'Wallet disconnected',
-        type: 'info'
+        type: 'info',
       });
     } else {
       // User has changed the active account
@@ -129,7 +131,7 @@ const Navbar = () => {
             setWalletAddress(accounts[0]);
             getBalance(accounts[0]);
           }
-          
+
           // Add event listeners
           window.ethereum!.on('accountsChanged', handleAccountsChanged);
           window.ethereum!.on('chainChanged', handleChainChanged);
@@ -138,9 +140,9 @@ const Navbar = () => {
         }
       }
     };
-    
+
     checkConnection();
-    
+
     // Cleanup event listeners
     return () => {
       if (window.ethereum && window.ethereum.removeListener) {
@@ -160,24 +162,24 @@ const Navbar = () => {
       setInputValue('');
     }
   }, [location]);
-  
+
   // Get ETH balance for the account
   const getBalance = async (account: string) => {
     if (!account || !isMetaMaskInstalled()) return;
-    
+
     try {
       const balance = await window.ethereum!.request({
         method: 'eth_getBalance',
-        params: [account, 'latest']
+        params: [account, 'latest'],
       });
-      
+
       setWalletBalance(formatBalance(balance));
     } catch (error) {
       console.error('Error getting balance:', error);
       setNotification({
         show: true,
         message: 'Failed to get wallet balance',
-        type: 'error'
+        type: 'error',
       });
     }
   };
@@ -215,56 +217,56 @@ const Navbar = () => {
     // Navigate to cart page
     navigate('/cart');
   };
-  
+
   const handleConnectWallet = async () => {
     if (!isMetaMaskInstalled()) {
       setNotification({
         show: true,
         message: 'Please install MetaMask extension to connect a wallet',
-        type: 'warning'
+        type: 'warning',
       });
       window.open('https://metamask.io/download/', '_blank');
       return;
     }
-    
+
     try {
       // Request access to the user's accounts
-      const accounts = await window.ethereum!.request({ 
-        method: 'eth_requestAccounts' 
+      const accounts = await window.ethereum!.request({
+        method: 'eth_requestAccounts',
       });
-      
+
       if (accounts.length > 0) {
         const account = accounts[0];
         setWalletAddress(account);
         setWalletConnected(true);
         getBalance(account);
-        
+
         setNotification({
           show: true,
           message: 'Wallet connected successfully',
-          type: 'success'
+          type: 'success',
         });
       }
     } catch (error: any) {
       console.error('Error connecting to MetaMask:', error);
-      
+
       // Handle user rejected request
       if (error.code === 4001) {
         setNotification({
           show: true,
           message: 'Connection request rejected by user',
-          type: 'info'
+          type: 'info',
         });
       } else {
         setNotification({
           show: true,
           message: 'Failed to connect wallet: ' + (error.message || 'Unknown error'),
-          type: 'error'
+          type: 'error',
         });
       }
     }
   };
-  
+
   const handleDisconnectWallet = () => {
     // Note: MetaMask doesn't provide a way to disconnect programmatically
     // But we can clear our local state
@@ -272,14 +274,14 @@ const Navbar = () => {
     setWalletAddress('');
     setWalletBalance('0');
     setAnchorEl(null);
-    
+
     setNotification({
       show: true,
       message: 'Wallet disconnected from app',
-      type: 'info'
+      type: 'info',
     });
   };
-  
+
   const handleUserMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setUserMenuAnchorEl(event.currentTarget);
   };
@@ -287,7 +289,7 @@ const Navbar = () => {
   const handleUserMenuClose = () => {
     setUserMenuAnchorEl(null);
   };
-  
+
   const handleLogout = () => {
     logout();
     handleUserMenuClose();
@@ -298,32 +300,32 @@ const Navbar = () => {
     navigate('/profile');
     handleUserMenuClose();
   };
-  
+
   const handleCreateNFTClick = () => {
     navigate('/create-nft');
     handleUserMenuClose();
   };
-  
+
   const handleWalletClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
-  
+
   const copyAddressToClipboard = () => {
     if (walletAddress) {
       navigator.clipboard.writeText(walletAddress);
       setNotification({
         show: true,
         message: 'Wallet address copied to clipboard',
-        type: 'success'
+        type: 'success',
       });
     }
     handleCloseMenu();
   };
-  
+
   const handleCloseNotification = () => {
     setNotification({
       ...notification,
-      show: false
+      show: false,
     });
   };
 
@@ -337,7 +339,10 @@ const Navbar = () => {
 
   return (
     <>
-      <AppBar position="fixed" sx={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(10px)' }}>
+      <AppBar
+        position="fixed"
+        sx={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(10px)' }}
+      >
         <Toolbar>
           <Typography
             variant="h6"
@@ -348,30 +353,32 @@ const Navbar = () => {
               fontWeight: 'bold',
               color: 'white',
               textDecoration: 'none',
-              marginRight: 2
+              marginRight: 2,
             }}
           >
             TruePass
           </Typography>
 
-          <Box sx={{ 
-            flexGrow: 1, 
-            display: 'flex', 
-            justifyContent: 'flex-start',
-            marginRight: '20px',  
-            borderRadius: '20px',
-            marginLeft: '280px',
-            backgroundColor: 'rgba(255, 255, 255, 0.15)',
-            padding: '6px 18px',
-            transition: 'all 0.3s ease',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            maxWidth: '600px',
-            '&:hover': {
-              backgroundColor: 'rgba(255, 255, 255, 0.2)',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-            }
-          }}>
+          <Box
+            sx={{
+              flexGrow: 1,
+              display: 'flex',
+              justifyContent: 'flex-start',
+              marginRight: '20px',
+              borderRadius: '20px',
+              marginLeft: '280px',
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              padding: '6px 18px',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              maxWidth: '600px',
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+              },
+            }}
+          >
             <InputBase
               placeholder="Search Events..."
               value={inputValue}
@@ -389,12 +396,12 @@ const Navbar = () => {
                   color: 'rgba(255, 255, 255, 0.7)',
                   opacity: 1,
                   fontWeight: 400,
-                }
+                },
               }}
             />
             {inputValue && (
-              <IconButton 
-                size="small" 
+              <IconButton
+                size="small"
                 onClick={handleClearSearch}
                 sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
               >
@@ -405,8 +412,8 @@ const Navbar = () => {
               size="medium"
               edge="end"
               onClick={handleSearchClick}
-              sx={{ 
-                color: 'white', 
+              sx={{
+                color: 'white',
                 backgroundColor: 'rgba(255, 255, 255, 0.15)',
                 padding: '10px',
                 '&:hover': {
@@ -419,7 +426,7 @@ const Navbar = () => {
           </Box>
 
           <Box sx={{ flexGrow: 1 }} />
-          
+
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Button
               component={RouterLink}
@@ -428,68 +435,76 @@ const Navbar = () => {
             >
               Marketplace
             </Button>
-            
-            <Tooltip title={isAuthenticated && user?.userType === 'host' ? "Create Event" : "Login to create events"}>
+
+            <Tooltip
+              title={
+                isAuthenticated && user?.userType === 'host'
+                  ? 'Create Event'
+                  : 'Login to create events'
+              }
+            >
               <IconButton
-                onClick={isAuthenticated && user?.userType !== 'host' ? handleLogin : handleConnectWallet}
-                sx={{ 
+                onClick={
+                  isAuthenticated && user?.userType !== 'host' ? handleLogin : handleConnectWallet
+                }
+                sx={{
                   p: 1,
                   bgcolor: 'rgba(255, 255, 255, 0.1)',
                   borderRadius: '50%',
                   '&:hover': {
                     bgcolor: 'rgba(255, 255, 255, 0.2)',
                   },
-                  display: isAuthenticated && user?.userType !== 'host' ? 'none' : 'flex'
+                  display: isAuthenticated && user?.userType !== 'host' ? 'none' : 'flex',
                 }}
               >
-                <img 
-                  src={editPencilIcon} 
-                  alt="Create" 
-                  style={{ 
-                    width: '24px', 
-                    height: '24px', 
-                    filter: 'brightness(0) invert(1)'  // Make the icon white
-                  }} 
+                <img
+                  src={editPencilIcon}
+                  alt="Create"
+                  style={{
+                    width: '24px',
+                    height: '24px',
+                    filter: 'brightness(0) invert(1)', // Make the icon white
+                  }}
                 />
               </IconButton>
             </Tooltip>
-            
+
             <Tooltip title="Cart">
               <IconButton
                 onClick={handleCartClick}
-                sx={{ 
+                sx={{
                   p: 1,
                   mr: 1,
                   bgcolor: 'rgba(255, 255, 255, 0.1)',
                   borderRadius: '50%',
                   '&:hover': {
                     bgcolor: 'rgba(255, 255, 255, 0.2)',
-                  }
+                  },
                 }}
               >
-                <Badge 
-                  badgeContent={cartItemCount} 
+                <Badge
+                  badgeContent={cartItemCount}
                   color="error"
                   sx={{
                     '& .MuiBadge-badge': {
                       top: -5,
                       right: -5,
-                    }
+                    },
                   }}
                 >
-                  <img 
-                    src={shoppingCartIcon} 
-                    alt="Shopping Cart" 
-                    style={{ 
-                      width: '24px', 
-                      height: '24px', 
-                      filter: 'brightness(0) invert(1)'  // Make the icon white
-                    }} 
+                  <img
+                    src={shoppingCartIcon}
+                    alt="Shopping Cart"
+                    style={{
+                      width: '24px',
+                      height: '24px',
+                      filter: 'brightness(0) invert(1)', // Make the icon white
+                    }}
                   />
                 </Badge>
               </IconButton>
             </Tooltip>
-            
+
             {!walletConnected ? (
               <Button
                 variant="outlined"
@@ -501,12 +516,12 @@ const Navbar = () => {
                   borderColor: 'rgba(255, 255, 255, 0.5)',
                   '&:hover': {
                     borderColor: 'white',
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
                   },
                   textTransform: 'none',
                   borderRadius: '20px',
                   fontSize: '0.875rem',
-                  mr: 1
+                  mr: 1,
                 }}
               >
                 Connect Wallet
@@ -522,15 +537,15 @@ const Navbar = () => {
                   color: 'white',
                   backgroundColor: 'rgba(255, 255, 255, 0.1)',
                   '&:hover': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.2)'
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
                   },
                   borderRadius: '20px',
                   px: 1,
-                  mr: 1
+                  mr: 1,
                 }}
               />
             )}
-            
+
             {/* User Menu */}
             {isAuthenticated && user ? (
               <>
@@ -555,7 +570,7 @@ const Navbar = () => {
                       width: 28,
                       height: 28,
                       mr: 1,
-                      bgcolor: 'secondary.main'
+                      bgcolor: 'secondary.main',
                     }}
                   >
                     {user.email.charAt(0).toUpperCase()}
@@ -603,6 +618,14 @@ const Navbar = () => {
                       </>
                     </MenuItem>
                   )}
+                  <MenuItem onClick={() => navigate('/verify-tickets')}>
+                    <>
+                      <ListItemIcon>
+                        <QrCodeIcon fontSize="small" />
+                      </ListItemIcon>
+                      Verify Tickets
+                    </>
+                  </MenuItem>
                   <Divider sx={{ my: 1 }} />
                   <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>
                     <LogoutIcon fontSize="small" sx={{ mr: 2 }} />
@@ -613,33 +636,36 @@ const Navbar = () => {
             ) : (
               <IconButton
                 onClick={handleLogin}
-                sx={{ 
+                sx={{
                   p: 1,
                   bgcolor: 'rgba(255, 255, 255, 0.1)',
                   borderRadius: '50%',
                   '&:hover': {
                     bgcolor: 'rgba(255, 255, 255, 0.2)',
-                  }
+                  },
                 }}
               >
-                <img 
-                  src={userIcon} 
-                  alt="Login" 
-                  style={{ 
-                    width: '24px', 
-                    height: '24px', 
-                    filter: 'brightness(0) invert(1)'  // Make the icon white
-                  }} 
+                <img
+                  src={userIcon}
+                  alt="Login"
+                  style={{
+                    width: '24px',
+                    height: '24px',
+                    filter: 'brightness(0) invert(1)', // Make the icon white
+                  }}
                 />
               </IconButton>
             )}
           </Box>
         </Toolbar>
       </AppBar>
-      
+
       {/* MetaMask warning modal - centered on screen */}
       <Modal
-        open={notification.show && (notification.message.includes('MetaMask') || notification.message.includes('wallet'))}
+        open={
+          notification.show &&
+          (notification.message.includes('MetaMask') || notification.message.includes('wallet'))
+        }
         onClose={handleCloseNotification}
         aria-labelledby="metamask-modal"
         aria-describedby="metamask-warning-message"
@@ -647,10 +673,10 @@ const Navbar = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          backdropFilter: 'blur(5px)'
+          backdropFilter: 'blur(5px)',
         }}
       >
-        <Paper 
+        <Paper
           elevation={10}
           sx={{
             maxWidth: '600px',
@@ -660,7 +686,7 @@ const Navbar = () => {
             p: 3,
             position: 'relative',
             border: '1px solid #FB8C00',
-            color: '#000'
+            color: '#000',
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
@@ -675,58 +701,62 @@ const Navbar = () => {
                 position: 'absolute',
                 right: 8,
                 top: 8,
-                color: '#000'
+                color: '#000',
               }}
             >
               <ClearIcon />
             </IconButton>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 2 }}>
-            <img 
-              src="https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/metamask-fox.svg" 
-              alt="MetaMask" 
-              width={40} 
-              height={40} 
+            <img
+              src="https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/metamask-fox.svg"
+              alt="MetaMask"
+              width={40}
+              height={40}
             />
             <Typography variant="body1" id="metamask-warning-message">
               {notification.message}
             </Typography>
           </Box>
           <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-            <Button 
-              variant="contained" 
+            <Button
+              variant="contained"
               color="inherit"
-              sx={{ 
-                bgcolor: '#000', 
+              sx={{
+                bgcolor: '#000',
                 color: '#fff',
                 '&:hover': {
-                  bgcolor: '#333'
-                }
+                  bgcolor: '#333',
+                },
               }}
               onClick={() => window.open('https://metamask.io/download/', '_blank')}
             >
               Install MetaMask
             </Button>
-            <Button 
-              onClick={handleCloseNotification}
-              sx={{ ml: 2, color: '#000' }}
-            >
+            <Button onClick={handleCloseNotification} sx={{ ml: 2, color: '#000' }}>
               Dismiss
             </Button>
           </Box>
         </Paper>
       </Modal>
-      
+
       {/* Regular notifications */}
       <Snackbar
-        open={notification.show && !(notification.message.includes('MetaMask') || notification.message.includes('wallet') || notification.message.includes('disconnected'))}
+        open={
+          notification.show &&
+          !(
+            notification.message.includes('MetaMask') ||
+            notification.message.includes('wallet') ||
+            notification.message.includes('disconnected')
+          )
+        }
         autoHideDuration={5000}
         onClose={handleCloseNotification}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
       >
-        <Alert 
-          onClose={handleCloseNotification} 
-          severity={notification.type} 
+        <Alert
+          onClose={handleCloseNotification}
+          severity={notification.type}
           variant="filled"
           sx={{ width: '100%' }}
         >
@@ -751,27 +781,29 @@ const Navbar = () => {
             color: 'white',
             padding: '12px',
             boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-          }
+          },
         }}
       >
-        <Alert 
+        <Alert
           icon={<AccountBalanceWalletIcon />}
-          onClose={handleCloseNotification} 
-          severity="info" 
+          onClose={handleCloseNotification}
+          severity="info"
           variant="filled"
-          sx={{ 
+          sx={{
             width: '100%',
             backgroundColor: '#0288d1',
             color: 'white',
             '& .MuiAlert-icon': {
-              color: 'white'
+              color: 'white',
             },
             '& .MuiAlert-action': {
-              paddingTop: 0
-            }
+              paddingTop: 0,
+            },
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'center' }}>
+          <Box
+            sx={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'center' }}
+          >
             <Typography variant="body1">{notification.message}</Typography>
           </Box>
         </Alert>
@@ -780,4 +812,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar; 
+export default Navbar;

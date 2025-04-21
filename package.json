@@ -11,30 +11,38 @@
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.5.2",
+    "@types/qrcode": "1.5.5",
     "@types/react": "^18.3.20",
     "@types/react-dom": "^18.3.5",
     "axios": "^1.4.0",
+    "buffer": "6.0.3",
+    "crypto-browserify": "3.12.1",
     "ethers": "^5.8.0",
     "firebase": "^11.6.0",
     "gsap": "^3.12.7",
+    "otplib": "12.0.1",
+    "process": "0.11.10",
+    "qrcode": "1.5.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.30.0",
     "react-scripts": "5.0.1",
+    "stream-browserify": "3.0.0",
     "typescript": "^4.9.5",
+    "vm-browserify": "1.1.2",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
     "eject": "react-scripts eject",
     "clean": "rm -rf build",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx src/",
     "lint:fix": "eslint --ext .js,.jsx,.ts,.tsx src/ --fix",
     "format": "prettier --write 'src/**/*.{js,jsx,ts,tsx,json,css,scss,md}'",
-    "dev": "react-scripts start",
-    "build:prod": "npm run clean && react-scripts build",
+    "dev": "react-app-rewired start",
+    "build:prod": "npm run clean && react-app-rewired build",
     "prepare": "husky install"
   },
   "eslintConfig": {
@@ -61,6 +69,7 @@
     "eslint-plugin-prettier": "^5.2.6",
     "husky": "^9.1.7",
     "lint-staged": "^15.5.1",
-    "prettier": "^3.5.3"
+    "prettier": "^3.5.3",
+    "react-app-rewired": "2.2.1"
   }
 }
