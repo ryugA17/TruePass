@@ -23,6 +23,13 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { authenticator } from 'otplib';
 
+// Configure authenticator directly (similar to working example)
+authenticator.options = {
+  digits: 6,
+  step: 30,
+  window: 1, // Use a smaller window for stricter validation
+};
+
 // Create a unified TOTPSecret type that includes blockchain properties
 type TOTPSecret = StandardTOTPSecret & {
   blockchain?: boolean;
@@ -33,6 +40,27 @@ type TOTPSecret = StandardTOTPSecret & {
 interface TOTPValidatorProps {
   onValidationResult?: (result: boolean, ticketId?: string) => void;
 }
+
+// Add a utility function for base32 conversion, which might be needed
+const convertToBase32IfNeeded = (secret: string): string => {
+  // Check if the secret is already base32
+  const isBase32 = /^[A-Z2-7]+=*$/i.test(secret);
+
+  if (isBase32) {
+    console.log('Secret already appears to be Base32');
+    return secret;
+  }
+
+  try {
+    // Try to convert from base64 to base32
+    console.log('Attempting to convert secret to Base32');
+    // Simple version - just get valid Base32 characters
+    return secret.replace(/[^A-Z2-7]/gi, '').toUpperCase();
+  } catch (error) {
+    console.error('Error converting to Base32:', error);
+    return secret; // Return original if conversion fails
+  }
+};
 
 const TOTPValidator: React.FC<TOTPValidatorProps> = ({ onValidationResult }) => {
   const [token, setToken] = useState('');
@@ -67,6 +95,11 @@ const TOTPValidator: React.FC<TOTPValidatorProps> = ({ onValidationResult }) => 
 
       // Combine the secrets
       const allSecrets = [...standardSecrets, ...blockchainSecrets];
+      console.log(
+        'Loaded secrets:',
+        allSecrets.length,
+        allSecrets.map(s => ({ id: s.id, issuer: s.issuer }))
+      );
       setSecrets(allSecrets);
     };
 
@@ -118,6 +151,8 @@ const TOTPValidator: React.FC<TOTPValidatorProps> = ({ onValidationResult }) => 
   }, []);
 
   const handleValidateToken = useCallback(async () => {
+    console.log('===== Starting token validation =====');
+    console.log('Current authenticator options:', authenticator.options);
     setLoading(true);
     let validationSuccess = false;
     let resultForNotification: { success: boolean; message: string } | null = null;
@@ -158,64 +193,100 @@ const TOTPValidator: React.FC<TOTPValidatorProps> = ({ onValidationResult }) => 
       }
 
       console.log('Validating token:', normalizedToken);
-      console.log('Secret type:', secret.blockchain ? 'Blockchain' : 'Standard');
       console.log('Secret:', secret.secret.substring(0, 5) + '...');
 
-      // Format token to ensure it's exactly 6 digits
-      if (normalizedToken.length !== 6) {
-        const result = {
-          success: false,
-          message: 'Token must be exactly 6 digits',
-        };
-        setValidationResult(result);
-        resultForNotification = result;
-        return;
-      }
-
-      // Try generating the current token directly for comparison
+      // SIMPLIFIED VALIDATION - direct approach from working repository
       try {
-        const generatedToken = authenticator.generate(secret.secret);
-        console.log('Generated token:', generatedToken);
-        console.log('Entered token:', normalizedToken);
-        console.log('Direct match?', generatedToken === normalizedToken);
-      } catch (e) {
-        console.error('Error generating comparison token:', e);
-      }
+        // First try with original secret
+        let isValid = authenticator.verify({
+          token: normalizedToken,
+          secret: secret.secret,
+        });
 
-      // Use the appropriate service based on the secret type
-      const isValid = secret.blockchain
-        ? BlockchainTOTPService.verifyToken(normalizedToken, secret.secret)
-        : TOTPService.verifyToken(normalizedToken, secret.secret);
+        console.log('Direct validation result with original secret:', isValid);
 
-      console.log('Validation result:', isValid);
+        // If that failed, try with base32 conversion
+        if (!isValid) {
+          const base32Secret = convertToBase32IfNeeded(secret.secret);
+          console.log('Converted to Base32:', base32Secret);
 
-      if (isValid) {
-        const result = {
-          success: true,
-          message: 'Token validated successfully!',
-        };
-        setValidationResult(result);
-        resultForNotification = result;
-        validationSuccess = true;
-
-        // Clear the token input on successful validation
-        setToken('');
-
-        // Call the validation result callback if provided
-        if (onValidationResult) {
-          onValidationResult(true, secret.id);
+          // Only try if conversion produced a different result
+          if (base32Secret !== secret.secret) {
+            isValid = authenticator.verify({
+              token: normalizedToken,
+              secret: base32Secret,
+            });
+            console.log('Direct validation result with base32 secret:', isValid);
+          }
         }
-      } else {
-        const result = {
-          success: false,
-          message: 'Invalid token. Please try again.',
-        };
-        setValidationResult(result);
-        resultForNotification = result;
 
-        // Call the validation result callback if provided
-        if (onValidationResult) {
-          onValidationResult(false, secret.id);
+        if (isValid) {
+          const result = {
+            success: true,
+            message: 'Token validated successfully!',
+          };
+          setValidationResult(result);
+          resultForNotification = result;
+          validationSuccess = true;
+
+          // Clear the token input on successful validation
+          setToken('');
+
+          // Call the validation result callback if provided
+          if (onValidationResult) {
+            onValidationResult(true, secret.id);
+          }
+        } else {
+          const result = {
+            success: false,
+            message: 'Invalid token. Please try again.',
+          };
+          setValidationResult(result);
+          resultForNotification = result;
+
+          // Call the validation result callback if provided
+          if (onValidationResult) {
+            onValidationResult(false, secret.id);
+          }
+        }
+      } catch (validationError) {
+        console.error('Error during direct validation:', validationError);
+
+        // Fallback to service layer validation if direct validation fails
+        const isValid = secret.blockchain
+          ? BlockchainTOTPService.verifyToken(normalizedToken, secret.secret)
+          : TOTPService.verifyToken(normalizedToken, secret.secret);
+
+        console.log('Fallback validation result:', isValid);
+
+        if (isValid) {
+          const result = {
+            success: true,
+            message: 'Token validated successfully! (fallback)',
+          };
+          setValidationResult(result);
+          resultForNotification = result;
+          validationSuccess = true;
+
+          // Clear the token input on successful validation
+          setToken('');
+
+          // Call the validation result callback if provided
+          if (onValidationResult) {
+            onValidationResult(true, secret.id);
+          }
+        } else {
+          const result = {
+            success: false,
+            message: 'Invalid token. Please try again.',
+          };
+          setValidationResult(result);
+          resultForNotification = result;
+
+          // Call the validation result callback if provided
+          if (onValidationResult) {
+            onValidationResult(false, secret.id);
+          }
         }
       }
     } catch (error) {
@@ -337,6 +408,67 @@ const TOTPValidator: React.FC<TOTPValidatorProps> = ({ onValidationResult }) => 
           sx={{ mt: 2 }}
         >
           {loading ? <CircularProgress size={24} /> : 'Validate Code'}
+        </Button>
+
+        {/* Debug button for direct validation */}
+        <Button
+          fullWidth
+          variant="outlined"
+          color="secondary"
+          onClick={() => {
+            if (!selectedSecretId || !token) return;
+
+            const secret = secrets.find(s => s.id === selectedSecretId);
+            if (!secret) return;
+
+            const normalizedToken = token.replace(/[^0-9]/g, '');
+            console.log('Direct debug validation:');
+            console.log('- Token:', normalizedToken);
+            console.log('- Secret:', secret.secret);
+
+            try {
+              // Try with both original and base32 converted secret
+              const originalSecretValid = authenticator.verify({
+                token: normalizedToken,
+                secret: secret.secret,
+              });
+              console.log('- Original secret validation result:', originalSecretValid);
+
+              // Try with Base32 conversion
+              const base32Secret = convertToBase32IfNeeded(secret.secret);
+              console.log('- Converted to Base32:', base32Secret);
+
+              const base32SecretValid =
+                base32Secret !== secret.secret
+                  ? authenticator.verify({
+                      token: normalizedToken,
+                      secret: base32Secret,
+                    })
+                  : originalSecretValid;
+
+              console.log('- Base32 secret validation result:', base32SecretValid);
+
+              const isValid = originalSecretValid || base32SecretValid;
+
+              // Show result in notification
+              setNotification({
+                open: true,
+                message: isValid ? 'Debug validation: SUCCESS!' : 'Debug validation: FAILED!',
+                severity: isValid ? 'success' : 'error',
+              });
+            } catch (error) {
+              console.error('- Error in direct validation:', error);
+              setNotification({
+                open: true,
+                message: `Debug validation error: ${error instanceof Error ? error.message : String(error)}`,
+                severity: 'error',
+              });
+            }
+          }}
+          sx={{ mt: 1 }}
+          disabled={loading || !selectedSecretId || !token}
+        >
+          Debug Validation
         </Button>
 
         {/* Add a debug timing display that updates every second */}

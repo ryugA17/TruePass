@@ -145,8 +145,7 @@ const TOTPManagement: React.FC = () => {
             centered
           >
             <Tab label="Generate Codes" {...a11yProps(0)} />
-            <Tab label="Validate Tickets" {...a11yProps(1)} />
-            <Tab label="Manage Tickets" {...a11yProps(2)} />
+            <Tab label="Manage Tickets" {...a11yProps(1)} />
           </Tabs>
         </Box>
 
@@ -155,10 +154,6 @@ const TOTPManagement: React.FC = () => {
         </TabPanel>
 
         <TabPanel value={tabValue} index={1}>
-          <TOTPValidator />
-        </TabPanel>
-
-        <TabPanel value={tabValue} index={2}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
             <Typography variant="h6">Stored Tickets</Typography>
             <Button
