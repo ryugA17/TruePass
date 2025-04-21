@@ -2,23 +2,28 @@
 node_modules/
 /.pnp
 .pnp.js
+yarn.lock
+package-lock.json
 
 # Testing
 /coverage
+/cypress/videos/
+/cypress/screenshots/
 *.test.tsx
 *.test.ts
 jest.config.*
 
 # Production
-/build
-/dist
-/out
-.next
-web-build/
-.expo/
+/build/
+/dist/
+/out/
+/.next/
+/web-build/
+/.expo/
 
 # Environment & Secrets
 .env*
+!.env.example
 .env.local
 .env.development.local
 .env.test.local
@@ -36,10 +41,15 @@ yarn-error.log*
 expo-debug.log*
 firebase-debug.log*
 debug.log
+lerna-debug.log*
 
 # IDE & Editors
 .idea/
-.vscode/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
 *.swp
 *.swo
 *.sublime-workspace
@@ -59,12 +69,12 @@ ehthumbs.db
 Thumbs.db
 
 # Blockchain & Smart Contracts
-/artifacts
-/cache
-/typechain
-/typechain-types
+/artifacts/
+/cache/
+/typechain/
+/typechain-types/
 hardhat.config.ts
-.openzeppelin
+.openzeppelin/
 
 # Firebase
 .firebase/
@@ -77,9 +87,22 @@ ui-debug.log
 *.tsbuildinfo
 tsconfig.tsbuildinfo
 
+# Media files (consider using Git LFS for these)
+*.mp4
+*.gif
+*.mov
+*.avi
+*.webm
+*.svg
+
 # Misc
 .cache/
 .temp/
 *.log
 *.bak
 *.tmp
+.eslintcache
+.stylelintcache
+
+# Local Netlify folder
+.netlify

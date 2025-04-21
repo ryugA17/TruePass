@@ -1,0 +1,13 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "editorconfig.editorconfig",
+    "mikestead.dotenv",
+    "ms-vscode.vscode-typescript-next",
+    "streetsidesoftware.code-spell-checker",
+    "formulahendry.auto-rename-tag",
+    "christian-kohler.path-intellisense",
+    "naumovs.color-highlight"
+  ]
+}
