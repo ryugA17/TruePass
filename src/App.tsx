@@ -15,6 +15,7 @@ import HostPage from './pages/HostPage';
 import TOTPManagement from './pages/TOTPManagement';
 import BlockchainTOTPManagement from './pages/BlockchainTOTPManagement';
 import TestPage from './pages/TestPage';
+import PaymentDetails from './pages/PaymentDetails';
 import { SearchProvider } from './context/SearchContext';
 import { CartProvider } from './context/CartContext';
 import { AuthProvider } from './context/AuthContext';
@@ -234,6 +235,52 @@ function App() {
                       <TestPage />
                     </Box>
                   </Box>
+                }
+              />
+
+              <Route
+                path="/payment-history"
+                element={
+                  <SearchProvider>
+                    <CartProvider>
+                      <Box
+                        sx={{
+                          minHeight: '100vh',
+                          background: 'linear-gradient(135deg, #1a237e 0%, #000000 100%)',
+                        }}
+                      >
+                        <Navbar />
+                        <Box sx={{ pt: '64px' }}>
+                          <AuthRoute>
+                            <PaymentDetails />
+                          </AuthRoute>
+                        </Box>
+                      </Box>
+                    </CartProvider>
+                  </SearchProvider>
+                }
+              />
+
+              <Route
+                path="/payment-details/:paymentId"
+                element={
+                  <SearchProvider>
+                    <CartProvider>
+                      <Box
+                        sx={{
+                          minHeight: '100vh',
+                          background: 'linear-gradient(135deg, #1a237e 0%, #000000 100%)',
+                        }}
+                      >
+                        <Navbar />
+                        <Box sx={{ pt: '64px' }}>
+                          <AuthRoute>
+                            <PaymentDetails />
+                          </AuthRoute>
+                        </Box>
+                      </Box>
+                    </CartProvider>
+                  </SearchProvider>
                 }
               />
 

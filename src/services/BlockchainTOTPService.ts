@@ -3,6 +3,7 @@ import QRCode from 'qrcode';
 import { Buffer } from 'buffer';
 import { ethers } from 'ethers';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '../constants/contract';
+import { PaymentService } from './PaymentService';
 
 // Configure TOTP settings
 authenticator.options = {
@@ -20,6 +21,7 @@ export interface TOTPSecret {
   expiresAt: number | null; // null means never expires
   tokenId?: string; // NFT token ID if associated with blockchain
   secretHash?: string; // Hash of the secret for on-chain verification
+  paymentId?: string; // Payment ID for INR transaction
 }
 
 export class BlockchainTOTPService {
@@ -238,12 +240,13 @@ export class BlockchainTOTPService {
   }
 
   /**
-   * Mint a new ticket NFT with TOTP secret
+   * Mint a new ticket NFT with TOTP secret using INR payment
    * @param to - Address to mint the ticket to
    * @param eventName - Name of the event
    * @param seatNumber - Seat number
    * @param eventDate - Date of the event (timestamp)
    * @param secret - TOTP secret object
+   * @param paymentId - Payment ID from INR transaction
    * @returns Promise resolving to the transaction receipt
    */
   static async mintTicketWithTOTP(
@@ -251,7 +254,8 @@ export class BlockchainTOTPService {
     eventName: string,
     seatNumber: string,
     eventDate: number,
-    secret: TOTPSecret
+    secret: TOTPSecret,
+    paymentId: string
   ): Promise<ethers.ContractReceipt> {
     try {
       if (!window.ethereum) throw new Error('MetaMask is not installed.');
@@ -262,8 +266,23 @@ export class BlockchainTOTPService {
       const signer = provider.getSigner();
       const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
 
-      // Mint the ticket on blockchain
-      const tx = await contract.mintTicket(to, eventName, seatNumber, eventDate, secret.secretHash);
+      // Store payment ID in the secret
+      secret.paymentId = paymentId;
+
+      // Ensure secretHash is available
+      if (!secret.secretHash) {
+        secret.secretHash = ethers.utils.id(secret.secret); // Generate hash if not available
+      }
+
+      // Mint the ticket on blockchain with payment ID
+      const tx = await contract.mintTicket(
+        to,
+        eventName,
+        seatNumber,
+        eventDate,
+        secret.secretHash,
+        paymentId
+      );
 
       const receipt = await tx.wait();
 

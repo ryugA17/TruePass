@@ -17,6 +17,7 @@ import {
   Divider,
 } from '@mui/material';
 import { BlockchainTOTPService, TOTPSecret } from '../../services/BlockchainTOTPService';
+import { PaymentService } from '../../services/PaymentService';
 import { ethers } from 'ethers';
 
 interface BlockchainTOTPGeneratorProps {
@@ -28,6 +29,7 @@ const BlockchainTOTPGenerator: React.FC<BlockchainTOTPGeneratorProps> = ({ onSec
   const [eventName, setEventName] = useState('');
   const [seatNumber, setSeatNumber] = useState('');
   const [eventDate, setEventDate] = useState('');
+  const [price, setPrice] = useState('0');
   const [recipientAddress, setRecipientAddress] = useState('');
   const [expiryHours, setExpiryHours] = useState<number | ''>('');
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
@@ -112,13 +114,28 @@ const BlockchainTOTPGenerator: React.FC<BlockchainTOTPGeneratorProps> = ({ onSec
       // Convert date string to timestamp
       const eventTimestamp = new Date(eventDate).getTime();
 
-      // Mint the ticket on blockchain
+      // Generate a payment ID for the transaction
+      const payment = PaymentService.initializePayment(parseFloat(price) || 0, {
+        eventName,
+        seatNumber,
+        recipientAddress
+      });
+
+      // Process the payment
+      const paymentResponse = await PaymentService.processPayment(payment);
+
+      if (!paymentResponse.success) {
+        throw new Error('Payment processing failed: ' + (paymentResponse.error || 'Unknown error'));
+      }
+
+      // Mint the ticket on blockchain with payment ID
       const receipt = await BlockchainTOTPService.mintTicketWithTOTP(
         recipientAddress,
         eventName,
         seatNumber,
         eventTimestamp,
-        secret
+        secret,
+        paymentResponse.paymentId
       );
 
       // Get the token ID from the receipt
@@ -315,6 +332,21 @@ const BlockchainTOTPGenerator: React.FC<BlockchainTOTPGeneratorProps> = ({ onSec
               InputLabelProps={{
                 shrink: true,
               }}
+            />
+
+            <TextField
+              fullWidth
+              label="Price (INR)"
+              variant="outlined"
+              type="number"
+              value={price}
+              onChange={e => setPrice(e.target.value)}
+              margin="normal"
+              required
+              InputProps={{
+                inputProps: { min: 0, step: 1 }
+              }}
+              helperText="Enter price in Indian Rupees"
             />
 
             <Button

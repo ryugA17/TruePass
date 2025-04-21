@@ -3,6 +3,8 @@ import { ethers } from 'ethers';
 import { saveTicketToFirestore } from "../Utils/saveTicketToFirestore";
 import { auth } from "../components/layout/firebase";
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '../constants/contract';
+import { PaymentService } from '../services/PaymentService';
+import { BlockchainTOTPService, TOTPSecret } from '../services/BlockchainTOTPService';
 import {
   Container,
   Typography,
@@ -14,8 +16,10 @@ import {
   Alert,
   Snackbar,
   CircularProgress,
-  InputAdornment
+  InputAdornment,
+  FormHelperText
 } from '@mui/material';
+import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import { useNavigate } from 'react-router-dom';
 import { useNFTs } from '../context/NFTContext';
 import { useAuth } from '../context/AuthContext';
@@ -31,6 +35,8 @@ const CreateNFT = () => {
     price: '',
     image: null as File | null,
   });
+
+  const [paymentId, setPaymentId] = useState<string | null>(null);
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -86,34 +92,46 @@ const CreateNFT = () => {
       const seatNumber = formData.seatNumber;
       const eventDate = Math.floor(Date.now() / 1000) + 3600 * 24 * 30;
 
-      const tx = await contract.mintTicket(eventName, seatNumber, eventDate);
+      // Generate TOTP secret for ticket validation
+      const ticketId = `ticket-${Date.now()}`;
+      const secret = BlockchainTOTPService.generateSecret(ticketId, eventName, 24 * 365); // 1 year expiry
+
+      // Simulate payment processing
+      const payment = PaymentService.initializePayment(parseFloat(formData.price), {
+        eventName,
+        seatNumber,
+        userEmail: user.email,
+        walletAddress: userAddress
+      });
+
+      const paymentResponse = await PaymentService.processPayment(payment);
+
+      if (!paymentResponse.success) {
+        throw new Error('Payment processing failed: ' + paymentResponse.error);
+      }
+
+      // Store payment ID for blockchain
+      setPaymentId(paymentResponse.paymentId);
+
+      // Mint ticket with payment ID
+      const tx = await contract.mintTicket(
+        userAddress,
+        eventName,
+        seatNumber,
+        eventDate,
+        secret.secretHash,
+        paymentResponse.paymentId
+      );
+
       await tx.wait();
 
       const saveData = async (base64Image: string) => {
-        
-        await saveTicketToFirestore({
-          eventName,
-          seatNumber,
-          price: formData.price,
-          image: base64Image,
-          creatorEmail: user.email,
-          walletAddress: userAddress,
-          timestamp: new Date().toISOString()
-        });
-      
-        addNFT({
-          title: eventName,
-          description: `Seat: ${seatNumber}`,
-          price: `${formData.price} ETH`,
-          image: base64Image,
-          creator: user.email,
-          isVerified: true
-        });
 
         await saveTicketToFirestore({
           eventName,
           seatNumber,
-          price: formData.price,
+          price: PaymentService.formatPrice(parseFloat(formData.price)),
+          paymentId: paymentId || '',
           image: base64Image,
           creatorEmail: user.email,
           walletAddress: userAddress,
@@ -123,10 +141,32 @@ const CreateNFT = () => {
         addNFT({
           title: eventName,
           description: `Seat: ${seatNumber}`,
-          price: `${formData.price} ETH`,
+          price: PaymentService.formatPrice(parseFloat(formData.price)),
           image: base64Image,
           creator: user.email,
-          isVerified: true
+          isVerified: true,
+          transferable: false
+        });
+
+        await saveTicketToFirestore({
+          eventName,
+          seatNumber,
+          price: PaymentService.formatPrice(parseFloat(formData.price)),
+          paymentId: paymentId || '',
+          image: base64Image,
+          creatorEmail: user.email,
+          walletAddress: userAddress,
+          timestamp: new Date().toISOString()
+        });
+
+        addNFT({
+          title: eventName,
+          description: `Seat: ${seatNumber}`,
+          price: PaymentService.formatPrice(parseFloat(formData.price)),
+          image: base64Image,
+          creator: user.email,
+          isVerified: true,
+          transferable: false
         });
 
         setFormData({ name: '', seatNumber: '', price: '', image: null });
@@ -205,7 +245,7 @@ const CreateNFT = () => {
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Price (ETH)"
+                label="Price (INR)"
                 name="price"
                 type="number"
                 value={formData.price}
@@ -213,9 +253,10 @@ const CreateNFT = () => {
                 required
                 InputProps={{
                   sx: { borderRadius: 2 },
-                  endAdornment: <InputAdornment position="end" sx={{ color: 'white' }}>ETH</InputAdornment>,
-                  inputProps: { min: 0, step: 0.001 }
+                  startAdornment: <InputAdornment position="start" sx={{ color: 'white' }}><CurrencyRupeeIcon /></InputAdornment>,
+                  inputProps: { min: 0, step: 1 }
                 }}
+                helperText="Enter price in Indian Rupees"
                 sx={muiInputStyles}
               />
             </Grid>
