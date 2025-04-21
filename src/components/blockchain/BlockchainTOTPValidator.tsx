@@ -126,27 +126,40 @@ const BlockchainTOTPValidator: React.FC<BlockchainTOTPValidatorProps> = ({
         // Set time left from token info
         setTimeLeft(tokenInfo.timeLeft);
 
-        // Generate the current token for comparison (for debugging)
-        console.log('Current token for comparison:', tokenInfo.token);
-        console.log('User entered token:', token);
+        // Clean token of any non-digit characters
+        const cleanToken = token.replace(/[^0-9]/g, '');
 
-        // Validate the token with our enhanced verification method
-        isValid = BlockchainTOTPService.verifyToken(token, secret.secret);
+        if (cleanToken.length !== 6) {
+          setNotification({
+            open: true,
+            message: 'Token must be 6 digits',
+            severity: 'warning',
+          });
+          return;
+        }
+
+        // Log tokens for debugging
+        console.log('Current token for comparison:', tokenInfo.token);
+        console.log('User entered token (cleaned):', cleanToken);
+
+        // Try direct comparison first for exact matches
+        if (cleanToken === tokenInfo.token) {
+          console.log('Token matched exactly with current token');
+          isValid = true;
+        } else {
+          // If direct comparison fails, use the enhanced verification method
+          // which has multiple fallbacks and tolerance mechanisms
+          isValid = BlockchainTOTPService.verifyToken(cleanToken, secret.secret);
+          console.log('Token validation with enhanced verification:', isValid);
+        }
 
         // Set the validation result
         setValidationResult(isValid);
 
-        // If the token is valid, log the match
         if (isValid) {
           console.log('Token validated successfully!');
         } else {
-          console.log('Token validation failed - trying again with direct comparison');
-          // Last resort: try a direct case-insensitive comparison
-          if (token.toLowerCase() === tokenInfo.token.toLowerCase()) {
-            console.log('Token matched with case-insensitive comparison');
-            isValid = true;
-            setValidationResult(true);
-          }
+          console.log('Token validation failed');
         }
       } catch (genError) {
         console.error('Error during token validation:', genError);

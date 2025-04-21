@@ -20,6 +20,7 @@ import { TOTPService, TOTPSecret } from '../../services/TOTPService';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import { authenticator } from 'otplib';
 
 interface TOTPValidatorProps {
   onValidationResult?: (result: boolean, ticketId?: string) => void;
@@ -75,7 +76,10 @@ const TOTPValidator: React.FC<TOTPValidatorProps> = ({ onValidationResult }) => 
       return;
     }
 
-    if (token.length !== 6) {
+    // Clean token of any non-digit characters
+    const cleanToken = token.replace(/[^0-9]/g, '');
+
+    if (cleanToken.length !== 6) {
       setNotification({
         open: true,
         message: 'Token must be 6 digits',
@@ -99,7 +103,7 @@ const TOTPValidator: React.FC<TOTPValidatorProps> = ({ onValidationResult }) => 
       const secret = TOTPService.getSecretById(selectedSecretId);
       console.log('Validating token for secret:', {
         ticketId: selectedSecretId,
-        token,
+        token: cleanToken,
         secretFound: !!secret,
       });
 
@@ -134,27 +138,28 @@ const TOTPValidator: React.FC<TOTPValidatorProps> = ({ onValidationResult }) => 
         // Set time left from token info
         setTimeLeft(tokenInfo.timeLeft);
 
-        // Generate the current token for comparison (for debugging)
+        // Log tokens for debugging
         console.log('Current token for comparison:', tokenInfo.token);
-        console.log('User entered token:', token);
+        console.log('User entered token (cleaned):', cleanToken);
 
-        // Validate the token with our enhanced verification method
-        isValid = TOTPService.verifyToken(token, secret.secret);
+        // Try direct comparison first for exact matches
+        if (cleanToken === tokenInfo.token) {
+          console.log('Token matched exactly with current token');
+          isValid = true;
+        } else {
+          // If direct comparison fails, use the enhanced verification method
+          // which has multiple fallbacks and tolerance mechanisms
+          isValid = TOTPService.verifyToken(cleanToken, secret.secret);
+          console.log('Token validation with enhanced verification:', isValid);
+        }
 
         // Set the validation result
         setValidationResult(isValid);
 
-        // If the token is valid, log the match
         if (isValid) {
           console.log('Token validated successfully!');
         } else {
-          console.log('Token validation failed - trying again with direct comparison');
-          // Last resort: try a direct case-insensitive comparison
-          if (token.toLowerCase() === tokenInfo.token.toLowerCase()) {
-            console.log('Token matched with case-insensitive comparison');
-            isValid = true;
-            setValidationResult(true);
-          }
+          console.log('Token validation failed');
         }
       } catch (genError) {
         console.error('Error during token validation:', genError);

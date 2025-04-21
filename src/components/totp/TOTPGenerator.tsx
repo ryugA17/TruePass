@@ -46,6 +46,8 @@ const TOTPGenerator: React.FC<TOTPGeneratorProps> = ({ onSecretGenerated }) => {
 
     setLoading(true);
     try {
+      console.log('Generating TOTP secret for:', { ticketId, eventName, expiryHours });
+
       // Generate a new TOTP secret
       const newSecret = TOTPService.generateSecret(
         ticketId,
@@ -53,11 +55,16 @@ const TOTPGenerator: React.FC<TOTPGeneratorProps> = ({ onSecretGenerated }) => {
         expiryHours ? Number(expiryHours) : undefined
       );
 
+      console.log('Secret generated successfully:', newSecret.id);
+
       // Generate QR code
+      console.log('Generating QR code...');
       const qrCode = await TOTPService.generateQRCode(newSecret);
+      console.log('QR code generated successfully');
 
       // Save the secret to local storage
       TOTPService.saveSecret(newSecret);
+      console.log('Secret saved to local storage');
 
       // Update state
       setSecret(newSecret);
@@ -75,9 +82,21 @@ const TOTPGenerator: React.FC<TOTPGeneratorProps> = ({ onSecretGenerated }) => {
       });
     } catch (error) {
       console.error('Error generating TOTP secret:', error);
+
+      // Provide more specific error messages based on where the error occurred
+      let errorMessage = 'Failed to generate TOTP secret';
+
+      if (error instanceof Error) {
+        if (error.message.includes('QR code')) {
+          errorMessage = 'Failed to generate QR code. Please try again.';
+        } else if (error.message.includes('storage')) {
+          errorMessage = 'Failed to save ticket data. Please check browser storage permissions.';
+        }
+      }
+
       setNotification({
         open: true,
-        message: 'Failed to generate TOTP secret',
+        message: errorMessage,
         severity: 'error',
       });
     } finally {
