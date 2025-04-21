@@ -44,6 +44,7 @@ const TOTPValidator: React.FC<TOTPValidatorProps> = ({ onValidationResult }) => 
   } | null>(null);
   const [loading, setLoading] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number>(0);
+  const [currentTime, setCurrentTime] = useState<number>(Math.floor(Date.now() / 1000));
   const [notification, setNotification] = useState({
     open: false,
     message: '',
@@ -53,14 +54,29 @@ const TOTPValidator: React.FC<TOTPValidatorProps> = ({ onValidationResult }) => 
   // Load secrets from local storage
   useEffect(() => {
     const loadSecrets = () => {
-      const storedSecrets = TOTPService.getSecrets();
-      setSecrets(storedSecrets);
+      // Load both types of secrets
+      const standardSecrets = TOTPService.getSecrets().map(secret => ({
+        ...secret,
+        blockchain: false,
+      }));
+
+      const blockchainSecrets = BlockchainTOTPService.getSecrets().map(secret => ({
+        ...secret,
+        blockchain: true,
+      }));
+
+      // Combine the secrets
+      const allSecrets = [...standardSecrets, ...blockchainSecrets];
+      setSecrets(allSecrets);
     };
 
     loadSecrets();
-    // Clear expired secrets
-    const clearedCount = TOTPService.clearExpiredSecrets();
-    if (clearedCount > 0) {
+
+    // Clear expired secrets from both services
+    const standardClearedCount = TOTPService.clearExpiredSecrets();
+    const blockchainClearedCount = BlockchainTOTPService.clearExpiredSecrets();
+
+    if (standardClearedCount > 0 || blockchainClearedCount > 0) {
       loadSecrets();
     }
   }, []);
@@ -91,6 +107,15 @@ const TOTPValidator: React.FC<TOTPValidatorProps> = ({ onValidationResult }) => 
     // Clean up interval on unmount or when validation result changes
     return () => clearInterval(interval);
   }, [validationResult]);
+
+  // Keep the current time updated
+  useEffect(() => {
+    const timeInterval = setInterval(() => {
+      setCurrentTime(Math.floor(Date.now() / 1000));
+    }, 1000);
+
+    return () => clearInterval(timeInterval);
+  }, []);
 
   const handleValidateToken = useCallback(async () => {
     setLoading(true);
@@ -132,10 +157,37 @@ const TOTPValidator: React.FC<TOTPValidatorProps> = ({ onValidationResult }) => 
         return;
       }
 
+      console.log('Validating token:', normalizedToken);
+      console.log('Secret type:', secret.blockchain ? 'Blockchain' : 'Standard');
+      console.log('Secret:', secret.secret.substring(0, 5) + '...');
+
+      // Format token to ensure it's exactly 6 digits
+      if (normalizedToken.length !== 6) {
+        const result = {
+          success: false,
+          message: 'Token must be exactly 6 digits',
+        };
+        setValidationResult(result);
+        resultForNotification = result;
+        return;
+      }
+
+      // Try generating the current token directly for comparison
+      try {
+        const generatedToken = authenticator.generate(secret.secret);
+        console.log('Generated token:', generatedToken);
+        console.log('Entered token:', normalizedToken);
+        console.log('Direct match?', generatedToken === normalizedToken);
+      } catch (e) {
+        console.error('Error generating comparison token:', e);
+      }
+
       // Use the appropriate service based on the secret type
       const isValid = secret.blockchain
         ? BlockchainTOTPService.verifyToken(normalizedToken, secret.secret)
         : TOTPService.verifyToken(normalizedToken, secret.secret);
+
+      console.log('Validation result:', isValid);
 
       if (isValid) {
         const result = {
@@ -279,11 +331,18 @@ const TOTPValidator: React.FC<TOTPValidatorProps> = ({ onValidationResult }) => 
           variant="contained"
           color="primary"
           onClick={handleValidateToken}
-          disabled={loading || !token || token.replace(/[^0-9]/g, '').length !== 6}
+          disabled={
+            loading || !selectedSecretId || !token || token.replace(/[^0-9]/g, '').length !== 6
+          }
           sx={{ mt: 2 }}
         >
           {loading ? <CircularProgress size={24} /> : 'Validate Code'}
         </Button>
+
+        {/* Add a debug timing display that updates every second */}
+        <Box sx={{ mt: 1, textAlign: 'center', fontSize: '0.75rem', color: 'text.secondary' }}>
+          Current time: {currentTime} ({new Date().toLocaleTimeString()})
+        </Box>
       </Box>
 
       {validationResult && (
