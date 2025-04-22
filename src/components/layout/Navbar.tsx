@@ -676,18 +676,25 @@ const Navbar = () => {
               <Button
                 variant="outlined"
                 color="primary"
-                onClick={handleLogin}
+                onClick={e => {
+                  e.preventDefault();
+                  navigate('/login');
+                }}
                 startIcon={<LoginIcon />}
                 sx={{
                   ml: 1,
                   borderColor: 'primary.main',
-                  borderWidth: '1.5px',
+                  borderWidth: '2px',
                   borderRadius: '12px',
+                  px: 2,
+                  py: 0.8,
+                  fontWeight: 600,
                   transition: 'all 0.3s ease',
                   '&:hover': {
                     borderColor: 'primary.light',
-                    background: 'rgba(108, 99, 255, 0.08)',
-                    transform: 'translateY(-2px)',
+                    background: 'rgba(108, 99, 255, 0.1)',
+                    transform: 'translateY(-3px)',
+                    boxShadow: '0 6px 15px rgba(108, 99, 255, 0.2)',
                   },
                 }}
               >
