@@ -833,7 +833,10 @@ const Home = () => {
             <Button
               variant="outlined"
               size="large"
-              onClick={() => navigate('/signup')}
+              onClick={e => {
+                e.preventDefault();
+                navigate('/login');
+              }}
               sx={{
                 px: 4,
                 py: 1.5,
