@@ -413,6 +413,18 @@ const Navbar = () => {
             >
               Marketplace
             </Button>
+            <Button
+              component={RouterLink}
+              to="/verify-tickets"
+              color="inherit"
+              sx={{
+                fontWeight: location.pathname === '/verify-tickets' ? 700 : 500,
+                opacity: location.pathname === '/verify-tickets' ? 1 : 0.8,
+                px: 2,
+              }}
+            >
+              Verify Ticket
+            </Button>
           </Box>
 
           {/* Search Bar */}
