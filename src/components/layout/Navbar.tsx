@@ -413,18 +413,6 @@ const Navbar = () => {
             >
               Marketplace
             </Button>
-            <Button
-              component={RouterLink}
-              to="/verify-tickets"
-              color="inherit"
-              sx={{
-                fontWeight: location.pathname === '/verify-tickets' ? 700 : 500,
-                opacity: location.pathname === '/verify-tickets' ? 1 : 0.8,
-                px: 2,
-              }}
-            >
-              Verify Ticket
-            </Button>
           </Box>
 
           {/* Search Bar */}
@@ -645,26 +633,6 @@ const Navbar = () => {
                       <PersonIcon fontSize="small" color="primary" />
                     </ListItemIcon>
                     <ListItemText primary="Profile" />
-                  </MenuItem>
-                  <MenuItem
-                    onClick={() => {
-                      navigate('/verify-tickets');
-                      handleUserMenuClose();
-                    }}
-                    sx={{
-                      borderRadius: 1,
-                      mx: 1,
-                      px: 1.5,
-                      py: 1,
-                      '&:hover': {
-                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                      },
-                    }}
-                  >
-                    <ListItemIcon>
-                      <QrCodeIcon fontSize="small" color="primary" />
-                    </ListItemIcon>
-                    <ListItemText primary="Verify Ticket" />
                   </MenuItem>
                   <MenuItem
                     onClick={handleCreateNFTClick}
