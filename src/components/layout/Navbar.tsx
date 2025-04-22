@@ -342,473 +342,494 @@ const Navbar = () => {
     <>
       <AppBar
         position="fixed"
-        sx={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(10px)' }}
+        sx={{
+          backdropFilter: 'blur(10px)',
+          background: 'rgba(10, 10, 27, 0.8)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+        }}
       >
-        <Toolbar>
-          <Typography
-            variant="h6"
+        <Toolbar sx={{ py: 1, justifyContent: 'space-between' }}>
+          {/* Logo and Brand */}
+          <Box
             component={RouterLink}
             to="/"
             sx={{
-              flexGrow: 0,
-              fontWeight: 'bold',
-              color: 'white',
-              textDecoration: 'none',
-              marginRight: 2,
-            }}
-          >
-            TruePass
-          </Typography>
-
-          <Box
-            sx={{
-              flexGrow: 1,
               display: 'flex',
-              justifyContent: 'flex-start',
-              marginRight: '20px',
-              borderRadius: '20px',
-              marginLeft: '280px',
-              backgroundColor: 'rgba(255, 255, 255, 0.15)',
-              padding: '6px 18px',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              maxWidth: '600px',
+              alignItems: 'center',
+              textDecoration: 'none',
+              color: 'primary.main',
+              transition: 'transform 0.3s ease',
               '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                transform: 'scale(1.05)',
               },
             }}
           >
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: 800,
+                letterSpacing: '-0.02em',
+                background: 'linear-gradient(135deg, #6C63FF, #2DD4BF)',
+                backgroundClip: 'text',
+                textFillColor: 'transparent',
+                WebkitTextFillColor: 'transparent',
+                WebkitBackgroundClip: 'text',
+                mr: 0.5,
+              }}
+            >
+              TruePass
+            </Typography>
+          </Box>
+
+          {/* Navigation Links - Desktop */}
+          <Box
+            sx={{
+              display: { xs: 'none', md: 'flex' },
+              alignItems: 'center',
+              gap: 1,
+            }}
+          >
+            <Button
+              component={RouterLink}
+              to="/"
+              color="inherit"
+              sx={{
+                fontWeight: location.pathname === '/' ? 700 : 500,
+                opacity: location.pathname === '/' ? 1 : 0.8,
+                px: 2,
+              }}
+            >
+              Home
+            </Button>
+            <Button
+              component={RouterLink}
+              to="/marketplace"
+              color="inherit"
+              sx={{
+                fontWeight: location.pathname === '/marketplace' ? 700 : 500,
+                opacity: location.pathname === '/marketplace' ? 1 : 0.8,
+                px: 2,
+              }}
+            >
+              Marketplace
+            </Button>
+          </Box>
+
+          {/* Search Bar */}
+          <Box
+            sx={{
+              position: 'relative',
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              borderRadius: '16px',
+              display: 'flex',
+              width: { xs: '40%', sm: '30%', md: '25%' },
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+              },
+              ml: { xs: 1, sm: 2 },
+            }}
+          >
+            <IconButton sx={{ p: 1 }} onClick={handleSearchClick}>
+              <SearchIcon />
+            </IconButton>
             <InputBase
-              placeholder="Search Events..."
+              placeholder="Search events..."
               value={inputValue}
               onChange={handleInputChange}
               onKeyPress={handleKeyPress}
               sx={{
-                color: 'white',
-                width: '100%',
-                fontSize: '1rem',
-                fontWeight: 500,
-                '& input': {
-                  padding: '4px 0',
-                },
-                '& ::placeholder': {
-                  color: 'rgba(255, 255, 255, 0.7)',
-                  opacity: 1,
-                  fontWeight: 400,
+                flex: 1,
+                color: 'text.primary',
+                '& .MuiInputBase-input': {
+                  py: 1,
                 },
               }}
             />
             {inputValue && (
-              <IconButton
-                size="small"
-                onClick={handleClearSearch}
-                sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
-              >
-                <ClearIcon fontSize="small" />
+              <IconButton sx={{ p: 1 }} onClick={handleClearSearch}>
+                <ClearIcon />
               </IconButton>
             )}
-            <IconButton
-              size="medium"
-              edge="end"
-              onClick={handleSearchClick}
-              sx={{
-                color: 'white',
-                backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                padding: '10px',
-                '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.25)',
-                },
-              }}
-            >
-              <SearchIcon fontSize="medium" />
-            </IconButton>
           </Box>
 
-          <Box sx={{ flexGrow: 1 }} />
-
+          {/* Actions Area */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Button
-              component={RouterLink}
-              to="/marketplace"
-              sx={{ color: 'white', textTransform: 'none' }}
-            >
-              Marketplace
-            </Button>
-
-            <Tooltip
-              title={
-                isAuthenticated && user?.userType === 'host'
-                  ? 'Create Event'
-                  : 'Login to create events'
-              }
-            >
-              <IconButton
-                onClick={
-                  isAuthenticated && user?.userType !== 'host' ? handleLogin : handleConnectWallet
-                }
-                sx={{
-                  p: 1,
-                  bgcolor: 'rgba(255, 255, 255, 0.1)',
-                  borderRadius: '50%',
-                  '&:hover': {
-                    bgcolor: 'rgba(255, 255, 255, 0.2)',
-                  },
-                  display: isAuthenticated && user?.userType !== 'host' ? 'none' : 'flex',
-                }}
-              >
-                <img
-                  src={editPencilIcon}
-                  alt="Create"
-                  style={{
-                    width: '24px',
-                    height: '24px',
-                    filter: 'brightness(0) invert(1)', // Make the icon white
-                  }}
-                />
-              </IconButton>
-            </Tooltip>
-
-            <Tooltip title="Cart">
+            {/* Cart Button */}
+            <Tooltip title="Your Cart">
               <IconButton
                 onClick={handleCartClick}
                 sx={{
-                  p: 1,
-                  mr: 1,
-                  bgcolor: 'rgba(255, 255, 255, 0.1)',
-                  borderRadius: '50%',
+                  position: 'relative',
+                  background: cartItemCount > 0 ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+                  transition: 'all 0.3s ease',
                   '&:hover': {
-                    bgcolor: 'rgba(255, 255, 255, 0.2)',
+                    background: 'rgba(255, 255, 255, 0.15)',
+                    transform: 'translateY(-2px)',
                   },
                 }}
               >
                 <Badge
                   badgeContent={cartItemCount}
-                  color="error"
+                  color="primary"
                   sx={{
                     '& .MuiBadge-badge': {
-                      top: -5,
-                      right: -5,
+                      fontWeight: 'bold',
+                      fontSize: '0.7rem',
                     },
                   }}
                 >
-                  <img
-                    src={shoppingCartIcon}
-                    alt="Shopping Cart"
-                    style={{
-                      width: '24px',
-                      height: '24px',
-                      filter: 'brightness(0) invert(1)', // Make the icon white
-                    }}
-                  />
+                  <ShoppingCartIcon />
                 </Badge>
               </IconButton>
             </Tooltip>
 
-            {!walletConnected ? (
+            {/* Wallet Button */}
+            {walletConnected ? (
+              <Tooltip title="Wallet Details">
+                <Button
+                  onClick={handleWalletClick}
+                  variant="outlined"
+                  startIcon={<AccountBalanceWalletIcon />}
+                  endIcon={<KeyboardArrowDownIcon />}
+                  sx={{
+                    borderColor: 'primary.main',
+                    color: 'primary.main',
+                    borderRadius: '12px',
+                    borderWidth: '1.5px',
+                    textTransform: 'none',
+                    px: 1.5,
+                    py: 0.5,
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    maxWidth: { xs: '120px', sm: '150px' },
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      borderColor: 'primary.light',
+                      background: 'rgba(108, 99, 255, 0.08)',
+                      transform: 'translateY(-2px)',
+                    },
+                  }}
+                >
+                  {formatAddress(walletAddress)}
+                </Button>
+              </Tooltip>
+            ) : (
               <Button
-                variant="outlined"
-                startIcon={<AccountBalanceWalletIcon />}
                 onClick={handleConnectWallet}
-                size="small"
+                variant="contained"
+                startIcon={<AccountBalanceWalletIcon />}
                 sx={{
-                  color: 'white',
-                  borderColor: 'rgba(255, 255, 255, 0.5)',
+                  borderRadius: '12px',
+                  background: 'linear-gradient(135deg, #6C63FF, #4B44CC)',
+                  boxShadow: '0 4px 10px rgba(108, 99, 255, 0.3)',
+                  px: 2,
+                  py: 0.75,
+                  transition: 'all 0.3s ease',
                   '&:hover': {
-                    borderColor: 'white',
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    background: 'linear-gradient(135deg, #7E77FF, #5955D9)',
+                    boxShadow: '0 6px 15px rgba(108, 99, 255, 0.4)',
+                    transform: 'translateY(-2px)',
                   },
-                  textTransform: 'none',
-                  borderRadius: '20px',
-                  fontSize: '0.875rem',
-                  mr: 1,
                 }}
               >
-                Connect Wallet
+                Connect
               </Button>
-            ) : (
-              <Chip
-                icon={<AccountBalanceWalletIcon />}
-                label={`${formatAddress(walletAddress)} (${walletBalance} ETH)`}
-                onClick={handleWalletClick}
-                deleteIcon={<KeyboardArrowDownIcon />}
-                onDelete={handleWalletClick}
-                sx={{
-                  color: 'white',
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  '&:hover': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                  },
-                  borderRadius: '20px',
-                  px: 1,
-                  mr: 1,
-                }}
-              />
             )}
 
             {/* User Menu */}
-            {isAuthenticated && user ? (
-              <>
-                <Button
-                  onClick={handleUserMenuOpen}
-                  color="inherit"
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    borderRadius: 3,
-                    px: 2,
-                    py: 1,
-                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                    '&:hover': {
-                      backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                    },
-                  }}
-                  endIcon={<KeyboardArrowDownIcon />}
-                >
-                  <Avatar
+            {isAuthenticated ? (
+              <Box sx={{ ml: 1 }}>
+                <Tooltip title="User Menu">
+                  <IconButton
+                    onClick={handleUserMenuOpen}
                     sx={{
-                      width: 28,
-                      height: 28,
-                      mr: 1,
-                      bgcolor: 'secondary.main',
+                      border: '2px solid',
+                      borderColor: 'primary.main',
+                      p: 0.5,
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        borderColor: 'primary.light',
+                        transform: 'scale(1.05)',
+                      },
                     }}
                   >
-                    {user.email.charAt(0).toUpperCase()}
-                  </Avatar>
-                  <Typography variant="subtitle2" noWrap>
-                    {user.email.split('@')[0]}
-                  </Typography>
-                </Button>
+                    <Avatar
+                      src={(user as any)?.photoURL || ''}
+                      alt={(user as any)?.displayName || 'User'}
+                      sx={{
+                        width: 32,
+                        height: 32,
+                        backgroundColor: 'primary.dark',
+                      }}
+                    >
+                      {(user as any)?.displayName?.charAt(0) || <PersonIcon fontSize="small" />}
+                    </Avatar>
+                  </IconButton>
+                </Tooltip>
                 <Menu
                   anchorEl={userMenuAnchorEl}
                   open={Boolean(userMenuAnchorEl)}
                   onClose={handleUserMenuClose}
                   PaperProps={{
+                    elevation: 3,
                     sx: {
-                      borderRadius: 3,
-                      minWidth: 180,
-                      boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
                       mt: 1.5,
-                      '& .MuiMenuItem-root': {
-                        px: 2,
-                        py: 1.5,
+                      overflow: 'visible',
+                      filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.2))',
+                      backgroundImage: 'none',
+                      backgroundColor: 'background.paper',
+                      backdropFilter: 'blur(10px)',
+                      borderRadius: '16px',
+                      border: '1px solid rgba(255, 255, 255, 0.05)',
+                      minWidth: '200px',
+                      '&:before': {
+                        content: '""',
+                        display: 'block',
+                        position: 'absolute',
+                        top: 0,
+                        right: 14,
+                        width: 10,
+                        height: 10,
+                        bgcolor: 'background.paper',
+                        transform: 'translateY(-50%) rotate(45deg)',
+                        zIndex: 0,
+                        borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+                        borderLeft: '1px solid rgba(255, 255, 255, 0.05)',
                       },
                     },
                   }}
                   transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                   anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
                 >
-                  <Typography
-                    variant="subtitle2"
-                    sx={{ px: 2, pt: 1, pb: 0.5, fontWeight: 'bold', color: 'text.secondary' }}
+                  <Box sx={{ px: 2, py: 1.5 }}>
+                    <Typography variant="subtitle1" fontWeight="600">
+                      {user?.displayName}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ wordBreak: 'break-all' }}
+                    >
+                      {user?.email}
+                    </Typography>
+                  </Box>
+                  <Divider sx={{ my: 1, borderColor: 'rgba(255, 255, 255, 0.05)' }} />
+                  <MenuItem
+                    onClick={handleProfileClick}
+                    sx={{
+                      borderRadius: 1,
+                      mx: 1,
+                      px: 1.5,
+                      py: 1,
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                      },
+                    }}
                   >
-                    My Account
-                  </Typography>
-                  <MenuItem onClick={handleProfileClick}>
-                    <PersonIcon fontSize="small" sx={{ mr: 2 }} />
-                    Profile
+                    <ListItemIcon>
+                      <PersonIcon fontSize="small" color="primary" />
+                    </ListItemIcon>
+                    <ListItemText primary="Profile" />
                   </MenuItem>
-                  {user?.userType === 'host' && (
-                    <MenuItem onClick={handleCreateNFTClick}>
-                      <>
-                        <ListItemIcon>
-                          <AddIcon fontSize="small" />
-                        </ListItemIcon>
-                        Create Event
-                      </>
-                    </MenuItem>
-                  )}
-                  <MenuItem onClick={() => navigate('/verify-tickets')}>
-                    <>
-                      <ListItemIcon>
-                        <QrCodeIcon fontSize="small" />
-                      </ListItemIcon>
-                      Verify Tickets
-                    </>
+                  <MenuItem
+                    onClick={handleCreateNFTClick}
+                    sx={{
+                      borderRadius: 1,
+                      mx: 1,
+                      px: 1.5,
+                      py: 1,
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                      },
+                    }}
+                  >
+                    <ListItemIcon>
+                      <AddIcon fontSize="small" color="primary" />
+                    </ListItemIcon>
+                    <ListItemText primary="Create Event" />
                   </MenuItem>
-                  <Divider sx={{ my: 1 }} />
-                  <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>
-                    <LogoutIcon fontSize="small" sx={{ mr: 2 }} />
-                    Logout
+                  <MenuItem
+                    onClick={handleLogout}
+                    sx={{
+                      borderRadius: 1,
+                      mx: 1,
+                      px: 1.5,
+                      py: 1,
+                      mt: 1,
+                      color: 'error.main',
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 77, 98, 0.05)',
+                      },
+                    }}
+                  >
+                    <ListItemIcon>
+                      <LogoutIcon fontSize="small" color="error" />
+                    </ListItemIcon>
+                    <ListItemText primary="Logout" />
                   </MenuItem>
                 </Menu>
-              </>
+              </Box>
             ) : (
-              <IconButton
+              <Button
+                variant="outlined"
+                color="primary"
                 onClick={handleLogin}
+                startIcon={<LoginIcon />}
                 sx={{
-                  p: 1,
-                  bgcolor: 'rgba(255, 255, 255, 0.1)',
-                  borderRadius: '50%',
+                  ml: 1,
+                  borderColor: 'primary.main',
+                  borderWidth: '1.5px',
+                  borderRadius: '12px',
+                  transition: 'all 0.3s ease',
                   '&:hover': {
-                    bgcolor: 'rgba(255, 255, 255, 0.2)',
+                    borderColor: 'primary.light',
+                    background: 'rgba(108, 99, 255, 0.08)',
+                    transform: 'translateY(-2px)',
                   },
                 }}
               >
-                <img
-                  src={userIcon}
-                  alt="Login"
-                  style={{
-                    width: '24px',
-                    height: '24px',
-                    filter: 'brightness(0) invert(1)', // Make the icon white
-                  }}
-                />
-              </IconButton>
+                Login
+              </Button>
             )}
           </Box>
         </Toolbar>
       </AppBar>
 
-      {/* MetaMask warning modal - centered on screen */}
-      <Modal
-        open={
-          notification.show &&
-          (notification.message.includes('MetaMask') || notification.message.includes('wallet'))
-        }
-        onClose={handleCloseNotification}
-        aria-labelledby="metamask-modal"
-        aria-describedby="metamask-warning-message"
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backdropFilter: 'blur(5px)',
+      {/* Wallet Menu */}
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleCloseMenu}
+        PaperProps={{
+          elevation: 3,
+          sx: {
+            mt: 1.5,
+            overflow: 'visible',
+            filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.2))',
+            backgroundImage: 'none',
+            backgroundColor: 'background.paper',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '16px',
+            border: '1px solid rgba(255, 255, 255, 0.05)',
+            minWidth: '220px',
+            '&:before': {
+              content: '""',
+              display: 'block',
+              position: 'absolute',
+              top: 0,
+              right: 14,
+              width: 10,
+              height: 10,
+              bgcolor: 'background.paper',
+              transform: 'translateY(-50%) rotate(45deg)',
+              zIndex: 0,
+              borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+              borderLeft: '1px solid rgba(255, 255, 255, 0.05)',
+            },
+          },
         }}
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
-        <Paper
-          elevation={10}
+        <Box sx={{ px: 2, py: 1.5 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5 }}>
+            Wallet Connected
+          </Typography>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              mb: 1,
+            }}
+          >
+            <Typography variant="body2" color="text.secondary">
+              Address:
+            </Typography>
+            <Tooltip title="Copy Address">
+              <Chip
+                label={formatAddress(walletAddress)}
+                size="small"
+                onClick={copyAddressToClipboard}
+                sx={{
+                  borderRadius: '8px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                  cursor: 'pointer',
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  },
+                }}
+              />
+            </Tooltip>
+          </Box>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <Typography variant="body2" color="text.secondary">
+              Balance:
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                fontWeight: 'bold',
+                color: 'primary.main',
+              }}
+            >
+              {walletBalance} ETH
+            </Typography>
+          </Box>
+        </Box>
+        <Divider sx={{ my: 1, borderColor: 'rgba(255, 255, 255, 0.05)' }} />
+        <MenuItem
+          onClick={handleDisconnectWallet}
           sx={{
-            maxWidth: '600px',
-            width: '90%',
-            bgcolor: '#FF9800',
-            borderRadius: 2,
-            p: 3,
-            position: 'relative',
-            border: '1px solid #FB8C00',
-            color: '#000',
+            borderRadius: 1,
+            mx: 1,
+            px: 1.5,
+            py: 1,
+            color: 'error.main',
+            '&:hover': {
+              backgroundColor: 'rgba(255, 77, 98, 0.05)',
+            },
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-            <WarningIcon fontSize="large" sx={{ color: '#000' }} />
-            <Typography variant="h6" component="h2" id="metamask-modal">
-              Wallet Connection Required
-            </Typography>
-            <IconButton
-              aria-label="close"
-              onClick={handleCloseNotification}
-              sx={{
-                position: 'absolute',
-                right: 8,
-                top: 8,
-                color: '#000',
-              }}
-            >
-              <ClearIcon />
-            </IconButton>
-          </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 2 }}>
-            <img
-              src="https://raw.githubusercontent.com/MetaMask/brand-resources/master/SVG/metamask-fox.svg"
-              alt="MetaMask"
-              width={40}
-              height={40}
-            />
-            <Typography variant="body1" id="metamask-warning-message">
-              {notification.message}
-            </Typography>
-          </Box>
-          <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-            <Button
-              variant="contained"
-              color="inherit"
-              sx={{
-                bgcolor: '#000',
-                color: '#fff',
-                '&:hover': {
-                  bgcolor: '#333',
-                },
-              }}
-              onClick={() => window.open('https://metamask.io/download/', '_blank')}
-            >
-              Install MetaMask
-            </Button>
-            <Button onClick={handleCloseNotification} sx={{ ml: 2, color: '#000' }}>
-              Dismiss
-            </Button>
-          </Box>
-        </Paper>
-      </Modal>
+          <ListItemIcon>
+            <LogoutIcon fontSize="small" color="error" />
+          </ListItemIcon>
+          <ListItemText primary="Disconnect" />
+        </MenuItem>
+      </Menu>
 
-      {/* Regular notifications */}
+      {/* Notification Snackbar */}
       <Snackbar
-        open={
-          notification.show &&
-          !(
-            notification.message.includes('MetaMask') ||
-            notification.message.includes('wallet') ||
-            notification.message.includes('disconnected')
-          )
-        }
-        autoHideDuration={5000}
+        open={notification.show}
+        autoHideDuration={6000}
         onClose={handleCloseNotification}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
         <Alert
           onClose={handleCloseNotification}
           severity={notification.type}
           variant="filled"
-          sx={{ width: '100%' }}
+          sx={{
+            width: '100%',
+            borderRadius: '12px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          }}
         >
           {notification.message}
         </Alert>
       </Snackbar>
 
-      {/* Wallet disconnect notification - top banner */}
-      <Snackbar
-        open={notification.show && notification.message.includes('disconnected')}
-        autoHideDuration={5000}
-        onClose={handleCloseNotification}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        sx={{
-          width: '100%',
-          top: 0,
-          '& .MuiPaper-root': {
-            width: '100%',
-            maxWidth: '100%',
-            borderRadius: 0,
-            backgroundColor: '#0288d1',
-            color: 'white',
-            padding: '12px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-          },
-        }}
-      >
-        <Alert
-          icon={<AccountBalanceWalletIcon />}
-          onClose={handleCloseNotification}
-          severity="info"
-          variant="filled"
-          sx={{
-            width: '100%',
-            backgroundColor: '#0288d1',
-            color: 'white',
-            '& .MuiAlert-icon': {
-              color: 'white',
-            },
-            '& .MuiAlert-action': {
-              paddingTop: 0,
-            },
-          }}
-        >
-          <Box
-            sx={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'center' }}
-          >
-            <Typography variant="body1">{notification.message}</Typography>
-          </Box>
-        </Alert>
-      </Snackbar>
+      {/* Toolbar Spacer */}
+      <Toolbar sx={{ mb: 2 }} />
     </>
   );
 };
