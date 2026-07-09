@@ -211,4 +211,3 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 8. **Confirmation**: User receives confirmation with ticket details
 
 This flow provides a seamless experience for Indian users while maintaining the security and validation benefits of blockchain technology.
-
